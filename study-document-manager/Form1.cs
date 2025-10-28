@@ -300,6 +300,14 @@ namespace study_document_manager
         }
 
         /// <summary>
+        /// Button Tìm kiếm - click event
+        /// </summary>
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            PerformSearch();
+        }
+
+        /// <summary>
         /// Thực hiện tìm kiếm
         /// </summary>
         private void PerformSearch()
@@ -464,6 +472,8 @@ namespace study_document_manager
             dgvDocuments.DragDrop += (s, e) =>
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                int successCount = 0;
+                
                 foreach (string file in files)
                 {
                     string ext = Path.GetExtension(file).ToLower();
@@ -471,12 +481,54 @@ namespace study_document_manager
                         ext == ".ppt" || ext == ".pptx" || ext == ".txt" || 
                         ext == ".xlsx" || ext == ".xls")
                     {
+                        // Tạo AddEditForm và tự động điền thông tin file
                         AddEditForm form = new AddEditForm();
+                        
+                        // Điền đường dẫn file
+                        form.txt_duong_dan.Text = file;
+                        
+                        // Tự động điền tên file
+                        form.txt_ten.Text = Path.GetFileNameWithoutExtension(file);
+                        
+                        // Tính kích thước file
+                        try
+                        {
+                            FileInfo fileInfo = new FileInfo(file);
+                            double size = fileInfo.Length / (1024.0 * 1024.0); // MB
+                            form.txt_kich_thuoc.Text = size.ToString("F2");
+                        }
+                        catch
+                        {
+                            form.txt_kich_thuoc.Text = "0.00";
+                        }
+                        
+                        // Tự động chọn loại tài liệu dựa vào extension
+                        if (ext == ".ppt" || ext == ".pptx")
+                            form.cbo_loai.Text = "slide";
+                        else if (ext == ".doc" || ext == ".docx")
+                            form.cbo_loai.Text = "bài tập";
+                        else if (ext == ".pdf")
+                            form.cbo_loai.Text = "đề thi";
+                        else if (ext == ".xlsx" || ext == ".xls")
+                            form.cbo_loai.Text = "tài liệu khác";
+                        
                         if (form.ShowDialog() == DialogResult.OK)
                         {
-                            LoadData();
+                            successCount++;
                         }
                     }
+                    else
+                    {
+                        MessageBox.Show($"File không hỗ trợ: {Path.GetFileName(file)}\n\n" +
+                            "Chỉ hỗ trợ: PDF, Word, PowerPoint, Excel, Text",
+                            "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                
+                if (successCount > 0)
+                {
+                    LoadData();
+                    lblStatus.Text = $"Đã thêm {successCount} tài liệu";
                 }
             };
         }

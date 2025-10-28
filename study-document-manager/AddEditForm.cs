@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Windows.Forms;
 
@@ -6,55 +6,55 @@ namespace study_document_manager
 {
     public partial class AddEditForm : Form
     {
-        private int? document_id = null; // null = th�m m?i, c� gi� tr? = s?a
+        private int? document_id = null; // null = thêm mới, có giá trị = sửa
         
         /// <summary>
-        /// Constructor cho ch? ?? th�m m?i
+        /// Constructor cho chế độ thêm mới
         /// </summary>
         public AddEditForm()
         {
             InitializeComponent();
-            this.Text = "Th�m t�i li?u m?i";
+            this.Text = "Thêm tài liệu mới";
             LoadComboBoxData();
         }
 
         /// <summary>
-        /// Constructor cho ch? ?? s?a
+        /// Constructor cho chế độ sửa
         /// </summary>
-        /// <param name="id">ID c?a t�i li?u c?n s?a</param>
+        /// <param name="id">ID của tài liệu cần sửa</param>
         public AddEditForm(int id) : this()
         {
             document_id = id;
-            this.Text = "S?a t�i li?u";
+            this.Text = "Sửa tài liệu";
             LoadDocumentData();
         }
 
         /// <summary>
-        /// Load d? li?u v�o ComboBox
+        /// Load dữ liệu vào ComboBox
         /// </summary>
         private void LoadComboBoxData()
         {
-            // M�n h?c
+            // Môn học
             cbo_mon_hoc.Items.Clear();
-            cbo_mon_hoc.Items.Add("L?p tr�nh");
-            cbo_mon_hoc.Items.Add("To�n");
-            cbo_mon_hoc.Items.Add("Anh v?n");
-            cbo_mon_hoc.Items.Add("V?t l�");
-            cbo_mon_hoc.Items.Add("H�a h?c");
-            cbo_mon_hoc.Items.Add("V?n h?c");
-            cbo_mon_hoc.Items.Add("L?ch s?");
-            cbo_mon_hoc.Items.Add("??a l�");
+            cbo_mon_hoc.Items.Add("Lập trình");
+            cbo_mon_hoc.Items.Add("Toán");
+            cbo_mon_hoc.Items.Add("Anh văn");
+            cbo_mon_hoc.Items.Add("Vật lý");
+            cbo_mon_hoc.Items.Add("Hóa học");
+            cbo_mon_hoc.Items.Add("Văn học");
+            cbo_mon_hoc.Items.Add("Lịch sử");
+            cbo_mon_hoc.Items.Add("Địa lý");
 
-            // Lo?i t�i li?u
+            // Loại tài liệu
             cbo_loai.Items.Clear();
             cbo_loai.Items.Add("slide");
-            cbo_loai.Items.Add("b�i t?p");
-            cbo_loai.Items.Add("?? thi");
-            cbo_loai.Items.Add("t�i li?u kh�c");
+            cbo_loai.Items.Add("bài tập");
+            cbo_loai.Items.Add("đề thi");
+            cbo_loai.Items.Add("tài liệu khác");
         }
 
         /// <summary>
-        /// Load d? li?u t�i li?u c?n s?a
+        /// Load dữ liệu tài liệu cần sửa
         /// </summary>
         private void LoadDocumentData()
         {
@@ -90,13 +90,13 @@ namespace study_document_manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show("L?i khi load d? li?u: " + ex.Message, 
-                    "L?i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi khi load dữ liệu: " + ex.Message, 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         /// <summary>
-        /// Button ch?n file
+        /// Button chọn file
         /// </summary>
         private void btn_chon_file_Click(object sender, EventArgs e)
         {
@@ -107,20 +107,20 @@ namespace study_document_manager
                                       "PowerPoint Files (*.ppt;*.pptx)|*.ppt;*.pptx|" +
                                       "Text Files (*.txt)|*.txt|" +
                                       "Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls";
-            open_file_dialog.Title = "Ch?n t�i li?u";
+            open_file_dialog.Title = "Chọn tài liệu";
 
             if (open_file_dialog.ShowDialog() == DialogResult.OK)
             {
                 string duong_dan = open_file_dialog.FileName;
                 txt_duong_dan.Text = duong_dan;
 
-                // T? ??ng ?i?n t�n file n?u ch?a c� t�n
+                // Tự động điền tên file nếu chưa có tên
                 if (string.IsNullOrWhiteSpace(txt_ten.Text))
                 {
                     txt_ten.Text = Path.GetFileNameWithoutExtension(duong_dan);
                 }
 
-                // T�nh k�ch th??c file
+                // Tính kích thước file
                 try
                 {
                     FileInfo file_info = new FileInfo(duong_dan);
@@ -135,32 +135,32 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Button l?u
+        /// Button lưu
         /// </summary>
         private void btn_luu_Click(object sender, EventArgs e)
         {
-            // Validate d? li?u
+            // Validate dữ liệu
             if (string.IsNullOrWhiteSpace(txt_ten.Text))
             {
-                MessageBox.Show("Vui l�ng nh?p t�n t�i li?u!", 
-                    "Th�ng b�o", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng nhập tên tài liệu!", 
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txt_ten.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(txt_duong_dan.Text))
             {
-                MessageBox.Show("Vui l�ng ch?n file t�i li?u!", 
-                    "Th�ng b�o", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng chọn file tài liệu!", 
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 btn_chon_file.Focus();
                 return;
             }
 
-            // Ki?m tra file c� t?n t?i kh�ng
+            // Kiểm tra file có tồn tại không
             if (!File.Exists(txt_duong_dan.Text))
             {
-                MessageBox.Show("File kh�ng t?n t?i! Vui l�ng ch?n file kh�c.", 
-                    "L?i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("File không tồn tại! Vui lòng chọn file khác.", 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -176,7 +176,7 @@ namespace study_document_manager
 
                 if (document_id.HasValue)
                 {
-                    // S?a t�i li?u
+                    // Sửa tài liệu
                     success = DatabaseHelper.UpdateDocument(
                         document_id.Value,
                         txt_ten.Text.Trim(),
@@ -191,15 +191,15 @@ namespace study_document_manager
 
                     if (success)
                     {
-                        MessageBox.Show("C?p nh?t t�i li?u th�nh c�ng!", 
-                            "Th�nh c�ng", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Cập nhật tài liệu thành công!", 
+                            "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         this.DialogResult = DialogResult.OK;
                         this.Close();
                     }
                 }
                 else
                 {
-                    // Th�m t�i li?u m?i
+                    // Thêm tài liệu mới
                     success = DatabaseHelper.InsertDocument(
                         txt_ten.Text.Trim(),
                         cbo_mon_hoc.Text.Trim(),
@@ -213,8 +213,8 @@ namespace study_document_manager
 
                     if (success)
                     {
-                        MessageBox.Show("Th�m t�i li?u th�nh c�ng!", 
-                            "Th�nh c�ng", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Thêm tài liệu thành công!", 
+                            "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         this.DialogResult = DialogResult.OK;
                         this.Close();
                     }
@@ -222,13 +222,13 @@ namespace study_document_manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show("L?i khi l?u: " + ex.Message, 
-                    "L?i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi khi lưu: " + ex.Message, 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         /// <summary>
-        /// Button h?y
+        /// Button hủy
         /// </summary>
         private void btn_huy_Click(object sender, EventArgs e)
         {
@@ -237,7 +237,7 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Nh?n Enter ? TextBox t�n -> chuy?n focus
+        /// Nhấn Enter ở TextBox tên -> chuyển focus
         /// </summary>
         private void txt_ten_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -246,6 +246,11 @@ namespace study_document_manager
                 e.Handled = true;
                 cbo_mon_hoc.Focus();
             }
+        }
+
+        private void AddEditForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

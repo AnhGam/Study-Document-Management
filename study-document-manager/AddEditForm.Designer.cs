@@ -55,7 +55,7 @@
             this.label1.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.label1.Location = new System.Drawing.Point(20, 20);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(74, 15);
+            this.label1.Size = new System.Drawing.Size(75, 15);
             this.label1.TabIndex = 0;
             this.label1.Text = "Tên tài liệu: *";
             // 
@@ -166,7 +166,7 @@
             this.label6.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.label6.Location = new System.Drawing.Point(20, 355);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(46, 15);
+            this.label6.Size = new System.Drawing.Size(47, 15);
             this.label6.TabIndex = 11;
             this.label6.Text = "Tác giả:";
             // 
@@ -206,7 +206,7 @@
             this.chk_quan_trong.Name = "chk_quan_trong";
             this.chk_quan_trong.Size = new System.Drawing.Size(136, 19);
             this.chk_quan_trong.TabIndex = 15;
-            this.chk_quan_trong.Text = "? Tài liệu quan trọng";
+            this.chk_quan_trong.Text = "★ Tài liệu quan trọng";
             this.chk_quan_trong.UseVisualStyleBackColor = true;
             // 
             // btn_luu
@@ -281,6 +281,7 @@
             this.Name = "AddEditForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Thêm/Sửa tài liệu";
+            this.Load += new System.EventHandler(this.AddEditForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -288,21 +289,22 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txt_ten;
+        // Đổi từ private -> internal để Form1 có thể truy cập khi drag-drop
+        internal System.Windows.Forms.Label label1;
+        internal System.Windows.Forms.TextBox txt_ten;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox cbo_mon_hoc;
+        internal System.Windows.Forms.ComboBox cbo_mon_hoc;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.ComboBox cbo_loai;
+        internal System.Windows.Forms.ComboBox cbo_loai;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox txt_duong_dan;
+        internal System.Windows.Forms.TextBox txt_duong_dan;
         private System.Windows.Forms.Button btn_chon_file;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox txt_ghi_chu;
+        internal System.Windows.Forms.TextBox txt_ghi_chu;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox txt_tac_gia;
+        internal System.Windows.Forms.TextBox txt_tac_gia;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox txt_kich_thuoc;
+        internal System.Windows.Forms.TextBox txt_kich_thuoc;
         private System.Windows.Forms.CheckBox chk_quan_trong;
         private System.Windows.Forms.Button btn_luu;
         private System.Windows.Forms.Button btn_huy;

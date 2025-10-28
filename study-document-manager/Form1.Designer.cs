@@ -46,6 +46,7 @@
             this.pnlSearch = new System.Windows.Forms.Panel();
             this.lblSearch = new System.Windows.Forms.Label();
             this.txtSearch = new System.Windows.Forms.TextBox();
+            this.btnSearch = new System.Windows.Forms.Button();
             this.lblSubject = new System.Windows.Forms.Label();
             this.cboSubject = new System.Windows.Forms.ComboBox();
             this.lblType = new System.Windows.Forms.Label();
@@ -87,14 +88,14 @@
             this.menuFileSeparator2,
             this.menuFileExit});
             this.menuFile.Name = "menuFile";
-            this.menuFile.Size = new System.Drawing.Size(55, 20);
+            this.menuFile.Size = new System.Drawing.Size(56, 20);
             this.menuFile.Text = "Tệp tin";
             // 
             // menuFileNew
             // 
             this.menuFileNew.Name = "menuFileNew";
             this.menuFileNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.menuFileNew.Size = new System.Drawing.Size(209, 22);
+            this.menuFileNew.Size = new System.Drawing.Size(210, 22);
             this.menuFileNew.Text = "Thêm tài liệu mới";
             this.menuFileNew.Click += new System.EventHandler(this.btn_them_Click);
             // 
@@ -102,33 +103,33 @@
             // 
             this.menuFileOpen.Name = "menuFileOpen";
             this.menuFileOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.menuFileOpen.Size = new System.Drawing.Size(209, 22);
+            this.menuFileOpen.Size = new System.Drawing.Size(210, 22);
             this.menuFileOpen.Text = "Mở tài liệu";
             this.menuFileOpen.Click += new System.EventHandler(this.btn_mo_file_Click);
             // 
             // menuFileSeparator1
             // 
             this.menuFileSeparator1.Name = "menuFileSeparator1";
-            this.menuFileSeparator1.Size = new System.Drawing.Size(206, 6);
+            this.menuFileSeparator1.Size = new System.Drawing.Size(207, 6);
             // 
             // menuFileExport
             // 
             this.menuFileExport.Name = "menuFileExport";
             this.menuFileExport.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-            this.menuFileExport.Size = new System.Drawing.Size(209, 22);
+            this.menuFileExport.Size = new System.Drawing.Size(210, 22);
             this.menuFileExport.Text = "Xuất dữ liệu";
             this.menuFileExport.Click += new System.EventHandler(this.btn_xuat_Click);
             // 
             // menuFileSeparator2
             // 
             this.menuFileSeparator2.Name = "menuFileSeparator2";
-            this.menuFileSeparator2.Size = new System.Drawing.Size(206, 6);
+            this.menuFileSeparator2.Size = new System.Drawing.Size(207, 6);
             // 
             // menuFileExit
             // 
             this.menuFileExit.Name = "menuFileExit";
             this.menuFileExit.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.menuFileExit.Size = new System.Drawing.Size(209, 22);
+            this.menuFileExit.Size = new System.Drawing.Size(210, 22);
             this.menuFileExit.Text = "Thoát";
             this.menuFileExit.Click += new System.EventHandler(this.menuFileExit_Click);
             // 
@@ -184,7 +185,7 @@
             // 
             this.menuViewStatistics.Name = "menuViewStatistics";
             this.menuViewStatistics.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.menuViewStatistics.Size = new System.Drawing.Size(180, 22);
+            this.menuViewStatistics.Size = new System.Drawing.Size(164, 22);
             this.menuViewStatistics.Text = "Thống kê";
             this.menuViewStatistics.Click += new System.EventHandler(this.btn_thong_ke_Click);
             // 
@@ -193,13 +194,13 @@
             this.menuHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuHelpAbout});
             this.menuHelp.Name = "menuHelp";
-            this.menuHelp.Size = new System.Drawing.Size(62, 20);
+            this.menuHelp.Size = new System.Drawing.Size(63, 20);
             this.menuHelp.Text = "Trợ giúp";
             // 
             // menuHelpAbout
             // 
             this.menuHelpAbout.Name = "menuHelpAbout";
-            this.menuHelpAbout.Size = new System.Drawing.Size(180, 22);
+            this.menuHelpAbout.Size = new System.Drawing.Size(125, 22);
             this.menuHelpAbout.Text = "Giới thiệu";
             this.menuHelpAbout.Click += new System.EventHandler(this.menuHelpAbout_Click);
             // 
@@ -287,6 +288,7 @@
             this.pnlSearch.BackColor = System.Drawing.Color.White;
             this.pnlSearch.Controls.Add(this.lblSearch);
             this.pnlSearch.Controls.Add(this.txtSearch);
+            this.pnlSearch.Controls.Add(this.btnSearch);
             this.pnlSearch.Controls.Add(this.lblSubject);
             this.pnlSearch.Controls.Add(this.cboSubject);
             this.pnlSearch.Controls.Add(this.lblType);
@@ -304,7 +306,7 @@
             this.lblSearch.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblSearch.Location = new System.Drawing.Point(12, 19);
             this.lblSearch.Name = "lblSearch";
-            this.lblSearch.Size = new System.Drawing.Size(59, 15);
+            this.lblSearch.Size = new System.Drawing.Size(60, 15);
             this.lblSearch.TabIndex = 0;
             this.lblSearch.Text = "Tìm kiếm:";
             // 
@@ -313,18 +315,33 @@
             this.txtSearch.Font = new System.Drawing.Font("Segoe UI", 9.75F);
             this.txtSearch.Location = new System.Drawing.Point(80, 15);
             this.txtSearch.Name = "txtSearch";
-            this.txtSearch.Size = new System.Drawing.Size(500, 25);
+            this.txtSearch.Size = new System.Drawing.Size(380, 25);
             this.txtSearch.TabIndex = 1;
             this.txtSearch.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_tim_kiem_KeyPress);
+            // 
+            // btnSearch
+            // 
+            this.btnSearch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(150)))), ((int)(((byte)(243)))));
+            this.btnSearch.FlatAppearance.BorderSize = 0;
+            this.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSearch.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnSearch.ForeColor = System.Drawing.Color.White;
+            this.btnSearch.Location = new System.Drawing.Point(470, 14);
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.Size = new System.Drawing.Size(100, 27);
+            this.btnSearch.TabIndex = 2;
+            this.btnSearch.Text = "Tìm kiếm";
+            this.btnSearch.UseVisualStyleBackColor = false;
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
             // lblSubject
             // 
             this.lblSubject.AutoSize = true;
             this.lblSubject.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblSubject.Location = new System.Drawing.Point(600, 19);
+            this.lblSubject.Location = new System.Drawing.Point(590, 19);
             this.lblSubject.Name = "lblSubject";
             this.lblSubject.Size = new System.Drawing.Size(58, 15);
-            this.lblSubject.TabIndex = 2;
+            this.lblSubject.TabIndex = 3;
             this.lblSubject.Text = "Môn học:";
             // 
             // cboSubject
@@ -332,20 +349,20 @@
             this.cboSubject.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboSubject.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.cboSubject.FormattingEnabled = true;
-            this.cboSubject.Location = new System.Drawing.Point(664, 16);
+            this.cboSubject.Location = new System.Drawing.Point(654, 16);
             this.cboSubject.Name = "cboSubject";
             this.cboSubject.Size = new System.Drawing.Size(200, 23);
-            this.cboSubject.TabIndex = 3;
+            this.cboSubject.TabIndex = 4;
             this.cboSubject.SelectedIndexChanged += new System.EventHandler(this.cbo_mon_hoc_SelectedIndexChanged);
             // 
             // lblType
             // 
             this.lblType.AutoSize = true;
             this.lblType.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblType.Location = new System.Drawing.Point(884, 19);
+            this.lblType.Location = new System.Drawing.Point(874, 19);
             this.lblType.Name = "lblType";
             this.lblType.Size = new System.Drawing.Size(32, 15);
-            this.lblType.TabIndex = 4;
+            this.lblType.TabIndex = 5;
             this.lblType.Text = "Loại:";
             // 
             // cboType
@@ -353,10 +370,10 @@
             this.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboType.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.cboType.FormattingEnabled = true;
-            this.cboType.Location = new System.Drawing.Point(923, 16);
+            this.cboType.Location = new System.Drawing.Point(913, 16);
             this.cboType.Name = "cboType";
             this.cboType.Size = new System.Drawing.Size(200, 23);
-            this.cboType.TabIndex = 5;
+            this.cboType.TabIndex = 6;
             this.cboType.SelectedIndexChanged += new System.EventHandler(this.cbo_loai_SelectedIndexChanged);
             // 
             // pnlContent
@@ -477,6 +494,7 @@
         private System.Windows.Forms.Panel pnlSearch;
         private System.Windows.Forms.Label lblSearch;
         private System.Windows.Forms.TextBox txtSearch;
+        private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.Label lblSubject;
         private System.Windows.Forms.ComboBox cboSubject;
         private System.Windows.Forms.Label lblType;
