@@ -26,5 +26,20 @@ namespace study_document_manager.Properties
                 return defaultInstance;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string RememberUsername
+        {
+            get
+            {
+                return ((string)(this["RememberUsername"]));
+            }
+            set
+            {
+                this["RememberUsername"] = value;
+            }
+        }
     }
 }

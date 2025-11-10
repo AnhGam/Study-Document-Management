@@ -7,7 +7,7 @@ namespace study_document_manager
 {
     public partial class CategoryManagementForm : Form
     {
-        private string currentTab = "subject"; // "subject" ho?c "type"
+        private string currentTab = "subject"; // "subject" hoặc "type"
 
         public CategoryManagementForm()
         {

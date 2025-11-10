@@ -16,7 +16,15 @@ namespace study_document_manager
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            
+            // Hiển thị LoginForm trước
+            LoginForm loginForm = new LoginForm();
+            if (loginForm.ShowDialog() == DialogResult.OK)
+            {
+                // Nếu đăng nhập thành công, mở Form1
+                Application.Run(new Form1());
+            }
+            // Nếu không đăng nhập hoặc thoát, app sẽ đóng
         }
     }
 }

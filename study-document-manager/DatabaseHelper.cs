@@ -10,7 +10,7 @@ namespace study_document_manager
     /// <summary>
     /// Class quản lý kết nối và thao tác với SQL Server Database
     /// </summary>
-    public class DatabaseHelper
+    public partial class DatabaseHelper
     {
         // Connection string - đọc từ App.config
         private static string connection_string = GetConnectionStringFromConfig();

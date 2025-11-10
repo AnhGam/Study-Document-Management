@@ -11,21 +11,154 @@ namespace study_document_manager
         public Form1()
         {
             InitializeComponent();
+            
+            // Tạo menu Quản lý động
+            CreateManagementMenu();
+            
             // Đăng ký event CellFormatting
             dgvDocuments.CellFormatting += dgvDocuments_CellFormatting;
             // Đăng ký event DataError để xử lý lỗi format
             dgvDocuments.DataError += dgvDocuments_DataError;
         }
 
+        /// <summary>
+        /// Tạo menu Quản lý (Admin only)
+        /// </summary>
+        private void CreateManagementMenu()
+        {
+            try
+            {
+                // Tìm MenuStrip trên form
+                MenuStrip menuStrip = null;
+                foreach (Control ctrl in this.Controls)
+                {
+                    if (ctrl is MenuStrip)
+                    {
+                        menuStrip = (MenuStrip)ctrl;
+                        break;
+                    }
+                }
+
+                if (menuStrip != null)
+                {
+                    // Tạo menu "Quản lý"
+                    ToolStripMenuItem menuManagement = new ToolStripMenuItem("&Quản lý");
+                    menuManagement.Name = "menuManagement";
+
+                    // Submenu: Quản lý người dùng
+                    ToolStripMenuItem menuManagementUsers = new ToolStripMenuItem("Quản lý người dùng");
+                    menuManagementUsers.Name = "menuManagementUsers";
+                    menuManagementUsers.ShortcutKeys = Keys.Control | Keys.U;
+                    menuManagementUsers.Click += menuManagementUsers_Click;
+
+                    // Separator
+                    ToolStripSeparator separator = new ToolStripSeparator();
+
+                    // Submenu: Đăng xuất
+                    ToolStripMenuItem menuManagementLogout = new ToolStripMenuItem("Đăng xuất");
+                    menuManagementLogout.Name = "menuManagementLogout";
+                    menuManagementLogout.ShortcutKeys = Keys.Control | Keys.L;
+                    menuManagementLogout.Click += menuManagementLogout_Click;
+
+                    // Thêm submenu vào menu Quản lý
+                    menuManagement.DropDownItems.Add(menuManagementUsers);
+                    menuManagement.DropDownItems.Add(separator);
+                    menuManagement.DropDownItems.Add(menuManagementLogout);
+
+                    // Thêm menu Quản lý vào MenuStrip (sau menu Hiển thị)
+                    int insertIndex = menuStrip.Items.Count; // Thêm vào cuối
+                    menuStrip.Items.Insert(insertIndex, menuManagement);
+
+                    // Lưu reference để dùng trong ApplyPermissions
+                    this.menuManagement = menuManagement;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error creating menu: " + ex.Message);
+            }
+        }
+
+        // Field để lưu menu reference
+        private ToolStripMenuItem menuManagement;
+
         private void Form1_Load(object sender, EventArgs e)
         {
             InitializeCustomComponents();
-            this.Text = "Study Document Manager - Quản lý tài liệu học tập";
+            this.Text = $"Study Document Manager - {UserSession.FullName} [{UserSession.Role}]";
+            
+            // Hiển thị thông tin user
+            lblStatus.Text = $"Xin chào, {UserSession.FullName} ({UserSession.Role})";
+            
+            // ============================================
+            // PHÂN QUYỀN
+            // ============================================
+            ApplyPermissions();
             
             // Áp dụng màu sắc theo README
             this.BackColor = Color.FromArgb(227, 242, 253); // #E3F2FD
             pnlSearch.BackColor = Color.White;
             pnlContent.BackColor = Color.FromArgb(245, 245, 245);
+        }
+
+        /// <summary>
+        /// Áp dụng phân quyền theo role
+        /// </summary>
+        private void ApplyPermissions()
+        {
+            // Chỉ Admin mới thấy menu Quản lý
+            if (menuManagement != null)
+            {
+                menuManagement.Visible = UserSession.IsAdmin;
+            }
+
+            // Student: Chỉ xem, không được thêm/sửa/xóa
+            if (UserSession.IsStudent)
+            {
+                // Tìm buttons và disable (nếu có)
+                try
+                {
+                    Control[] addBtns = this.Controls.Find("btn_them", true);
+                    Control[] editBtns = this.Controls.Find("btn_sua", true);
+                    Control[] deleteBtns = this.Controls.Find("btn_xoa", true);
+
+                    if (addBtns.Length > 0 && addBtns[0] is Button)
+                    {
+                        Button btn = (Button)addBtns[0];
+                        btn.Enabled = false;
+                        btn.BackColor = Color.Gray;
+                        
+                        ToolTip tooltip = new ToolTip();
+                        tooltip.SetToolTip(btn, "Bạn không có quyền thêm tài liệu");
+                    }
+
+                    if (editBtns.Length > 0 && editBtns[0] is Button)
+                    {
+                        Button btn = (Button)editBtns[0];
+                        btn.Enabled = false;
+                        btn.BackColor = Color.Gray;
+                        
+                        ToolTip tooltip = new ToolTip();
+                        tooltip.SetToolTip(btn, "Bạn không có quyền sửa tài liệu");
+                    }
+
+                    if (deleteBtns.Length > 0 && deleteBtns[0] is Button)
+                    {
+                        Button btn = (Button)deleteBtns[0];
+                        btn.Enabled = false;
+                        btn.BackColor = Color.Gray;
+                        
+                        ToolTip tooltip = new ToolTip();
+                        tooltip.SetToolTip(btn, "Bạn không có quyền xóa tài liệu");
+                    }
+                }
+                catch
+                {
+                    // Nếu không tìm thấy buttons, bỏ qua
+                }
+            }
+            
+            // Teacher: Chỉ sửa/xóa tài liệu của mình (TODO: implement later)
         }
 
         /// <summary>
@@ -570,6 +703,74 @@ namespace study_document_manager
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Menu Quản lý Người dùng (Admin only)
+        /// </summary>
+        private void menuManagementUsers_Click(object sender, EventArgs e)
+        {
+            if (!UserSession.IsAdmin)
+            {
+                MessageBox.Show("Bạn không có quyền truy cập chức năng này!",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                UserManagementForm form = new UserManagementForm();
+                form.ShowDialog();
+                lblStatus.Text = "Đã đóng form quản lý người dùng";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Menu Đăng xuất
+        /// </summary>
+        private void menuManagementLogout_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show(
+                "Bạn có chắc chắn muốn đăng xuất?",
+                "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                // Log activity
+                try
+                {
+                    DatabaseHelper.ExecuteNonQuery(
+                        "EXEC sp_LogActivity @user_id, @action, @description",
+                        new System.Data.SqlClient.SqlParameter[] {
+                            new System.Data.SqlClient.SqlParameter("@user_id", UserSession.UserId),
+                            new System.Data.SqlClient.SqlParameter("@action", "Logout"),
+                            new System.Data.SqlClient.SqlParameter("@description", "Đăng xuất khỏi hệ thống")
+                        });
+                }
+                catch { }
+
+                // Clear session
+                UserSession.Logout();
+
+                // Close form hiện tại
+                this.Close();
+
+                // Hiển thị LoginForm lại
+                LoginForm loginForm = new LoginForm();
+                if (loginForm.ShowDialog() == DialogResult.OK)
+                {
+                    Application.Restart();
+                }
+                else
+                {
+                    Application.Exit();
+                }
             }
         }
 
