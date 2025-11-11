@@ -231,9 +231,9 @@ namespace study_document_manager
             string duong_dan, string ghi_chu, double? kich_thuoc, string tac_gia, bool quan_trong)
         {
             string query = @"INSERT INTO tai_lieu 
-                (ten, mon_hoc, loai, duong_dan, ghi_chu, kich_thuoc, tac_gia, quan_trong) 
+                (ten, mon_hoc, loai, duong_dan, ghi_chu, kich_thuoc, tac_gia, quan_trong, user_id) 
                 VALUES 
-                (@ten, @mon_hoc, @loai, @duong_dan, @ghi_chu, @kich_thuoc, @tac_gia, @quan_trong)";
+                (@ten, @mon_hoc, @loai, @duong_dan, @ghi_chu, @kich_thuoc, @tac_gia, @quan_trong, @user_id)";
 
             SqlParameter[] parameters = new SqlParameter[]
             {
@@ -244,7 +244,8 @@ namespace study_document_manager
                 new SqlParameter("@ghi_chu", string.IsNullOrEmpty(ghi_chu) ? DBNull.Value : (object)ghi_chu),
                 new SqlParameter("@kich_thuoc", kich_thuoc.HasValue ? (object)kich_thuoc.Value : DBNull.Value),
                 new SqlParameter("@tac_gia", string.IsNullOrEmpty(tac_gia) ? DBNull.Value : (object)tac_gia),
-                new SqlParameter("@quan_trong", quan_trong)
+                new SqlParameter("@quan_trong", quan_trong),
+                new SqlParameter("@user_id", UserSession.UserId)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -429,6 +430,55 @@ namespace study_document_manager
 
             int result = ExecuteNonQuery(query, parameters);
             return result > 0;
+        }
+
+        #endregion
+
+        #region Phân quyền và Ownership
+
+        /// <summary>
+        /// Lấy user_id của tài liệu
+        /// </summary>
+        public static int GetDocumentOwnerId(int documentId)
+        {
+            string query = "SELECT user_id FROM tai_lieu WHERE id = @id";
+            
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@id", documentId)
+            };
+
+            object result = ExecuteScalar(query, parameters);
+            return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+        }
+
+        /// <summary>
+        /// Kiểm tra user có quyền sửa/xóa tài liệu không
+        /// </summary>
+        public static bool CanUserEditDocument(int documentId, int userId, string userRole)
+        {
+            // Admin có thể sửa tất cả
+            if (userRole == "Admin")
+                return true;
+
+            // Student và Teacher chỉ sửa được tài liệu của mình
+            int ownerId = GetDocumentOwnerId(documentId);
+            return ownerId == userId;
+        }
+
+        /// <summary>
+        /// Lấy tài liệu của user (cho Student và Teacher)
+        /// </summary>
+        public static DataTable GetDocumentsByUser(int userId)
+        {
+            string query = "SELECT * FROM tai_lieu WHERE user_id = @userId ORDER BY ngay_them DESC";
+            
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@userId", userId)
+            };
+
+            return ExecuteQuery(query, parameters);
         }
 
         #endregion

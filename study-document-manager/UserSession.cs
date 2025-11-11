@@ -47,11 +47,40 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Có quyền thêm/sửa/xóa không
+        /// Có quyền thêm/sửa/xóa tài liệu không (tất cả user đều có quyền với tài liệu của mình)
         /// </summary>
         public static bool CanEdit
         {
+            get { return IsAdmin || IsTeacher || IsStudent; }
+        }
+
+        /// <summary>
+        /// Có quyền quản lý danh mục không (chỉ Teacher và Admin)
+        /// </summary>
+        public static bool CanManageCategories
+        {
             get { return IsAdmin || IsTeacher; }
+        }
+
+        /// <summary>
+        /// Có quyền sửa/xóa tài liệu của người khác không (chỉ Admin)
+        /// </summary>
+        public static bool CanEditAllDocuments
+        {
+            get { return IsAdmin; }
+        }
+
+        /// <summary>
+        /// Kiểm tra có quyền sửa/xóa tài liệu cụ thể không
+        /// </summary>
+        public static bool CanEditDocument(int documentUserId)
+        {
+            // Admin có thể sửa tất cả
+            if (IsAdmin)
+                return true;
+
+            // Student và Teacher chỉ sửa được tài liệu của mình
+            return documentUserId == UserId;
         }
 
         /// <summary>

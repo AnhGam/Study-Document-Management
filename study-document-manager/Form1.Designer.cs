@@ -189,20 +189,20 @@
             // 
             this.menuViewStatistics.Name = "menuViewStatistics";
             this.menuViewStatistics.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.menuViewStatistics.Size = new System.Drawing.Size(240, 22);
+            this.menuViewStatistics.Size = new System.Drawing.Size(251, 22);
             this.menuViewStatistics.Text = "Thống kê";
             this.menuViewStatistics.Click += new System.EventHandler(this.btn_thong_ke_Click);
             // 
             // menuViewSeparator
             // 
             this.menuViewSeparator.Name = "menuViewSeparator";
-            this.menuViewSeparator.Size = new System.Drawing.Size(237, 6);
+            this.menuViewSeparator.Size = new System.Drawing.Size(248, 6);
             // 
             // menuViewCategories
             // 
             this.menuViewCategories.Name = "menuViewCategories";
             this.menuViewCategories.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.M)));
-            this.menuViewCategories.Size = new System.Drawing.Size(240, 22);
+            this.menuViewCategories.Size = new System.Drawing.Size(251, 22);
             this.menuViewCategories.Text = "Quản lý Môn học và Loại";
             this.menuViewCategories.Click += new System.EventHandler(this.menuViewCategories_Click);
             // 

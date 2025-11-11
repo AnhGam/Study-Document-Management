@@ -128,53 +128,12 @@ namespace study_document_manager
                 menuManagement.Visible = UserSession.IsAdmin;
             }
 
-            // Student: Chỉ xem, không được thêm/sửa/xóa
-            if (UserSession.IsStudent)
-            {
-                // Tìm buttons và disable (nếu có)
-                try
-                {
-                    Control[] addBtns = this.Controls.Find("btn_them", true);
-                    Control[] editBtns = this.Controls.Find("btn_sua", true);
-                    Control[] deleteBtns = this.Controls.Find("btn_xoa", true);
+            // TẤT CẢ USER đều có quyền thêm tài liệu
+            // Nhưng Student và Teacher CHỈ sửa/xóa được tài liệu của mình
+            // Admin có thể sửa/xóa TẤT CẢ tài liệu
 
-                    if (addBtns.Length > 0 && addBtns[0] is Button)
-                    {
-                        Button btn = (Button)addBtns[0];
-                        btn.Enabled = false;
-                        btn.BackColor = Color.Gray;
-                        
-                        ToolTip tooltip = new ToolTip();
-                        tooltip.SetToolTip(btn, "Bạn không có quyền thêm tài liệu");
-                    }
-
-                    if (editBtns.Length > 0 && editBtns[0] is Button)
-                    {
-                        Button btn = (Button)editBtns[0];
-                        btn.Enabled = false;
-                        btn.BackColor = Color.Gray;
-                        
-                        ToolTip tooltip = new ToolTip();
-                        tooltip.SetToolTip(btn, "Bạn không có quyền sửa tài liệu");
-                    }
-
-                    if (deleteBtns.Length > 0 && deleteBtns[0] is Button)
-                    {
-                        Button btn = (Button)deleteBtns[0];
-                        btn.Enabled = false;
-                        btn.BackColor = Color.Gray;
-                        
-                        ToolTip tooltip = new ToolTip();
-                        tooltip.SetToolTip(btn, "Bạn không có quyền xóa tài liệu");
-                    }
-                }
-                catch
-                {
-                    // Nếu không tìm thấy buttons, bỏ qua
-                }
-            }
-            
-            // Teacher: Chỉ sửa/xóa tài liệu của mình (TODO: implement later)
+            // Không disable buttons nữa - để tất cả user đều thấy
+            // Logic kiểm tra quyền sẽ được áp dụng khi click button Sửa/Xóa
         }
 
         /// <summary>
@@ -351,6 +310,15 @@ namespace study_document_manager
             }
 
             int id = Convert.ToInt32(dgvDocuments.SelectedRows[0].Cells["id"].Value);
+            
+            // Kiểm tra quyền sửa tài liệu
+            if (!DatabaseHelper.CanUserEditDocument(id, UserSession.UserId, UserSession.Role))
+            {
+                MessageBox.Show("Bạn không có quyền sửa tài liệu này!\nBạn chỉ có thể sửa tài liệu do bạn tạo.", 
+                    "Không có quyền", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             AddEditForm form = new AddEditForm(id);
             if (form.ShowDialog() == DialogResult.OK)
             {
@@ -371,11 +339,20 @@ namespace study_document_manager
                 return;
             }
 
+            int id = Convert.ToInt32(dgvDocuments.SelectedRows[0].Cells["id"].Value);
+            
+            // Kiểm tra quyền xóa tài liệu
+            if (!DatabaseHelper.CanUserEditDocument(id, UserSession.UserId, UserSession.Role))
+            {
+                MessageBox.Show("Bạn không có quyền xóa tài liệu này!\nBạn chỉ có thể xóa tài liệu do bạn tạo.", 
+                    "Không có quyền", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             string ten = dgvDocuments.SelectedRows[0].Cells["ten"].Value.ToString();
             if (MessageBox.Show($"Xóa tài liệu:\n\"{ten}\"?", 
                 "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                int id = Convert.ToInt32(dgvDocuments.SelectedRows[0].Cells["id"].Value);
                 if (DatabaseHelper.DeleteDocument(id))
                 {
                     LoadData();
@@ -707,6 +684,14 @@ namespace study_document_manager
         /// </summary>
         private void menuViewCategories_Click(object sender, EventArgs e)
         {
+            // Kiểm tra quyền: Chỉ Teacher và Admin
+            if (!UserSession.CanManageCategories)
+            {
+                MessageBox.Show("Bạn không có quyền truy cập chức năng này!\nChỉ Giáo viên và Admin mới được quản lý danh mục.",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
                 CategoryManagementForm categoryForm = new CategoryManagementForm();

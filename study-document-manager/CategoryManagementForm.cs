@@ -16,6 +16,15 @@ namespace study_document_manager
 
         private void CategoryManagementForm_Load(object sender, EventArgs e)
         {
+            // Kiểm tra quyền: Chỉ Teacher và Admin mới được quản lý danh mục
+            if (!UserSession.CanManageCategories)
+            {
+                MessageBox.Show("Bạn không có quyền truy cập chức năng này!\nChỉ Giáo viên và Admin mới được quản lý danh mục.", 
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.Close();
+                return;
+            }
+
             LoadSubjects();
         }
 
