@@ -77,6 +77,13 @@ namespace study_document_manager
 
                     if (menuView != null)
                     {
+                        // Thêm menu Kiểm tra file bị thiếu
+                        menuView.DropDownItems.Add(new ToolStripSeparator());
+                        ToolStripMenuItem menuCheckFiles = new ToolStripMenuItem("Kiểm tra file bị thiếu");
+                        menuCheckFiles.Name = "menuCheckFiles";
+                        menuCheckFiles.Click += menuCheckFiles_Click;
+                        menuView.DropDownItems.Add(menuCheckFiles);
+
                         // Thêm separator trước Đăng xuất
                         menuView.DropDownItems.Add(new ToolStripSeparator());
 
@@ -115,6 +122,17 @@ namespace study_document_manager
             this.BackColor = Color.FromArgb(227, 242, 253); // #E3F2FD
             pnlSearch.BackColor = Color.White;
             pnlContent.BackColor = Color.FromArgb(245, 245, 245);
+            
+            // Load danh sách users cho filter (chỉ Admin/Teacher)
+            LoadUsersForFilter();
+            
+            // Khởi tạo giá trị mặc định cho date pickers
+            dtpFromDate.Value = DateTime.Now.AddMonths(-1);
+            dtpToDate.Value = DateTime.Now;
+            dtpFromDate.Enabled = false;
+            dtpToDate.Enabled = false;
+            nudMinSize.Enabled = false;
+            nudMaxSize.Enabled = false;
         }
 
         /// <summary>
@@ -871,6 +889,329 @@ namespace study_document_manager
             {
                 lblStatus.Text = "Lỗi hiển thị dữ liệu";
             }
+        }
+
+        #region Advanced Filter Methods
+
+        /// <summary>
+        /// Load danh sách users để filter (chỉ cho Admin/Teacher)
+        /// </summary>
+        private void LoadUsersForFilter()
+        {
+            if (UserSession.IsAdmin || UserSession.IsTeacher)
+            {
+                try
+                {
+                    DataTable users = DatabaseHelper.GetUsersForFilter();
+                    DataTable dtWithAll = users.Clone();
+                    DataRow allRow = dtWithAll.NewRow();
+                    allRow["id"] = 0;
+                    allRow["username"] = "";
+                    allRow["full_name"] = "-- Tất cả --";
+                    dtWithAll.Rows.InsertAt(allRow, 0);
+                    
+                    foreach (DataRow row in users.Rows)
+                    {
+                        dtWithAll.ImportRow(row);
+                    }
+                    
+                    cboCreatorFilter.DataSource = dtWithAll;
+                    cboCreatorFilter.DisplayMember = "full_name";
+                    cboCreatorFilter.ValueMember = "id";
+                    cboCreatorFilter.SelectedIndex = 0;
+                    lblCreatorFilter.Visible = true;
+                    cboCreatorFilter.Visible = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi khi load danh sách người dùng: " + ex.Message,
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                lblCreatorFilter.Visible = false;
+                cboCreatorFilter.Visible = false;
+            }
+        }
+
+        /// <summary>
+        /// Áp dụng filter nâng cao
+        /// </summary>
+        private void ApplyAdvancedFilter()
+        {
+            try
+            {
+                string keyword = string.IsNullOrWhiteSpace(txtSearch.Text) ? null : txtSearch.Text.Trim();
+                string monHoc = cboSubject.SelectedItem?.ToString();
+                if (monHoc == "Tất cả") monHoc = null;
+                string loai = cboType.SelectedItem?.ToString();
+                if (loai == "Tất cả") loai = null;
+                
+                DateTime? fromDate = null;
+                DateTime? toDate = null;
+                if (chkEnableDateFilter.Checked)
+                {
+                    fromDate = dtpFromDate.Value.Date;
+                    toDate = dtpToDate.Value.Date;
+                }
+                
+                double? minSize = null;
+                double? maxSize = null;
+                if (chkEnableSizeFilter.Checked)
+                {
+                    minSize = (double)nudMinSize.Value;
+                    maxSize = (double)nudMaxSize.Value;
+                    if (minSize > maxSize)
+                    {
+                        MessageBox.Show("Dung lượng tối thiểu không được lớn hơn dung lượng tối đa!",
+                            "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+                
+                bool? isImportant = chkImportantOnly.Checked ? (bool?)true : null;
+                int? creatorUserId = null;
+                if ((UserSession.IsAdmin || UserSession.IsTeacher) && cboCreatorFilter.Visible)
+                {
+                    int selectedId = Convert.ToInt32(cboCreatorFilter.SelectedValue);
+                    if (selectedId > 0)
+                    {
+                        creatorUserId = selectedId;
+                    }
+                }
+                
+                lblStatus.Text = "Đang lọc dữ liệu...";
+                Application.DoEvents();
+                
+                DataTable dt = DatabaseHelper.SearchDocumentsAdvanced(
+                    keyword, monHoc, loai, fromDate, toDate,
+                    minSize, maxSize, isImportant, creatorUserId
+                );
+                
+                dgvDocuments.DataSource = dt;
+                SetupDataGridView();
+                
+                string roleInfo = UserSession.IsStudent ? " (của bạn)" : "";
+                lblCount.Text = $"Tìm thấy: {dt.Rows.Count} tài liệu{roleInfo}";
+                lblStatus.Text = "Đã áp dụng filter";
+            }
+            catch (Exception ex)
+            {
+                lblStatus.Text = "Lỗi khi lọc";
+                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Xóa tất cả filter về mặc định
+        /// </summary>
+        private void ClearAdvancedFilter()
+        {
+            txtSearch.Clear();
+            cboSubject.SelectedIndex = 0;
+            cboType.SelectedIndex = 0;
+            chkEnableDateFilter.Checked = false;
+            dtpFromDate.Value = DateTime.Now.AddMonths(-1);
+            dtpToDate.Value = DateTime.Now;
+            chkEnableSizeFilter.Checked = false;
+            nudMinSize.Value = 0;
+            nudMaxSize.Value = 100;
+            chkImportantOnly.Checked = false;
+            
+            if (cboCreatorFilter.Visible && cboCreatorFilter.Items.Count > 0)
+            {
+                cboCreatorFilter.SelectedIndex = 0;
+            }
+            
+            LoadData();
+            lblStatus.Text = "Đã xóa filter";
+        }
+
+        /// <summary>
+        /// Enable/Disable date pickers
+        /// </summary>
+        private void chkEnableDateFilter_CheckedChanged(object sender, EventArgs e)
+        {
+            bool enabled = chkEnableDateFilter.Checked;
+            dtpFromDate.Enabled = enabled;
+            dtpToDate.Enabled = enabled;
+        }
+
+        /// <summary>
+        /// Enable/Disable numeric updowns
+        /// </summary>
+        private void chkEnableSizeFilter_CheckedChanged(object sender, EventArgs e)
+        {
+            bool enabled = chkEnableSizeFilter.Checked;
+            nudMinSize.Enabled = enabled;
+            nudMaxSize.Enabled = enabled;
+        }
+
+        /// <summary>
+        /// Button Áp dụng Filter - Click
+        /// </summary>
+        private void btnApplyAdvancedFilter_Click(object sender, EventArgs e)
+        {
+            ApplyAdvancedFilter();
+        }
+
+        /// <summary>
+        /// Button Xóa Filter - Click
+        /// </summary>
+        private void btnClearAdvancedFilter_Click(object sender, EventArgs e)
+        {
+            ClearAdvancedFilter();
+        }
+
+        #endregion
+
+        #region Context Menu Event Handlers
+
+        /// <summary>
+        /// Context Menu: Mo file
+        /// </summary>
+        private void ctxMenuOpen_Click(object sender, EventArgs e)
+        {
+            OpenSelectedFile();
+        }
+
+        /// <summary>
+        /// Context Menu: Sua
+        /// </summary>
+        private void ctxMenuEdit_Click(object sender, EventArgs e)
+        {
+            btn_sua_Click(sender, e);
+        }
+
+        /// <summary>
+        /// Context Menu: Xoa
+        /// </summary>
+        private void ctxMenuDelete_Click(object sender, EventArgs e)
+        {
+            btn_xoa_Click(sender, e);
+        }
+
+        /// <summary>
+        /// Context Menu: Copy đường dẫn file
+        /// </summary>
+        private void ctxMenuCopyPath_Click(object sender, EventArgs e)
+        {
+            if (dgvDocuments.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Vui lòng chọn tài liệu!", 
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var duongDan = dgvDocuments.SelectedRows[0].Cells["duong_dan"].Value;
+            if (duongDan != null && duongDan != DBNull.Value)
+            {
+                Clipboard.SetText(duongDan.ToString());
+                lblStatus.Text = "Đã copy đường dẫn vào clipboard";
+            }
+            else
+            {
+                MessageBox.Show("Tài liệu không có đường dẫn file!", 
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        /// <summary>
+        /// Context Menu: Mở thư mục chứa file
+        /// </summary>
+        private void ctxMenuOpenFolder_Click(object sender, EventArgs e)
+        {
+            if (dgvDocuments.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Vui lòng chọn tài liệu!", 
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var duongDan = dgvDocuments.SelectedRows[0].Cells["duong_dan"].Value;
+            if (duongDan != null && duongDan != DBNull.Value)
+            {
+                string filePath = duongDan.ToString();
+                if (File.Exists(filePath))
+                {
+                    string folderPath = Path.GetDirectoryName(filePath);
+                    System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{filePath}\"");
+                    lblStatus.Text = "Đã mở thư mục chứa file";
+                }
+                else
+                {
+                    MessageBox.Show("File không tồn tại!\n" + filePath, 
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Tài liệu không có đường dẫn file!", 
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        /// <summary>
+        /// Context Menu: Đánh dấu/ Bỏ đánh dấu quan trọng
+        /// </summary>
+        private void ctxMenuToggleImportant_Click(object sender, EventArgs e)
+        {
+            if (dgvDocuments.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Vui lòng chọn tài liệu!", 
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                int id = Convert.ToInt32(dgvDocuments.SelectedRows[0].Cells["id"].Value);
+                var quanTrongCell = dgvDocuments.SelectedRows[0].Cells["quan_trong"].Value;
+                bool currentValue = quanTrongCell != null && quanTrongCell != DBNull.Value && Convert.ToBoolean(quanTrongCell);
+                bool newValue = !currentValue;
+
+                string query = "UPDATE tai_lieu SET quan_trong = @quan_trong WHERE id = @id";
+                var parameters = new System.Data.SqlClient.SqlParameter[]
+                {
+                    new System.Data.SqlClient.SqlParameter("@quan_trong", newValue),
+                    new System.Data.SqlClient.SqlParameter("@id", id)
+                };
+
+                int result = DatabaseHelper.ExecuteNonQuery(query, parameters);
+                if (result > 0)
+                {
+                    LoadData();
+                    lblStatus.Text = newValue ? "Đã đánh dấu quan trọng" : "Đã bỏ đánh dấu quan trọng";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        #endregion
+
+        #region Menu Event Handlers
+
+        /// <summary>
+        /// Menu: Kiểm tra file bị thiếu
+        /// Menu: Kiem tra file bi thieu
+        /// </summary>
+        private void menuCheckFiles_Click(object sender, EventArgs e)
+        {
+            FileIntegrityCheckForm form = new FileIntegrityCheckForm();
+            form.ShowDialog();
+            // Refresh data sau khi dong form
+            LoadData();
+        }
+
+        #endregion
+
+        private void menuView_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
