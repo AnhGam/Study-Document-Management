@@ -148,7 +148,7 @@ namespace study_document_manager
             this.lblCollectionTitle.Location = new System.Drawing.Point(10, 10);
             this.lblCollectionTitle.Name = "lblCollectionTitle";
             this.lblCollectionTitle.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
-            this.lblCollectionTitle.Size = new System.Drawing.Size(90, 31);
+            this.lblCollectionTitle.Size = new System.Drawing.Size(91, 31);
             this.lblCollectionTitle.TabIndex = 0;
             this.lblCollectionTitle.Text = "Bộ sưu tập";
             // 
@@ -237,7 +237,7 @@ namespace study_document_manager
             this.lblDocTitle.Location = new System.Drawing.Point(10, 10);
             this.lblDocTitle.Name = "lblDocTitle";
             this.lblDocTitle.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
-            this.lblDocTitle.Size = new System.Drawing.Size(195, 31);
+            this.lblDocTitle.Size = new System.Drawing.Size(196, 31);
             this.lblDocTitle.TabIndex = 0;
             this.lblDocTitle.Text = "Tài liệu trong bộ sưu tập";
             // 

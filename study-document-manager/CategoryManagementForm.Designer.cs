@@ -102,7 +102,7 @@ namespace study_document_manager
             this.btnSubjects.Name = "btnSubjects";
             this.btnSubjects.Size = new System.Drawing.Size(150, 35);
             this.btnSubjects.TabIndex = 0;
-            this.btnSubjects.Text = "Môn học";
+            this.btnSubjects.Text = "Danh mục";
             this.btnSubjects.UseVisualStyleBackColor = false;
             this.btnSubjects.Click += new System.EventHandler(this.btnSubjects_Click);
             // 
@@ -249,7 +249,7 @@ namespace study_document_manager
             this.MinimumSize = new System.Drawing.Size(700, 500);
             this.Name = "CategoryManagementForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Quản lý Môn học và Loại tài liệu";
+            this.Text = "Quản lý Danh mục và Loại tài liệu";
             this.Load += new System.EventHandler(this.CategoryManagementForm_Load);
             this.pnlTop.ResumeLayout(false);
             this.pnlTop.PerformLayout();

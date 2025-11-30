@@ -23,6 +23,9 @@ namespace study_document_manager
                 return;
             }
 
+            // Setup icons cho buttons
+            btnEditRole.Image = IconHelper.CreateRoleIcon(16, Color.White);
+
             LoadUsers();
             SetupDataGridView();
         }

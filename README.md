@@ -99,7 +99,7 @@ Database **quan_ly_tai_lieu** gồm 7 bảng chính:
 ### Yêu cầu hệ thống
 
 - Windows 7/8/10/11
-- .NET Framework 4.8.1 trở lên
+- .NET Framework 4.8 trở lên
 - SQL Server 2012 trở lên (hoặc SQL Server Express)
 - RAM: 2GB trở lên
 - Dung lượng: 100MB trống
@@ -266,7 +266,7 @@ Dự án này được phát hành dưới giấy phép MIT. Xem file [LICENSE](
 
 **Vũ Đức Dũng**
 - Lớp: TT601K14
-- Email: [your-email@example.com](mailto:hayatoshino05@gmail.com)
+- Email: [hayatoshino05@gmail.com](mailto:hayatoshino05@gmail.com)
 - GitHub: [@hayato-shino05](https://github.com/hayato-shino05)
 
 ## Lời cảm ơn

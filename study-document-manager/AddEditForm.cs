@@ -46,23 +46,26 @@ namespace study_document_manager
         /// </summary>
         private void LoadComboBoxData()
         {
-            // Môn học
+            // Danh mục - Phù hợp cho mọi đối tượng người dùng
             cbo_mon_hoc.Items.Clear();
-            cbo_mon_hoc.Items.Add("Lập trình");
-            cbo_mon_hoc.Items.Add("Toán");
-            cbo_mon_hoc.Items.Add("Anh văn");
-            cbo_mon_hoc.Items.Add("Vật lý");
-            cbo_mon_hoc.Items.Add("Hóa học");
-            cbo_mon_hoc.Items.Add("Văn học");
-            cbo_mon_hoc.Items.Add("Lịch sử");
-            cbo_mon_hoc.Items.Add("Địa lý");
+            cbo_mon_hoc.Items.Add("Công việc");
+            cbo_mon_hoc.Items.Add("Cá nhân");
+            cbo_mon_hoc.Items.Add("Học tập");
+            cbo_mon_hoc.Items.Add("Dự án");
+            cbo_mon_hoc.Items.Add("Tài chính");
+            cbo_mon_hoc.Items.Add("Hợp đồng");
+            cbo_mon_hoc.Items.Add("Tham khảo");
+            cbo_mon_hoc.Items.Add("Khác");
 
             // Loại tài liệu
             cbo_loai.Items.Clear();
-            cbo_loai.Items.Add("slide");
-            cbo_loai.Items.Add("bài tập");
-            cbo_loai.Items.Add("đề thi");
-            cbo_loai.Items.Add("tài liệu khác");
+            cbo_loai.Items.Add("Tài liệu");
+            cbo_loai.Items.Add("Báo cáo");
+            cbo_loai.Items.Add("Hướng dẫn");
+            cbo_loai.Items.Add("Biểu mẫu");
+            cbo_loai.Items.Add("Hình ảnh");
+            cbo_loai.Items.Add("Video");
+            cbo_loai.Items.Add("Khác");
         }
 
         /// <summary>

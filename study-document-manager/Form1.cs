@@ -342,6 +342,17 @@ namespace study_document_manager
             // ============================================
             ApplyPermissions();
             
+            // Setup icons cho buttons
+            btnClearAdvancedFilter.Image = IconHelper.CreateCloseIcon(16, Color.White);
+            
+            // Setup icons cho ToolStrip buttons
+            toolBtnNew.Image = IconHelper.CreateAddIcon(16, Color.FromArgb(76, 175, 80));
+            toolBtnEdit.Image = IconHelper.CreateEditIcon(16, Color.FromArgb(33, 150, 243));
+            toolBtnDelete.Image = IconHelper.CreateDeleteIcon(16, Color.FromArgb(244, 67, 54));
+            toolBtnOpen.Image = IconHelper.CreateOpenIcon(16, Color.FromArgb(103, 58, 183));
+            toolBtnExport.Image = IconHelper.CreateExportIcon(16, Color.FromArgb(255, 152, 0));
+            toolBtnRefresh.Image = IconHelper.CreateRefreshIcon(16, Color.FromArgb(0, 150, 136));
+            
             // Áp dụng màu sắc theo README
             this.BackColor = Color.FromArgb(227, 242, 253); // #E3F2FD
             pnlSearch.BackColor = Color.White;
@@ -392,26 +403,29 @@ namespace study_document_manager
         /// </summary>
         private void LoadComboBoxData()
         {
-            // ComboBox môn học
+            // ComboBox danh mục
             cboSubject.Items.Clear();
             cboSubject.Items.Add("Tất cả");
-            cboSubject.Items.Add("Lập trình");
-            cboSubject.Items.Add("Toán");
-            cboSubject.Items.Add("Anh văn");
-            cboSubject.Items.Add("Vật lý");
-            cboSubject.Items.Add("Hóa học");
-            cboSubject.Items.Add("Văn học");
-            cboSubject.Items.Add("Lịch sử");
-            cboSubject.Items.Add("Địa lý");
+            cboSubject.Items.Add("Công việc");
+            cboSubject.Items.Add("Cá nhân");
+            cboSubject.Items.Add("Học tập");
+            cboSubject.Items.Add("Dự án");
+            cboSubject.Items.Add("Tài chính");
+            cboSubject.Items.Add("Hợp đồng");
+            cboSubject.Items.Add("Tham khảo");
+            cboSubject.Items.Add("Khác");
             cboSubject.SelectedIndex = 0;
 
             // ComboBox loại
             cboType.Items.Clear();
             cboType.Items.Add("Tất cả");
-            cboType.Items.Add("slide");
-            cboType.Items.Add("bài tập");
-            cboType.Items.Add("đề thi");
-            cboType.Items.Add("tài liệu khác");
+            cboType.Items.Add("Tài liệu");
+            cboType.Items.Add("Báo cáo");
+            cboType.Items.Add("Hướng dẫn");
+            cboType.Items.Add("Biểu mẫu");
+            cboType.Items.Add("Hình ảnh");
+            cboType.Items.Add("Video");
+            cboType.Items.Add("Khác");
             cboType.SelectedIndex = 0;
         }
 
@@ -457,7 +471,7 @@ namespace study_document_manager
                 if (dgvDocuments.Columns.Contains("ten"))
                     dgvDocuments.Columns["ten"].HeaderText = "Tên tài liệu";
                 if (dgvDocuments.Columns.Contains("mon_hoc"))
-                    dgvDocuments.Columns["mon_hoc"].HeaderText = "Môn học";
+                    dgvDocuments.Columns["mon_hoc"].HeaderText = "Danh mục";
                 if (dgvDocuments.Columns.Contains("loai"))
                     dgvDocuments.Columns["loai"].HeaderText = "Loại";
                 if (dgvDocuments.Columns.Contains("ngay_them"))
@@ -829,7 +843,7 @@ namespace study_document_manager
                     
                     using (StreamWriter writer = new StreamWriter(save.FileName, false, System.Text.Encoding.UTF8))
                     {
-                        writer.WriteLine("ID,Tên tài liệu,Môn học,Loại,Đường dẫn,Ghi chú,Ngày thêm,Kích thước (MB),Tác giả,Quan trọng");
+                        writer.WriteLine("ID,Tên tài liệu,Danh mục,Loại,Đường dẫn,Ghi chú,Ngày thêm,Kích thước (MB),Tác giả,Quan trọng");
                         
                         foreach (DataRow row in dt.Rows)
                         {

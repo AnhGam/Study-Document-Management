@@ -81,7 +81,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(65, 15);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Môn Học *";
+            this.label2.Text = "Danh mục:";
             // 
             // cbo_mon_hoc
             // 
@@ -98,9 +98,9 @@
             this.label3.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.label3.Location = new System.Drawing.Point(20, 130);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(75, 15);
+            this.label3.Size = new System.Drawing.Size(70, 15);
             this.label3.TabIndex = 4;
-            this.label3.Text = "Loại tài liệu *";
+            this.label3.Text = "Loại tài liệu:";
             // 
             // cbo_loai
             // 
@@ -175,55 +175,6 @@
             this.label6.TabIndex = 11;
             this.label6.Text = "Tác giả:";
             // 
-            // lblTags
-            // 
-            this.lblTags.AutoSize = true;
-            this.lblTags.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblTags.Location = new System.Drawing.Point(20, 410);
-            this.lblTags.Name = "lblTags";
-            this.lblTags.Size = new System.Drawing.Size(34, 15);
-            this.lblTags.TabIndex = 19;
-            this.lblTags.Text = "Tags:";
-            // 
-            // txtTags
-            // 
-            this.txtTags.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.txtTags.Location = new System.Drawing.Point(20, 430);
-            this.txtTags.Name = "txtTags";
-            this.txtTags.Size = new System.Drawing.Size(360, 23);
-            this.txtTags.TabIndex = 20;
-            // 
-            // lblDeadline
-            // 
-            this.lblDeadline.AutoSize = true;
-            this.lblDeadline.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblDeadline.Location = new System.Drawing.Point(20, 465);
-            this.lblDeadline.Name = "lblDeadline";
-            this.lblDeadline.Size = new System.Drawing.Size(58, 15);
-            this.lblDeadline.TabIndex = 21;
-            this.lblDeadline.Text = "Hạn chót:";
-            // 
-            // chkHasDeadline
-            // 
-            this.chkHasDeadline.AutoSize = true;
-            this.chkHasDeadline.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.chkHasDeadline.Location = new System.Drawing.Point(90, 464);
-            this.chkHasDeadline.Name = "chkHasDeadline";
-            this.chkHasDeadline.Size = new System.Drawing.Size(76, 19);
-            this.chkHasDeadline.TabIndex = 22;
-            this.chkHasDeadline.Text = "Có hạn";
-            this.chkHasDeadline.UseVisualStyleBackColor = true;
-            // 
-            // dtpDeadline
-            // 
-            this.dtpDeadline.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.dtpDeadline.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpDeadline.Location = new System.Drawing.Point(20, 485);
-            this.dtpDeadline.Name = "dtpDeadline";
-            this.dtpDeadline.Size = new System.Drawing.Size(150, 23);
-            this.dtpDeadline.TabIndex = 23;
-            this.dtpDeadline.Enabled = false;
-            // 
             // txt_tac_gia
             // 
             this.txt_tac_gia.Font = new System.Drawing.Font("Segoe UI", 9F);
@@ -258,7 +209,7 @@
             this.chk_quan_trong.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(202)))), ((int)(((byte)(40)))));
             this.chk_quan_trong.Location = new System.Drawing.Point(290, 487);
             this.chk_quan_trong.Name = "chk_quan_trong";
-            this.chk_quan_trong.Size = new System.Drawing.Size(93, 19);
+            this.chk_quan_trong.Size = new System.Drawing.Size(103, 19);
             this.chk_quan_trong.TabIndex = 15;
             this.chk_quan_trong.Text = "★ Quan trọng";
             this.chk_quan_trong.UseVisualStyleBackColor = true;
@@ -303,6 +254,55 @@
             this.label8.Size = new System.Drawing.Size(108, 12);
             this.label8.TabIndex = 26;
             this.label8.Text = "* Trường bắt buộc nhập";
+            // 
+            // lblTags
+            // 
+            this.lblTags.AutoSize = true;
+            this.lblTags.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblTags.Location = new System.Drawing.Point(20, 410);
+            this.lblTags.Name = "lblTags";
+            this.lblTags.Size = new System.Drawing.Size(34, 15);
+            this.lblTags.TabIndex = 19;
+            this.lblTags.Text = "Tags:";
+            // 
+            // txtTags
+            // 
+            this.txtTags.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.txtTags.Location = new System.Drawing.Point(20, 430);
+            this.txtTags.Name = "txtTags";
+            this.txtTags.Size = new System.Drawing.Size(360, 23);
+            this.txtTags.TabIndex = 20;
+            // 
+            // lblDeadline
+            // 
+            this.lblDeadline.AutoSize = true;
+            this.lblDeadline.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblDeadline.Location = new System.Drawing.Point(20, 465);
+            this.lblDeadline.Name = "lblDeadline";
+            this.lblDeadline.Size = new System.Drawing.Size(59, 15);
+            this.lblDeadline.TabIndex = 21;
+            this.lblDeadline.Text = "Hạn chót:";
+            // 
+            // dtpDeadline
+            // 
+            this.dtpDeadline.Enabled = false;
+            this.dtpDeadline.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.dtpDeadline.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpDeadline.Location = new System.Drawing.Point(20, 485);
+            this.dtpDeadline.Name = "dtpDeadline";
+            this.dtpDeadline.Size = new System.Drawing.Size(150, 23);
+            this.dtpDeadline.TabIndex = 23;
+            // 
+            // chkHasDeadline
+            // 
+            this.chkHasDeadline.AutoSize = true;
+            this.chkHasDeadline.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.chkHasDeadline.Location = new System.Drawing.Point(90, 464);
+            this.chkHasDeadline.Name = "chkHasDeadline";
+            this.chkHasDeadline.Size = new System.Drawing.Size(64, 19);
+            this.chkHasDeadline.TabIndex = 22;
+            this.chkHasDeadline.Text = "Có hạn";
+            this.chkHasDeadline.UseVisualStyleBackColor = true;
             // 
             // AddEditForm
             // 

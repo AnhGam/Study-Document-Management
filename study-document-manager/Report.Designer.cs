@@ -149,7 +149,7 @@
             this.btnBySubject.Name = "btnBySubject";
             this.btnBySubject.Size = new System.Drawing.Size(120, 30);
             this.btnBySubject.TabIndex = 0;
-            this.btnBySubject.Text = "Môn học";
+            this.btnBySubject.Text = "Danh mục";
             this.btnBySubject.UseVisualStyleBackColor = false;
             this.btnBySubject.Click += new System.EventHandler(this.btnBySubject_Click);
             // 
@@ -223,7 +223,7 @@
             // 
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(251, 25);
-            this.lblStatus.Text = "Đã tải thống kê theo môn học";
+            this.lblStatus.Text = "Đã tải thống kê theo danh mục";
             // 
             // Report
             // 

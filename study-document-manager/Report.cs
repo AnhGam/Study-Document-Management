@@ -97,9 +97,9 @@ namespace study_document_manager
                 lblTotal.Text = $"Tổng: {total} tài liệu";
 
                 // Vẽ biểu đồ
-                DrawChart(dt, "Môn học", "Số lượng tài liệu theo môn học");
+                DrawChart(dt, "Danh mục", "Số lượng tài liệu theo danh mục");
                 
-                lblStatus.Text = "Đã tải thống kê theo môn học";
+                lblStatus.Text = "Đã tải thống kê theo danh mục";
             }
             catch (Exception ex)
             {

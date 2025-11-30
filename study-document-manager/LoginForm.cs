@@ -13,6 +13,10 @@ namespace study_document_manager
 
         private void LoginForm_Load(object sender, EventArgs e)
         {
+            // Thiết lập icon cho button show password
+            btnShowPassword.Image = IconHelper.CreateEyeIcon(16, true);
+            btnShowPassword.Text = "";
+            
             // Focus vào username
             txtUsername.Focus();
         }

@@ -111,11 +111,15 @@
             this.btnEditRole.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnEditRole.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnEditRole.ForeColor = System.Drawing.Color.White;
+            this.btnEditRole.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnEditRole.Location = new System.Drawing.Point(300, 15);
             this.btnEditRole.Name = "btnEditRole";
+            this.btnEditRole.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
             this.btnEditRole.Size = new System.Drawing.Size(140, 35);
             this.btnEditRole.TabIndex = 2;
-            this.btnEditRole.Text = "👔 Quản lý vai trò";
+            this.btnEditRole.Text = "Quản lý vai trò";
+            this.btnEditRole.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btnEditRole.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnEditRole.UseVisualStyleBackColor = false;
             this.btnEditRole.Click += new System.EventHandler(this.btnEditRole_Click);
             // 

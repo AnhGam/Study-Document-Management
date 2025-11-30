@@ -116,12 +116,10 @@ namespace study_document_manager
             this.btnShowPassword.BackColor = System.Drawing.Color.White;
             this.btnShowPassword.FlatAppearance.BorderSize = 0;
             this.btnShowPassword.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnShowPassword.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.btnShowPassword.Location = new System.Drawing.Point(355, 115);
             this.btnShowPassword.Name = "btnShowPassword";
-            this.btnShowPassword.Size = new System.Drawing.Size(35, 27);
+            this.btnShowPassword.Size = new System.Drawing.Size(35, 37);
             this.btnShowPassword.TabIndex = 4;
-            this.btnShowPassword.Text = "👁";
             this.btnShowPassword.UseVisualStyleBackColor = false;
             this.btnShowPassword.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnShowPassword_MouseDown);
             this.btnShowPassword.MouseUp += new System.Windows.Forms.MouseEventHandler(this.btnShowPassword_MouseUp);

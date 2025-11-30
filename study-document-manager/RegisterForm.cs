@@ -16,6 +16,12 @@ namespace study_document_manager
 
         private void RegisterForm_Load(object sender, EventArgs e)
         {
+            // Thiết lập icon cho button show password
+            btnShowPassword.Image = IconHelper.CreateEyeIcon(16, true);
+            btnShowPassword.Text = "";
+            btnShowConfirmPassword.Image = IconHelper.CreateEyeIcon(16, true);
+            btnShowConfirmPassword.Text = "";
+            
             // Chế độ cá nhân: Mặc định là User, ẩn dropdown và label chọn role
             cboRole.Items.Clear();
             cboRole.Items.Add("User");

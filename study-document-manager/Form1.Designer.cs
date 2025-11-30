@@ -238,7 +238,7 @@
             this.menuViewCategories.Name = "menuViewCategories";
             this.menuViewCategories.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.M)));
             this.menuViewCategories.Size = new System.Drawing.Size(378, 34);
-            this.menuViewCategories.Text = "Quản lý Môn học và Loại";
+            this.menuViewCategories.Text = "Quản lý Danh mục";
             this.menuViewCategories.Click += new System.EventHandler(this.menuViewCategories_Click);
             // 
             // menuHelp
@@ -278,7 +278,7 @@
             // 
             // toolBtnNew
             // 
-            this.toolBtnNew.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolBtnNew.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
             this.toolBtnNew.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.toolBtnNew.Name = "toolBtnNew";
             this.toolBtnNew.Size = new System.Drawing.Size(64, 29);
@@ -287,7 +287,7 @@
             // 
             // toolBtnEdit
             // 
-            this.toolBtnEdit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolBtnEdit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
             this.toolBtnEdit.Name = "toolBtnEdit";
             this.toolBtnEdit.Size = new System.Drawing.Size(46, 29);
             this.toolBtnEdit.Text = "Sửa";
@@ -295,7 +295,7 @@
             // 
             // toolBtnDelete
             // 
-            this.toolBtnDelete.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolBtnDelete.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
             this.toolBtnDelete.Name = "toolBtnDelete";
             this.toolBtnDelete.Size = new System.Drawing.Size(47, 29);
             this.toolBtnDelete.Text = "Xóa";
@@ -308,7 +308,7 @@
             // 
             // toolBtnOpen
             // 
-            this.toolBtnOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolBtnOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
             this.toolBtnOpen.Name = "toolBtnOpen";
             this.toolBtnOpen.Size = new System.Drawing.Size(71, 29);
             this.toolBtnOpen.Text = "Mở file";
@@ -316,7 +316,7 @@
             // 
             // toolBtnExport
             // 
-            this.toolBtnExport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolBtnExport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
             this.toolBtnExport.Name = "toolBtnExport";
             this.toolBtnExport.Size = new System.Drawing.Size(52, 29);
             this.toolBtnExport.Text = "Xuất";
@@ -329,7 +329,7 @@
             // 
             // toolBtnRefresh
             // 
-            this.toolBtnRefresh.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolBtnRefresh.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
             this.toolBtnRefresh.Name = "toolBtnRefresh";
             this.toolBtnRefresh.Size = new System.Drawing.Size(85, 29);
             this.toolBtnRefresh.Text = "Làm mới";
@@ -394,7 +394,7 @@
             this.lblSubject.Name = "lblSubject";
             this.lblSubject.Size = new System.Drawing.Size(87, 25);
             this.lblSubject.TabIndex = 3;
-            this.lblSubject.Text = "Môn học:";
+            this.lblSubject.Text = "Danh mục:";
             // 
             // cboSubject
             // 
@@ -579,7 +579,7 @@
             this.grpAdvancedFilter.Size = new System.Drawing.Size(1200, 165);
             this.grpAdvancedFilter.TabIndex = 100;
             this.grpAdvancedFilter.TabStop = false;
-            this.grpAdvancedFilter.Text = "▼ Filter Nâng Cao";
+            this.grpAdvancedFilter.Text = "Filter Nâng Cao";
             // 
             // btnClearAdvancedFilter
             // 
@@ -587,11 +587,15 @@
             this.btnClearAdvancedFilter.FlatAppearance.BorderSize = 0;
             this.btnClearAdvancedFilter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClearAdvancedFilter.ForeColor = System.Drawing.Color.White;
+            this.btnClearAdvancedFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnClearAdvancedFilter.Location = new System.Drawing.Point(580, 70);
             this.btnClearAdvancedFilter.Name = "btnClearAdvancedFilter";
+            this.btnClearAdvancedFilter.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
             this.btnClearAdvancedFilter.Size = new System.Drawing.Size(180, 35);
             this.btnClearAdvancedFilter.TabIndex = 15;
-            this.btnClearAdvancedFilter.Text = "✖ Xóa Filter";
+            this.btnClearAdvancedFilter.Text = "Xóa Filter";
+            this.btnClearAdvancedFilter.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btnClearAdvancedFilter.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnClearAdvancedFilter.UseVisualStyleBackColor = false;
             this.btnClearAdvancedFilter.Click += new System.EventHandler(this.btnClearAdvancedFilter_Click);
             // 
