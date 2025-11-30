@@ -339,9 +339,6 @@ namespace study_document_manager
             // ============================================
             ApplyPermissions();
             
-            // Setup icons cho buttons
-            btnClearAdvancedFilter.Image = IconHelper.CreateCloseIcon(16, Color.White);
-            
             // Setup icons cho ToolStrip buttons
             toolBtnNew.Image = IconHelper.CreateAddIcon(16, Color.FromArgb(76, 175, 80));
             toolBtnEdit.Image = IconHelper.CreateEditIcon(16, Color.FromArgb(33, 150, 243));
