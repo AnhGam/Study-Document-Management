@@ -16,10 +16,13 @@ namespace study_document_manager
 
         private void RegisterForm_Load(object sender, EventArgs e)
         {
-            // Load roles
-            cboRole.Items.Add("Student");
-            cboRole.Items.Add("Teacher");
+            // Chế độ cá nhân: Mặc định là User, ẩn dropdown và label chọn role
+            cboRole.Items.Clear();
+            cboRole.Items.Add("User");
             cboRole.SelectedIndex = 0;
+            cboRole.Enabled = false;
+            cboRole.Visible = false;
+            lblRole.Visible = false;
 
             txtUsername.Focus();
         }

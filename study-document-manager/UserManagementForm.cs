@@ -315,7 +315,8 @@ namespace study_document_manager
                     DropDownStyle = ComboBoxStyle.DropDownList,
                     Font = new Font("Segoe UI", 10F)
                 };
-                cboRole.Items.AddRange(new string[] { "Admin", "Teacher", "Student" });
+                // Chế độ cá nhân: chỉ có Admin và User
+                cboRole.Items.AddRange(new string[] { "Admin", "User" });
                 cboRole.SelectedItem = currentRole;
 
                 Button btnOK = new Button()
@@ -544,12 +545,11 @@ namespace study_document_manager
                     {
                         string role = e.Value.ToString();
                         
+                        // Chế độ cá nhân: Admin (hồng) và User (xanh)
                         if (role == "Admin")
                             e.CellStyle.ForeColor = Color.FromArgb(233, 30, 99); // Pink
-                        else if (role == "Teacher")
-                            e.CellStyle.ForeColor = Color.FromArgb(33, 150, 243); // Blue
                         else
-                            e.CellStyle.ForeColor = Color.FromArgb(158, 158, 158); // Gray
+                            e.CellStyle.ForeColor = Color.FromArgb(33, 150, 243); // Blue for User
 
                         e.CellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
                     }

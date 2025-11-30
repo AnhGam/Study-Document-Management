@@ -228,6 +228,59 @@ namespace study_document_manager
             return result > 0;
         }
 
+        /// <summary>
+        /// Cập nhật thông tin profile của user (tự sửa)
+        /// </summary>
+        public static bool UpdateUserProfile(int userId, string fullName, string email)
+        {
+            string query = "UPDATE users SET full_name = @fullName, email = @email WHERE id = @userId";
+            
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@fullName", fullName),
+                new SqlParameter("@email", string.IsNullOrEmpty(email) ? (object)DBNull.Value : email),
+                new SqlParameter("@userId", userId)
+            };
+
+            int result = ExecuteNonQuery(query, parameters);
+            return result > 0;
+        }
+
+        /// <summary>
+        /// Đổi mật khẩu (user tự đổi, cần xác thực mật khẩu cũ)
+        /// </summary>
+        public static (bool Success, string Message) ChangePasswordSelf(int userId, string currentPassword, string newPassword)
+        {
+            string query = "SELECT password_hash FROM users WHERE id = @userId";
+            SqlParameter[] getParams = new SqlParameter[]
+            {
+                new SqlParameter("@userId", userId)
+            };
+
+            DataTable dt = ExecuteQuery(query, getParams);
+            if (dt.Rows.Count == 0)
+                return (false, "Không tìm thấy tài khoản!");
+
+            string storedHash = dt.Rows[0]["password_hash"].ToString();
+
+            if (!BCrypt.Net.BCrypt.Verify(currentPassword, storedHash))
+                return (false, "Mật khẩu hiện tại không đúng!");
+
+            string newHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            string updateQuery = "UPDATE users SET password_hash = @newHash WHERE id = @userId";
+            
+            SqlParameter[] updateParams = new SqlParameter[]
+            {
+                new SqlParameter("@newHash", newHash),
+                new SqlParameter("@userId", userId)
+            };
+
+            int result = ExecuteNonQuery(updateQuery, updateParams);
+            return result > 0 
+                ? (true, "Đổi mật khẩu thành công!") 
+                : (false, "Không thể cập nhật mật khẩu!");
+        }
+
         #endregion
     }
 }

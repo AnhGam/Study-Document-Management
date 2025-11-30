@@ -1,6 +1,6 @@
 # Study Document Manager
 
-> Ứng dụng quản lý tài liệu học tập chuyên nghiệp cho sinh viên và giáo viên
+> Ứng dụng quản lý tài liệu học tập cá nhân
 
 [![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4?logo=.net)](https://dotnet.microsoft.com/)
 [![SQL Server](https://img.shields.io/badge/SQL%20Server-2012+-CC2927?logo=microsoft-sql-server)](https://www.microsoft.com/sql-server)
@@ -9,32 +9,42 @@
 
 ## Giới thiệu
 
-**Study Document Manager** là một ứng dụng Windows Forms được phát triển bằng C# để giúp sinh viên, giáo viên và nhân viên quản lý tài liệu học tập một cách hiệu quả. Ứng dụng cung cấp đầy đủ các tính năng từ quản lý cơ bản đến nâng cao như tìm kiếm, thống kê, phân quyền và kiểm tra dữ liệu.
+**Study Document Manager** là một ứng dụng Windows Forms được phát triển bằng C# để giúp người dùng quản lý tài liệu học tập và công việc một cách hiệu quả. Ứng dụng sử dụng mô hình **cá nhân hóa** - mỗi người dùng có thể quản lý hoàn toàn tài liệu, danh mục của riêng mình.
 
 > [Cấu trúc dự án](PROJECT_STRUCTURE.md)
 
 ### Tính năng chính
 
 - **Quản lý tài liệu đầy đủ**: Thêm, sửa, xóa tài liệu với đầy đủ thông tin cho từng người dùng
-- **Đăng nhập & phân quyền**: Hỗ trợ tài khoản Student / Teacher / Admin, phân quyền xem, thêm, sửa, xóa tài liệu
-- **Tìm kiếm & filter nâng cao**: Tìm kiếm theo từ khóa, lọc theo môn học, loại tài liệu, ngày thêm, dung lượng, người tạo, chỉ tài liệu quan trọng
+- **Đăng nhập & phân quyền**: Hỗ trợ 2 cấp quyền User / Admin - mỗi User quản lý tài liệu của riêng mình
+- **Tìm kiếm & filter nâng cao**: Tìm kiếm theo từ khóa, lọc theo môn học, loại tài liệu, ngày thêm, dung lượng, chỉ tài liệu quan trọng
 - **Mở file trực tiếp & Context Menu**: Double-click hoặc chuột phải để mở file, sửa, xóa, copy đường dẫn, mở thư mục chứa file
 - **Đánh dấu quan trọng**: Đánh sao vàng cho tài liệu quan trọng, có thể lọc nhanh
+- **Tags (nhãn)**: Gắn nhiều nhãn cho tài liệu, lọc theo tag để tìm nhanh theo chủ đề
+- **Deadline & nhắc hạn**: Đặt hạn chót cho tài liệu, xem danh sách sắp đến hạn/quá hạn
+- **Ghi chú cá nhân**: Ghi chú riêng cho từng tài liệu, đánh dấu trạng thái học tập
+- **Bộ sưu tập (Collections)**: Gom nhóm tài liệu theo chủ đề, mở nhanh cả bộ sưu tập
 - **Kiểm tra file bị thiếu**: Quét toàn bộ danh sách, phát hiện file không còn tồn tại và cho phép cập nhật/xóa nhanh
 - **Icon động**: Hiển thị icon theo loại file (PDF, Word, PowerPoint, Excel)
 - **Thống kê trực quan**: Biểu đồ thống kê số lượng tài liệu (Cột, Tròn, Đường...)
 - **Xuất dữ liệu**: Xuất danh sách tài liệu ra file CSV
 - **Drag & Drop**: Kéo thả file để thêm tài liệu nhanh chóng
 - **Quản lý danh mục & người dùng**: Quản lý môn học, loại tài liệu và tài khoản người dùng tập trung
+- **Cài đặt tài khoản**: Thay đổi thông tin cá nhân (họ tên, email) và đổi mật khẩu
 
 ## Giao diện
 
 ### Form chính
 - Menu bar với các chức năng nhanh (Ctrl+N, Ctrl+O, F5...)
+  - **Công cụ**: Thống kê, Quản lý danh mục, Kiểm tra file bị thiếu
+  - **Theo dõi**: Sắp đến hạn, Quá hạn, Quản lý bộ sưu tập
+  - **Tài khoản**: Cài đặt tài khoản, Đăng xuất
+  - **Quản lý** (Admin): Quản lý người dùng
 - Toolbar với các nút chức năng
 - Panel tìm kiếm với TextBox và ComboBox lọc
 - DataGridView hiển thị danh sách tài liệu
 - Status bar hiển thị trạng thái và số lượng tài liệu
+- Nút **Đăng xuất** ở góc phải menu bar
 
 ### Form thêm/sửa tài liệu
 - Nhập đầy đủ thông tin: tên, môn học, loại, đường dẫn
@@ -55,6 +65,11 @@
 - Cập nhật hàng loạt tài liệu khi đổi tên danh mục
 - Xác nhận kỹ trước khi xóa
 
+### Form cài đặt tài khoản
+- Tab **Thông tin cá nhân**: Xem và sửa họ tên, email
+- Tab **Đổi mật khẩu**: Đổi mật khẩu (cần xác thực mật khẩu hiện tại)
+- Hiển thị vai trò và thời gian đăng nhập
+
 ## Công nghệ sử dụng
 
 - **Ngôn ngữ**: C# (.NET Framework 4.8)
@@ -65,46 +80,19 @@
 
 ## Cấu trúc Database
 
-### Bảng `tai_lieu`
+> Chi tiết đầy đủ xem tại [DATABASE.md](DATABASE.md)
 
-```sql
-CREATE TABLE tai_lieu (
-    id INT PRIMARY KEY IDENTITY(1,1),      -- ID tự động tăng
-    ten NVARCHAR(200) NOT NULL,            -- Tên tài liệu
-    mon_hoc NVARCHAR(100),                 -- Môn học
-    loai NVARCHAR(100),                    -- Loại tài liệu
-    duong_dan NVARCHAR(500) NOT NULL,      -- Đường dẫn file
-    ghi_chu NVARCHAR(1000),                -- Ghi chú
-    ngay_them DATETIME DEFAULT GETDATE(),  -- Ngày thêm
-    kich_thuoc FLOAT,                      -- Kích thước (MB)
-    tac_gia NVARCHAR(100),                 -- Tác giả
-    quan_trong BIT NOT NULL DEFAULT 0,     -- Đánh dấu quan trọng
-    user_id INT NULL                       -- Người tạo (FK đến users.id)
-);
-```
+Database **quan_ly_tai_lieu** gồm 7 bảng chính:
 
-### Bảng `users` (tài khoản đăng nhập)
-
-```sql
-CREATE TABLE users (
-    id INT PRIMARY KEY IDENTITY(1,1),
-    username NVARCHAR(50) NOT NULL UNIQUE,
-    password_hash NVARCHAR(255) NOT NULL,
-    full_name NVARCHAR(100) NOT NULL,
-    role NVARCHAR(20) NOT NULL -- 'Student', 'Teacher', 'Admin'
-);
-```
-
-### Bảng `user_sessions`
-
-```sql
-CREATE TABLE user_sessions (
-    id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT NOT NULL,
-    login_date DATETIME DEFAULT GETDATE(),
-    remember_me BIT NOT NULL DEFAULT 0
-);
-```
+| Bảng | Mô tả |
+|------|-------|
+| `users` | Tài khoản người dùng (User/Admin) |
+| `user_sessions` | Phiên đăng nhập |
+| `tai_lieu` | Tài liệu học tập |
+| `collections` | Bộ sưu tập tài liệu |
+| `collection_items` | Liên kết tài liệu - bộ sưu tập |
+| `personal_notes` | Ghi chú cá nhân |
+| `activity_logs` | Nhật ký hoạt động |
 
 ## Cài đặt và Chạy
 
@@ -210,57 +198,30 @@ CREATE TABLE user_sessions (
 4. **Sửa**: Đổi tên danh mục (cập nhật tất cả tài liệu liên quan)
 5. **Xóa**: Xóa danh mục (cảnh báo: có thể ảnh hưởng đến tài liệu liên quan)
 
+### Cài đặt tài khoản
+
+1. Menu **Tài khoản > Cài đặt tài khoản**
+2. Tab **Thông tin cá nhân**: Sửa họ tên và email, nhấn **Lưu thay đổi**
+3. Tab **Đổi mật khẩu**: Nhập mật khẩu hiện tại và mật khẩu mới, nhấn **Đổi mật khẩu**
+
+### Đăng xuất
+
+- Click nút **Đăng xuất** ở góc phải menu bar, hoặc
+- Menu **Tài khoản > Đăng xuất** (`Ctrl+L`)
+
 ## Thiết kế màu sắc
-
-- **Màu chủ đạo**: Material Design Colors
-  - Primary: `#2196F3` (Blue)
-  - Success: `#4CAF50` (Green)
-  - Danger: `#F44336` (Red)
-  - Warning: `#FF9800` (Orange)
-  - Star: `#FFCA28` (Yellow)
-  
-- **Màu nền**:
-  - Form chính: `#E3F2FD` (Light Blue)
-  - Panel: `#FFFFFF` (White)
-  - DataGridView alternating: `#F5F5F5` (Light Gray)
-
-## Cấu trúc Project
-
-```text
-study-document-manager/
-│
-├── study-document-manager/             # Project WinForms chính
-│   ├── Form1.cs                        # Form chính (danh sách, filter, context menu)
-│   ├── Form1.Designer.cs
-│   ├── AddEditForm.cs                  # Thêm / sửa tài liệu
-│   ├── AddEditForm.Designer.cs
-│   ├── FileIntegrityCheckForm.cs       # Kiểm tra & xử lý file bị thiếu
-│   ├── FileIntegrityCheckForm.Designer.cs
-│   ├── CategoryManagementForm.cs       # Quản lý môn học & loại tài liệu
-│   ├── CategoryManagementForm.Designer.cs
-│   ├── Report.cs                       # Thống kê
-│   ├── Report.Designer.cs
-│   ├── LoginForm.cs                    # Đăng nhập
-│   ├── LoginForm.Designer.cs
-│   ├── RegisterForm.cs                 # Đăng ký tài khoản
-│   ├── RegisterForm.Designer.cs
-│   ├── UserManagementForm.cs           # Quản lý người dùng (Admin)
-│   ├── UserManagementForm.Designer.cs
-│   ├── DatabaseHelper.cs               # Truy vấn dữ liệu tài liệu
-│   ├── DatabaseHelper_UserAuth.cs      # Đăng nhập, đăng ký, phân quyền
-│   ├── UserSession.cs                  # Thông tin user đăng nhập hiện tại
-│   ├── IconHelper.cs                   # Icon động cho DataGridView
-│   ├── Program.cs                      # Entry point
-│   └── App.config                      # Cấu hình ứng dụng (connection string,...)
-│
-├── Database/
-│   └── Database.sql                    # Script tạo database, bảng, default values
-│
-├── FEATURES.md                         # Danh sách tính năng & roadmap
-├── PROJECT_STRUCTURE.md                # Mô tả chi tiết kiến trúc (tham khảo nội bộ)
-└── README.md                           # Tài liệu giới thiệu & hướng dẫn
 ```
+Primary:    #2196F3 (Blue)      - Button chính, selection
+Success:    #4CAF50 (Green)     - Thành công, button Lưu
+Danger:     #F44336 (Red)       - Lỗi, xóa, quá hạn
+Warning:    #FF9800 (Orange)    - Cảnh báo, PowerPoint icon
+Star:       #FFCA28 (Yellow)    - Đánh dấu quan trọng
 
+Background: #E3F2FD (Light Blue) - Form chính
+Panel:      #FFFFFF (White)
+Alternating: #F5F5F5 (Light Gray) - DataGridView rows
+Header:     #34495E (Dark)       - DataGridView header
+```
 ## Các phím tắt
 
 | Phím tắt | Chức năng |
@@ -272,6 +233,7 @@ study-document-manager/
 | `Ctrl+E` | Xuất dữ liệu |
 | `Ctrl+S` | Xem thống kê |
 | `Ctrl+M` | Quản lý môn học và loại |
+| `Ctrl+L` | Đăng xuất |
 | `F5` | Làm mới danh sách |
 | `Alt+F4` | Thoát ứng dụng |
 

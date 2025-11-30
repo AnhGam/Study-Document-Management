@@ -18,7 +18,7 @@ Tài liệu này mô tả kiến trúc, luồng dữ liệu và cấu trúc thư
 │  Form1, AddEditForm, LoginForm, RegisterForm                │
 │  UserManagementForm, CategoryManagementForm, Report         │
 │  PersonalNoteForm, CollectionManagementForm                 │
-│  FileIntegrityCheckForm                                     │
+│  FileIntegrityCheckForm, AccountSettingsForm                │
 ├─────────────────────────────────────────────────────────────┤
 │  BUSINESS LAYER (Logic)                                     │
 │  DatabaseHelper.cs, DatabaseHelper_UserAuth.cs              │
@@ -31,7 +31,7 @@ Tài liệu này mô tả kiến trúc, luồng dữ liệu và cấu trúc thư
 ```
 
 1. **Presentation Layer (UI)**
-   - Các Form WinForms: `Form1`, `AddEditForm`, `LoginForm`, `RegisterForm`, `UserManagementForm`, `CategoryManagementForm`, `Report`, `FileIntegrityCheckForm`, `PersonalNoteForm`, `CollectionManagementForm`.
+   - Các Form WinForms: `Form1`, `AddEditForm`, `LoginForm`, `RegisterForm`, `UserManagementForm`, `CategoryManagementForm`, `Report`, `FileIntegrityCheckForm`, `PersonalNoteForm`, `CollectionManagementForm`, `AccountSettingsForm`.
    - Chịu trách nhiệm giao diện, binding dữ liệu vào `DataGridView`, điều khiển filter, hiển thị dialog.
 
 2. **Application / Business Layer**
@@ -48,9 +48,9 @@ Tài liệu này mô tả kiến trúc, luồng dữ liệu và cấu trúc thư
 ### 1.2. Các khối chức năng chính
 
 **Phase 1 (Core):**
-- **Quản lý tài liệu**: CRUD tài liệu, kèm metadata (môn học, loại, ghi chú, dung lượng, tác giả, quan trọng, người tạo).
-- **Đăng nhập & phân quyền**: Student / Teacher / Admin với quyền xem/sửa/xóa khác nhau.
-- **Filter & tìm kiếm nâng cao**: theo từ khóa, môn học, loại, ngày, dung lượng, người tạo, cờ quan trọng.
+- **Quản lý tài liệu**: CRUD tài liệu, kèm metadata (môn học, loại, ghi chú, dung lượng, tác giả, quan trọng).
+- **Đăng nhập & phân quyền**: Chế độ cá nhân với 2 cấp quyền (Admin/User) - mỗi User chỉ quản lý tài liệu của riêng mình.
+- **Filter & tìm kiếm nâng cao**: theo từ khóa, môn học, loại, ngày, dung lượng, cờ quan trọng.
 - **Context Menu trên danh sách**: thao tác nhanh trên DataGridView.
 - **Kiểm tra file bị thiếu**: quét và sửa các record có đường dẫn không tồn tại.
 - **Thống kê**: biểu đồ thống kê tài liệu.
@@ -96,6 +96,7 @@ study-document-manager/
 │   ├── FileIntegrityCheckForm.cs / .Designer.cs / .resx # Kiểm tra file bị thiếu
 │   ├── PersonalNoteForm.cs / .Designer.cs / .resx       # Ghi chú cá nhân (Phase 2)
 │   ├── CollectionManagementForm.cs / .Designer.cs / .resx # Bộ sưu tập (Phase 2)
+│   ├── AccountSettingsForm.cs / .Designer.cs / .resx   # Cài đặt tài khoản
 │   │
 │   ├── ─── HELPERS ───
 │   ├── DatabaseHelper.cs               # Truy vấn tài liệu, filter, CRUD, collections
@@ -124,6 +125,7 @@ study-document-manager/
 │   └── BCrypt.Net-Next.4.0.3/
 │
 ├── README.md                           # Giới thiệu & hướng dẫn sử dụng
+├── DATABASE.md                         # Cấu trúc database chi tiết
 ├── FEATURES.md                         # Roadmap tính năng
 ├── PROJECT_STRUCTURE.md                # (file hiện tại) mô tả kiến trúc
 └── study-document-manager.sln          # Solution file
@@ -131,96 +133,55 @@ study-document-manager/
 
 ### 2.2. Database Schema
 
-```text
-quan_ly_tai_lieu/
-├── users                   # Tài khoản người dùng
-│   ├── id (PK)
-│   ├── username (UNIQUE)
-│   ├── password_hash       # BCrypt hash
-│   ├── full_name, email
-│   ├── role                # 'Admin' | 'Teacher' | 'Student'
-│   ├── is_active
-│   ├── created_date, last_login
-│   └── failed_login_attempts, locked_until
-│
-├── tai_lieu                # Tài liệu
-│   ├── id (PK)
-│   ├── ten, mon_hoc, loai
-│   ├── duong_dan           # Đường dẫn file
-│   ├── ghi_chu, kich_thuoc, tac_gia
-│   ├── quan_trong (BIT)
-│   ├── ngay_them
-│   ├── user_id (FK → users.id)
-│   ├── tags                # Phase 2: nhãn phân cách bởi ;
-│   └── deadline            # Phase 2: hạn chót
-│
-├── collections             # Bộ sưu tập (Phase 2)
-│   ├── id (PK)
-│   ├── user_id (FK)
-│   ├── name, description
-│   └── created_at
-│
-├── collection_items        # Tài liệu trong bộ sưu tập (Phase 2)
-│   ├── collection_id (FK, PK)
-│   ├── document_id (FK, PK)
-│   └── added_at
-│
-├── personal_notes          # Ghi chú cá nhân (Phase 2)
-│   ├── id (PK)
-│   ├── user_id (FK)
-│   ├── document_id (FK)
-│   ├── note_content
-│   ├── status              # 'Chua doc' | 'Dang hoc' | 'Da on xong'
-│   └── updated_at
-│
-├── user_sessions           # Phiên đăng nhập
-│   ├── id (PK)
-│   ├── user_id (FK)
-│   ├── session_token (UNIQUE)
-│   ├── ip_address, user_agent
-│   └── login_date, last_activity, logout_date
-│
-└── activity_logs           # Nhật ký hoạt động
-    ├── id (PK)
-    ├── user_id (FK)
-    ├── action, entity_type, entity_id
-    ├── description
-    └── ip_address, user_agent, created_date
-```
+> 📋 **Chi tiết schema database xem tại [DATABASE.md](DATABASE.md)**
+
+Database `quan_ly_tai_lieu` gồm 7 bảng chính:
+- `users` - Tài khoản người dùng
+- `tai_lieu` - Tài liệu (kèm tags, deadline từ Phase 2)
+- `collections` - Bộ sưu tập (Phase 2)
+- `collection_items` - Tài liệu trong bộ sưu tập (Phase 2)
+- `personal_notes` - Ghi chú cá nhân (Phase 2)
+- `user_sessions` - Phiên đăng nhập
+- `activity_logs` - Nhật ký hoạt động
 
 ---
 
 ## 3. Hệ thống phân quyền
 
-### 3.1. Ma trận quyền
+### 3.1. Mô hình cá nhân hóa (Personal Mode)
 
-| Chức năng | Student | Teacher | Admin |
-|-----------|:-------:|:-------:|:-----:|
-| Xem tài liệu của mình | ✓ | ✓ | ✓ |
-| Xem tài liệu của người khác | ✗ | ✓ | ✓ |
-| Thêm tài liệu | ✓ | ✓ | ✓ |
-| Sửa tài liệu của mình | ✓ | ✓ | ✓ |
-| Sửa tài liệu của người khác | ✗ | ✗ | ✓ |
-| Xóa tài liệu của mình | ✓ | ✓ | ✓ |
-| Xóa tài liệu của người khác | ✗ | ✗ | ✓ |
-| Quản lý danh mục | ✗ | ✓ | ✓ |
-| Quản lý người dùng | ✗ | ✗ | ✓ |
-| Xem cột "Người tạo" | ✗ | ✓ | ✓ |
-| Filter theo người tạo | ✗ | ✓ | ✓ |
+Ứng dụng sử dụng mô hình **cá nhân hóa** với 2 cấp quyền:
 
-### 3.2. UserSession Properties
+- **User**: Quản lý hoàn toàn dữ liệu của riêng mình (tài liệu, danh mục, bộ sưu tập, ghi chú). Không thể xem/sửa/xóa dữ liệu của người khác.
+- **Admin**: Có toàn quyền User + quản lý người dùng (thêm/sửa/xóa tài khoản, đổi vai trò, khóa/mở khóa).
+
+### 3.2. Ma trận quyền
+
+| Chức năng | User | Admin |
+|-----------|:----:|:-----:|
+| Xem tài liệu của mình | ✓ | ✓ |
+| Xem tài liệu của người khác | ✗ | ✗ |
+| Thêm tài liệu | ✓ | ✓ |
+| Sửa tài liệu của mình | ✓ | ✓ |
+| Sửa tài liệu của người khác | ✗ | ✗ |
+| Xóa tài liệu của mình | ✓ | ✓ |
+| Xóa tài liệu của người khác | ✗ | ✗ |
+| Quản lý danh mục (của mình) | ✓ | ✓ |
+| Quản lý người dùng | ✗ | ✓ |
+
+### 3.3. UserSession Properties
 
 ```csharp
 UserSession.UserId          // ID của user đang đăng nhập
 UserSession.Username        // Tên đăng nhập
 UserSession.FullName        // Họ tên đầy đủ
-UserSession.Role            // "Admin" | "Teacher" | "Student"
+UserSession.Role            // "Admin" | "User"
 UserSession.IsAdmin         // Role == "Admin"
-UserSession.IsTeacher       // Role == "Teacher"
-UserSession.IsStudent       // Role == "Student"
-UserSession.CanManageCategories  // IsAdmin || IsTeacher
-UserSession.CanEditAllDocuments  // IsAdmin
+UserSession.IsUser          // Role == "User"
+UserSession.CanManageCategories  // true (tất cả user đều có quyền)
 ```
+
+> **Lưu ý**: Các property `IsTeacher`, `IsStudent`, `CanEditAllDocuments` đã bị deprecated và luôn trả về `false`.
 
 ---
 
@@ -232,11 +193,14 @@ UserSession.CanEditAllDocuments  // IsAdmin
 
 - Hiển thị danh sách tài liệu trong `DataGridView`.
 - Panel tìm kiếm nhanh (từ khóa, môn học, loại).
-- **Filter nâng cao**: khoảng ngày, khoảng dung lượng, chỉ tài liệu quan trọng, lọc theo người tạo (Admin/Teacher).
+- **Filter nâng cao**: khoảng ngày, khoảng dung lượng, chỉ tài liệu quan trọng.
 - Toolbar & menu:
   - Thêm, Sửa, Xóa, Mở file, Xuất dữ liệu.
-  - Menu **Hiển thị**: Kiểm tra file bị thiếu, Sắp đến hạn, Tài liệu quá hạn, Quản lý bộ sưu tập, Đăng xuất.
+  - Menu **Công cụ**: Thống kê, Quản lý Môn học và Loại, Kiểm tra file bị thiếu.
+  - Menu **Theo dõi**: Sắp đến hạn (7 ngày), Tài liệu quá hạn, Quản lý bộ sưu tập.
+  - Menu **Tài khoản**: Cài đặt tài khoản, Đăng xuất.
   - Menu **Quản lý** (Admin only): Quản lý người dùng.
+  - Nút **Đăng xuất** ở góc phải menu bar.
 - **Context menu** trên mỗi dòng:
   - Mở file
   - Sửa / Xóa
@@ -250,11 +214,11 @@ UserSession.CanEditAllDocuments  // IsAdmin
 
 **Liên kết với backend:**
 
-- Gọi `DatabaseHelper.GetDocumentsForCurrentUser()` để load dữ liệu theo quyền.
+- Gọi `DatabaseHelper.GetDocumentsForCurrentUser()` để load dữ liệu của user hiện tại.
 - Gọi `DatabaseHelper.SearchDocuments`, `FilterDocuments`, `SearchDocumentsAdvanced` để áp dụng filter.
 - Gọi `DatabaseHelper.GetUpcomingDeadlines()`, `GetOverdueDocuments()` cho Phase 2.
 - Sử dụng `DatabaseHelper.DeleteDocument`, `CanUserEditDocument` để xóa / kiểm tra quyền.
-- Sử dụng `UserSession` để biết `UserId`, `Role`, `IsStudent / IsTeacher / IsAdmin`.
+- Sử dụng `UserSession` để biết `UserId`, `Role`, `IsAdmin / IsUser`.
 
 ### 4.2. AddEditForm – Thêm / sửa tài liệu
 
@@ -283,9 +247,9 @@ UserSession.CanEditAllDocuments  // IsAdmin
 
 ### 4.4. CategoryManagementForm – Quản lý danh mục
 
-- Quản lý Môn học và Loại tài liệu (lấy distinct từ bảng `tai_lieu`).
+- Quản lý Môn học và Loại tài liệu (lấy distinct từ bảng `tai_lieu` của user hiện tại).
 - Thêm / sửa / xóa danh mục, với cảnh báo khi thao tác có thể ảnh hưởng đến dữ liệu tài liệu.
-- Chỉ Teacher và Admin mới có quyền truy cập.
+- Tất cả users đều có quyền quản lý danh mục của riêng mình.
 - Sau khi đóng form, `Form1` reload lại dữ liệu để áp dụng thay đổi.
 
 ### 4.5. Report – Thống kê
@@ -305,7 +269,7 @@ UserSession.CanEditAllDocuments  // IsAdmin
   - Hỗ trợ Remember Me (lưu username vào Settings).
 
 - **RegisterForm**
-  - Cho phép tạo tài khoản mới (Student/Teacher).
+  - Cho phép tạo tài khoản mới (mặc định là User).
   - Validation: username ≥3 ký tự, password ≥6 ký tự, email hợp lệ.
   - Mật khẩu được hash bằng BCrypt.
 
@@ -313,7 +277,7 @@ UserSession.CanEditAllDocuments  // IsAdmin
   - Xem danh sách users với DataGridView.
   - Thêm user mới (mở RegisterForm).
   - Đổi mật khẩu (Admin không cần old password).
-  - Đổi vai trò (Admin/Teacher/Student).
+  - Đổi vai trò (Admin/User).
   - Khóa/Mở khóa tài khoản.
   - Xóa user (không được xóa chính mình).
 
@@ -333,7 +297,14 @@ UserSession.CanEditAllDocuments  // IsAdmin
 - Mở tất cả tài liệu trong bộ sưu tập cùng lúc.
 - Double-click để mở từng tài liệu.
 
-### 4.9. Lớp trợ giúp (Helpers)
+### 4.9. AccountSettingsForm – Cài đặt tài khoản
+
+- **Tab Thông tin cá nhân**: Xem/sửa họ tên, email.
+- **Tab Đổi mật khẩu**: Đổi mật khẩu (cần nhập mật khẩu hiện tại).
+- Hiển thị vai trò và thời gian đăng nhập.
+- Lưu vào bảng `users` thông qua `DatabaseHelper.UpdateUserProfile()` và `ChangePasswordSelf()`.
+
+### 4.10. Lớp trợ giúp (Helpers)
 
 - **DatabaseHelper / DatabaseHelper_UserAuth**
   - Quản lý connection string (đọc từ `App.config`).
@@ -361,11 +332,12 @@ UserSession.CanEditAllDocuments  // IsAdmin
     - `CheckUsernameExists()`, `CheckEmailExists()`.
     - `UpdateLastLogin()`, `ChangePassword()`, `AdminResetPassword()`.
     - `GetAllUsers()`, `ToggleUserActive()`, `DeleteUser()`, `UpdateUserRole()`.
+    - `UpdateUserProfile()`, `ChangePasswordSelf()` - cho AccountSettingsForm.
 
 - **UserSession** (static class)
   - Lưu thông tin user hiện tại trong suốt vòng đời ứng dụng.
   - Properties: `UserId`, `Username`, `FullName`, `Email`, `Role`, `LoginTime`.
-  - Helper properties: `IsLoggedIn`, `IsAdmin`, `IsTeacher`, `IsStudent`, `CanEdit`, `CanManageCategories`, `CanEditAllDocuments`.
+  - Helper properties: `IsLoggedIn`, `IsAdmin`, `IsUser`, `CanManageCategories`.
   - Method: `CanEditDocument(documentUserId)`, `Logout()`.
 
 - **IconHelper** (static class)
@@ -436,10 +408,10 @@ Form1.ApplyAdvancedFilter()
             keyword, mon_hoc, loai, 
             fromDate, toDate, 
             minSize, maxSize, 
-            isImportant, creatorUserId
+            isImportant
         )
             └── Build SQL với WHERE clauses động
-            └── Áp dụng phân quyền (Student chỉ thấy của mình)
+            └── Luôn filter theo user_id (mỗi user chỉ thấy tài liệu của mình)
     └── dgvDocuments.DataSource = result
     └── SetupDataGridView()
 ```
@@ -480,46 +452,19 @@ Form1.ctxMenuPersonalNote_Click()
 
 ## 6. UI/UX Conventions
 
-### 6.1. Màu sắc Material Design
+> **Chi tiết màu sắc Material Design xem tại [README.md](README.md#bảng-màu-material-design)**
 
-```
-Primary:    #2196F3 (Blue)      - Button chính, selection
-Success:    #4CAF50 (Green)     - Thành công, button Lưu
-Danger:     #F44336 (Red)       - Lỗi, xóa, quá hạn
-Warning:    #FF9800 (Orange)    - Cảnh báo, PowerPoint icon
-Star:       #FFCA28 (Yellow)    - Đánh dấu quan trọng
-
-Background: #E3F2FD (Light Blue) - Form chính
-Panel:      #FFFFFF (White)
-Alternating: #F5F5F5 (Light Gray) - DataGridView rows
-Header:     #34495E (Dark)       - DataGridView header
-```
-
-### 6.2. DataGridView Styling
+### 6.1. DataGridView Styling
 
 - Alternating rows: `#F5F5F5`
-- Selection: `#2196F3` với white text
+- Selection: `#2196F3` với white text  
 - Header: `#34495E` với white text, font bold
 - Row height: 32px
 - Column Icon: 30px width, ImageLayout.Zoom
 
-### 6.3. Phím tắt
+### 6.2. Phím tắt
 
-#### Đã triển khai
-
-| Phím | Chức năng |
-|------|-----------|
-| `Ctrl+N` | Thêm tài liệu mới |
-| `Ctrl+O` | Mở file đã chọn |
-| `Ctrl+U` | Sửa tài liệu / Quản lý người dùng (Admin) |
-| `Delete` | Xóa tài liệu |
-| `Ctrl+E` | Xuất dữ liệu |
-| `Ctrl+S` | Thống kê |
-| `Ctrl+M` | Quản lý danh mục |
-| `Ctrl+L` | Đăng xuất |
-| `F5` | Làm mới danh sách |
-| `Alt+F4` | Thoát ứng dụng |
-| `Enter` | Tìm kiếm (khi focus ở ô tìm kiếm) |
+> **Danh sách phím tắt đầy đủ xem tại [README.md](README.md#phím-tắt)**
 
 #### Chưa triển khai (theo FEATURES.md Phase 1)
 
@@ -563,10 +508,10 @@ Header:     #34495E (Dark)       - DataGridView header
 
 1. Thêm property mới trong `UserSession.cs`:
    ```csharp
-   public static bool CanDoSomething => IsAdmin || IsTeacher;
+   public static bool CanDoSomething => IsAdmin; // hoặc logic khác
    ```
 2. Cập nhật `Form1.ApplyPermissions()` để ẩn/hiện UI
-3. Thêm check trong `DatabaseHelper` nếu cần filter data
+3. Thêm check trong `DatabaseHelper` nếu cần filter data (luôn filter theo `user_id`)
 
 ### 8.4. Thêm loại biểu đồ mới
 

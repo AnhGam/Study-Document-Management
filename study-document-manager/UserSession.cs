@@ -4,6 +4,7 @@ namespace study_document_manager
 {
     /// <summary>
     /// Quản lý session người dùng hiện tại
+    /// Chế độ cá nhân hóa: Admin/User (không còn Teacher/Student)
     /// </summary>
     public static class UserSession
     {
@@ -31,55 +32,66 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Kiểm tra là Teacher
+        /// Kiểm tra là User thường
         /// </summary>
+        public static bool IsUser
+        {
+            get { return Role == "User"; }
+        }
+
+        // ============ DEPRECATED - Giữ lại để tương thích ngược ============
+        // Các property này sẽ trả về false, code cũ vẫn chạy được
+        
+        /// <summary>
+        /// [DEPRECATED] Không còn role Teacher - luôn trả về false
+        /// </summary>
+        [Obsolete("Role Teacher đã bị xóa. Sử dụng IsUser hoặc IsAdmin.")]
         public static bool IsTeacher
         {
-            get { return Role == "Teacher"; }
+            get { return false; }
         }
 
         /// <summary>
-        /// Kiểm tra là Student
+        /// [DEPRECATED] Không còn role Student - luôn trả về false
         /// </summary>
+        [Obsolete("Role Student đã bị xóa. Sử dụng IsUser hoặc IsAdmin.")]
         public static bool IsStudent
         {
-            get { return Role == "Student"; }
+            get { return false; }
         }
+        // ===================================================================
 
         /// <summary>
-        /// Có quyền thêm/sửa/xóa tài liệu không (tất cả user đều có quyền với tài liệu của mình)
+        /// Có quyền thêm/sửa/xóa tài liệu của mình không (tất cả user đều có)
         /// </summary>
         public static bool CanEdit
         {
-            get { return IsAdmin || IsTeacher || IsStudent; }
+            get { return IsLoggedIn; }
         }
 
         /// <summary>
-        /// Có quyền quản lý danh mục không (chỉ Teacher và Admin)
+        /// Có quyền quản lý danh mục không (tất cả user đều quản lý danh mục của mình)
         /// </summary>
         public static bool CanManageCategories
         {
-            get { return IsAdmin || IsTeacher; }
+            get { return IsLoggedIn; }
         }
 
         /// <summary>
-        /// Có quyền sửa/xóa tài liệu của người khác không (chỉ Admin)
+        /// Có quyền quản lý người dùng không (chỉ Admin)
         /// </summary>
-        public static bool CanEditAllDocuments
+        public static bool CanManageUsers
         {
             get { return IsAdmin; }
         }
 
         /// <summary>
         /// Kiểm tra có quyền sửa/xóa tài liệu cụ thể không
+        /// Chế độ cá nhân: mỗi user chỉ sửa được tài liệu của mình
         /// </summary>
         public static bool CanEditDocument(int documentUserId)
         {
-            // Admin có thể sửa tất cả
-            if (IsAdmin)
-                return true;
-
-            // Student và Teacher chỉ sửa được tài liệu của mình
+            // Mọi user chỉ sửa được tài liệu của mình (kể cả Admin)
             return documentUserId == UserId;
         }
 

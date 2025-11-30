@@ -179,34 +179,19 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Lấy tài liệu theo quyền của user hiện tại
-        /// - Student: chỉ thấy tài liệu của mình
-        /// - Teacher/Admin: thấy tất cả
-        /// Kèm theo thông tin người tạo
+        /// Lấy tài liệu của user hiện tại
+        /// Chế độ cá nhân: TẤT CẢ user (kể cả Admin) chỉ thấy tài liệu của mình
         /// </summary>
         public static DataTable GetDocumentsForCurrentUser()
         {
-            string query;
-            SqlParameter[] parameters = null;
-
-            if (UserSession.IsStudent)
-            {
-                // Student chỉ thấy tài liệu của mình
-                query = @"SELECT t.*, u.full_name as creator_name, u.username as creator_username
+            // Chế độ cá nhân: Mọi user chỉ thấy tài liệu của mình
+            string query = @"SELECT t.*, u.full_name as creator_name, u.username as creator_username
                          FROM tai_lieu t
                          LEFT JOIN users u ON t.user_id = u.id
                          WHERE t.user_id = @userId
                          ORDER BY t.ngay_them DESC";
-                parameters = new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) };
-            }
-            else
-            {
-                // Teacher và Admin thấy tất cả
-                query = @"SELECT t.*, u.full_name as creator_name, u.username as creator_username
-                         FROM tai_lieu t
-                         LEFT JOIN users u ON t.user_id = u.id
-                         ORDER BY t.ngay_them DESC";
-            }
+            
+            SqlParameter[] parameters = new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) };
 
             return ExecuteQuery(query, parameters);
         }
@@ -279,12 +264,9 @@ namespace study_document_manager
 
             List<SqlParameter> parameterList = new List<SqlParameter>();
 
-            // Phân quyền: Student chỉ thấy của mình
-            if (UserSession.IsStudent)
-            {
-                baseQuery += " AND t.user_id = @currentUserId";
-                parameterList.Add(new SqlParameter("@currentUserId", UserSession.UserId));
-            }
+            // Chế độ cá nhân: Mọi user chỉ thấy tài liệu của mình
+            baseQuery += " AND t.user_id = @currentUserId";
+            parameterList.Add(new SqlParameter("@currentUserId", UserSession.UserId));
 
             // Keyword search (Phase 2: bao gồm cả tags)
             if (!string.IsNullOrWhiteSpace(keyword))
@@ -342,12 +324,8 @@ namespace study_document_manager
                 System.Diagnostics.Debug.WriteLine("[FILTER] Filtering important documents only");
             }
 
-            // Người tạo (chỉ Admin/Teacher)
-            if (creatorUserId.HasValue && (UserSession.IsAdmin || UserSession.IsTeacher))
-            {
-                baseQuery += " AND t.user_id = @creatorUserId";
-                parameterList.Add(new SqlParameter("@creatorUserId", creatorUserId.Value));
-            }
+            // Chế độ cá nhân: Không cần filter theo người tạo vì đã filter ở trên
+            // creatorUserId parameter được giữ lại cho tương thích nhưng không sử dụng
 
             baseQuery += " ORDER BY t.ngay_them DESC";
 
@@ -461,6 +439,7 @@ namespace study_document_manager
 
         /// <summary>
         /// Lấy tài liệu sắp đến hạn (trong N ngày tới)
+        /// Chế độ cá nhân: chỉ lấy của user hiện tại
         /// </summary>
         public static DataTable GetUpcomingDeadlines(int days = 7)
         {
@@ -469,31 +448,22 @@ namespace study_document_manager
                             LEFT JOIN users u ON t.user_id = u.id
                             WHERE t.deadline IS NOT NULL 
                             AND t.deadline >= CAST(GETDATE() AS DATE)
-                            AND t.deadline <= DATEADD(day, @days, CAST(GETDATE() AS DATE))";
+                            AND t.deadline <= DATEADD(day, @days, CAST(GETDATE() AS DATE))
+                            AND t.user_id = @userId
+                            ORDER BY t.deadline ASC";
 
-            // Phân quyền
-            if (UserSession.IsStudent)
+            SqlParameter[] parameters = new SqlParameter[]
             {
-                query += " AND t.user_id = @userId";
-            }
-
-            query += " ORDER BY t.deadline ASC";
-
-            List<SqlParameter> parameters = new List<SqlParameter>
-            {
-                new SqlParameter("@days", days)
+                new SqlParameter("@days", days),
+                new SqlParameter("@userId", UserSession.UserId)
             };
 
-            if (UserSession.IsStudent)
-            {
-                parameters.Add(new SqlParameter("@userId", UserSession.UserId));
-            }
-
-            return ExecuteQuery(query, parameters.ToArray());
+            return ExecuteQuery(query, parameters);
         }
 
         /// <summary>
         /// Lấy tài liệu đã quá hạn
+        /// Chế độ cá nhân: chỉ lấy của user hiện tại
         /// </summary>
         public static DataTable GetOverdueDocuments()
         {
@@ -501,38 +471,32 @@ namespace study_document_manager
                             FROM tai_lieu t
                             LEFT JOIN users u ON t.user_id = u.id
                             WHERE t.deadline IS NOT NULL 
-                            AND t.deadline < CAST(GETDATE() AS DATE)";
+                            AND t.deadline < CAST(GETDATE() AS DATE)
+                            AND t.user_id = @userId
+                            ORDER BY t.deadline ASC";
 
-            if (UserSession.IsStudent)
-            {
-                query += " AND t.user_id = @userId";
-            }
-
-            query += " ORDER BY t.deadline ASC";
-
-            SqlParameter[] parameters = UserSession.IsStudent
-                ? new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) }
-                : null;
+            SqlParameter[] parameters = new SqlParameter[] 
+            { 
+                new SqlParameter("@userId", UserSession.UserId) 
+            };
 
             return ExecuteQuery(query, parameters);
         }
 
         /// <summary>
         /// Lấy danh sách tags đã sử dụng (cho autocomplete)
+        /// Chế độ cá nhân: chỉ lấy tags của user hiện tại
         /// </summary>
         public static List<string> GetDistinctTags()
         {
             string query = @"SELECT DISTINCT tags FROM tai_lieu 
-                            WHERE tags IS NOT NULL AND tags != ''";
+                            WHERE tags IS NOT NULL AND tags != ''
+                            AND user_id = @userId";
 
-            if (UserSession.IsStudent)
-            {
-                query += " AND user_id = @userId";
-            }
-
-            SqlParameter[] parameters = UserSession.IsStudent
-                ? new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) }
-                : null;
+            SqlParameter[] parameters = new SqlParameter[] 
+            { 
+                new SqlParameter("@userId", UserSession.UserId) 
+            };
 
             DataTable dt = ExecuteQuery(query, parameters);
             List<string> allTags = new List<string>();
@@ -705,37 +669,59 @@ namespace study_document_manager
 
         /// <summary>
         /// Lấy thống kê số lượng tài liệu theo môn học
+        /// Chế độ cá nhân: chỉ thống kê của user hiện tại
         /// </summary>
         public static DataTable GetStatisticsBySubject()
         {
             string query = @"SELECT mon_hoc, COUNT(*) as so_luong 
                            FROM tai_lieu 
                            WHERE mon_hoc IS NOT NULL 
+                           AND user_id = @userId
                            GROUP BY mon_hoc 
                            ORDER BY so_luong DESC";
-            return ExecuteQuery(query);
+            
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@userId", UserSession.UserId)
+            };
+            
+            return ExecuteQuery(query, parameters);
         }
 
         /// <summary>
         /// Lấy thống kê số lượng tài liệu theo loại
+        /// Chế độ cá nhân: chỉ thống kê của user hiện tại
         /// </summary>
         public static DataTable GetStatisticsByType()
         {
             string query = @"SELECT loai, COUNT(*) as so_luong 
                            FROM tai_lieu 
                            WHERE loai IS NOT NULL 
+                           AND user_id = @userId
                            GROUP BY loai 
                            ORDER BY so_luong DESC";
-            return ExecuteQuery(query);
+            
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@userId", UserSession.UserId)
+            };
+            
+            return ExecuteQuery(query, parameters);
         }
 
         /// <summary>
-        /// Đếm tổng số tài liệu
+        /// Đếm tổng số tài liệu của user hiện tại
         /// </summary>
         public static int GetTotalDocumentCount()
         {
-            string query = "SELECT COUNT(*) FROM tai_lieu";
-            object result = ExecuteScalar(query);
+            string query = "SELECT COUNT(*) FROM tai_lieu WHERE user_id = @userId";
+            
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@userId", UserSession.UserId)
+            };
+            
+            object result = ExecuteScalar(query, parameters);
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
@@ -743,41 +729,58 @@ namespace study_document_manager
 
         /// <summary>
         /// Lấy danh sách môn học DISTINCT kèm số lượng tài liệu
+        /// Chế độ cá nhân: chỉ lấy của user hiện tại
         /// </summary>
         public static DataTable GetDistinctSubjects()
         {
             string query = @"SELECT mon_hoc, COUNT(*) as so_luong 
                            FROM tai_lieu 
                            WHERE mon_hoc IS NOT NULL AND mon_hoc != '' 
+                           AND user_id = @userId
                            GROUP BY mon_hoc 
                            ORDER BY mon_hoc";
-            return ExecuteQuery(query);
+            
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@userId", UserSession.UserId)
+            };
+            
+            return ExecuteQuery(query, parameters);
         }
 
         /// <summary>
         /// Lấy danh sách loại tài liệu DISTINCT kèm số lượng
+        /// Chế độ cá nhân: chỉ lấy của user hiện tại
         /// </summary>
         public static DataTable GetDistinctTypes()
         {
             string query = @"SELECT loai, COUNT(*) as so_luong 
                            FROM tai_lieu 
                            WHERE loai IS NOT NULL AND loai != '' 
+                           AND user_id = @userId
                            GROUP BY loai 
                            ORDER BY loai";
-            return ExecuteQuery(query);
+            
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@userId", UserSession.UserId)
+            };
+            
+            return ExecuteQuery(query, parameters);
         }
 
         /// <summary>
-        /// Cập nhật tên môn học (tất cả tài liệu)
+        /// Cập nhật tên môn học (chỉ tài liệu của user hiện tại)
         /// </summary>
         public static bool UpdateSubjectName(string oldName, string newName)
         {
-            string query = "UPDATE tai_lieu SET mon_hoc = @newName WHERE mon_hoc = @oldName";
+            string query = "UPDATE tai_lieu SET mon_hoc = @newName WHERE mon_hoc = @oldName AND user_id = @userId";
             
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@oldName", oldName),
-                new SqlParameter("@newName", newName)
+                new SqlParameter("@newName", newName),
+                new SqlParameter("@userId", UserSession.UserId)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -785,16 +788,17 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Cập nhật tên loại tài liệu (tất cả tài liệu)
+        /// Cập nhật tên loại tài liệu (chỉ tài liệu của user hiện tại)
         /// </summary>
         public static bool UpdateTypeName(string oldName, string newName)
         {
-            string query = "UPDATE tai_lieu SET loai = @newName WHERE loai = @oldName";
+            string query = "UPDATE tai_lieu SET loai = @newName WHERE loai = @oldName AND user_id = @userId";
             
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@oldName", oldName),
-                new SqlParameter("@newName", newName)
+                new SqlParameter("@newName", newName),
+                new SqlParameter("@userId", UserSession.UserId)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -802,15 +806,16 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Xóa tất cả tài liệu có môn học này
+        /// Xóa tài liệu có môn học này (chỉ của user hiện tại)
         /// </summary>
         public static bool DeleteDocumentsBySubject(string subjectName)
         {
-            string query = "DELETE FROM tai_lieu WHERE mon_hoc = @subjectName";
+            string query = "DELETE FROM tai_lieu WHERE mon_hoc = @subjectName AND user_id = @userId";
             
             SqlParameter[] parameters = new SqlParameter[]
             {
-                new SqlParameter("@subjectName", subjectName)
+                new SqlParameter("@subjectName", subjectName),
+                new SqlParameter("@userId", UserSession.UserId)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -818,15 +823,16 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Xóa tất cả tài liệu có loại này
+        /// Xóa tài liệu có loại này (chỉ của user hiện tại)
         /// </summary>
         public static bool DeleteDocumentsByType(string typeName)
         {
-            string query = "DELETE FROM tai_lieu WHERE loai = @typeName";
+            string query = "DELETE FROM tai_lieu WHERE loai = @typeName AND user_id = @userId";
             
             SqlParameter[] parameters = new SqlParameter[]
             {
-                new SqlParameter("@typeName", typeName)
+                new SqlParameter("@typeName", typeName),
+                new SqlParameter("@userId", UserSession.UserId)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -855,20 +861,17 @@ namespace study_document_manager
 
         /// <summary>
         /// Kiểm tra user có quyền sửa/xóa tài liệu không
+        /// Chế độ cá nhân: mọi user chỉ sửa được tài liệu của mình
         /// </summary>
         public static bool CanUserEditDocument(int documentId, int userId, string userRole)
         {
-            // Admin có thể sửa tất cả
-            if (userRole == "Admin")
-                return true;
-
-            // Student và Teacher chỉ sửa được tài liệu của mình
+            // Chế độ cá nhân: Mọi user (kể cả Admin) chỉ sửa được tài liệu của mình
             int ownerId = GetDocumentOwnerId(documentId);
             return ownerId == userId;
         }
 
         /// <summary>
-        /// Lấy tài liệu của user (cho Student và Teacher)
+        /// Lấy tài liệu của user theo user_id
         /// </summary>
         public static DataTable GetDocumentsByUser(int userId)
         {
@@ -883,7 +886,7 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Lấy danh sách users để làm filter (cho Admin/Teacher)
+        /// Lấy danh sách users (cho Admin)
         /// </summary>
         public static DataTable GetUsersForFilter()
         {

@@ -186,34 +186,13 @@ namespace study_document_manager
 
                 if (menuStrip != null)
                 {
-                    // Tạo menu "Quản lý" (chỉ Admin)
-                    ToolStripMenuItem menuManagement = new ToolStripMenuItem("&Quản lý");
-                    menuManagement.Name = "menuManagement";
-
-                    // Submenu: Quản lý người dùng
-                    ToolStripMenuItem menuManagementUsers = new ToolStripMenuItem("Quản lý người dùng");
-                    menuManagementUsers.Name = "menuManagementUsers";
-                    menuManagementUsers.ShortcutKeys = Keys.Control | Keys.U;
-                    menuManagementUsers.Click += menuManagementUsers_Click;
-
-                    // Thêm submenu vào menu Quản lý
-                    menuManagement.DropDownItems.Add(menuManagementUsers);
-
-                    // Thêm menu Quản lý vào MenuStrip
-                    int insertIndex = menuStrip.Items.Count;
-                    menuStrip.Items.Insert(insertIndex, menuManagement);
-
-                    // Lưu reference để dùng trong ApplyPermissions
-                    this.menuManagement = menuManagement;
-
                     // ===================================
-                    // THÊM "ĐĂNG XUẤT" VÀO MENU HIỂN THỊ
+                    // TÌM MENU "CÔNG CỤ" (menuView)
                     // ===================================
-                    // Tìm menu "Hiển thị" (menuView)
                     ToolStripMenuItem menuView = null;
                     foreach (ToolStripItem item in menuStrip.Items)
                     {
-                        if (item.Name == "menuView" || item.Text.Contains("Hiển thị") || item.Text.Contains("View"))
+                        if (item.Name == "menuView" || item.Text.Contains("Công cụ"))
                         {
                             menuView = item as ToolStripMenuItem;
                             break;
@@ -222,47 +201,129 @@ namespace study_document_manager
 
                     if (menuView != null)
                     {
-                        // Thêm menu Kiểm tra file bị thiếu
+                        // Thêm Kiểm tra file bị thiếu vào Công cụ
                         menuView.DropDownItems.Add(new ToolStripSeparator());
                         ToolStripMenuItem menuCheckFiles = new ToolStripMenuItem("Kiểm tra file bị thiếu");
                         menuCheckFiles.Name = "menuCheckFiles";
                         menuCheckFiles.Click += menuCheckFiles_Click;
                         menuView.DropDownItems.Add(menuCheckFiles);
-
-                        // Phase 2: Menu Sắp đến hạn
-                        ToolStripMenuItem menuUpcomingDeadlines = new ToolStripMenuItem("Sắp đến hạn (7 ngày)");
-                        menuUpcomingDeadlines.Name = "menuUpcomingDeadlines";
-                        menuUpcomingDeadlines.Click += menuUpcomingDeadlines_Click;
-                        menuView.DropDownItems.Add(menuUpcomingDeadlines);
-
-                        // Phase 2: Menu Quá hạn
-                        ToolStripMenuItem menuOverdue = new ToolStripMenuItem("Tài liệu quá hạn");
-                        menuOverdue.Name = "menuOverdue";
-                        menuOverdue.Click += menuOverdue_Click;
-                        menuView.DropDownItems.Add(menuOverdue);
-
-                        // Phase 2: Menu Quản lý bộ sưu tập
-                        ToolStripMenuItem menuCollections = new ToolStripMenuItem("Quản lý bộ sưu tập");
-                        menuCollections.Name = "menuCollections";
-                        menuCollections.Click += menuCollections_Click;
-                        menuView.DropDownItems.Add(menuCollections);
-
-                        // Thêm separator trước Đăng xuất
-                        menuView.DropDownItems.Add(new ToolStripSeparator());
-
-                        // Thêm menu Đăng xuất
-                        ToolStripMenuItem menuLogout = new ToolStripMenuItem("Đăng xuất");
-                        menuLogout.Name = "menuLogout";
-                        menuLogout.ShortcutKeys = Keys.Control | Keys.L;
-                        menuLogout.Click += menuLogout_Click;
-                        menuView.DropDownItems.Add(menuLogout);
                     }
+
+                    // ===================================
+                    // TẠO MENU "THEO DÕI" (MỚI)
+                    // ===================================
+                    ToolStripMenuItem menuTracking = new ToolStripMenuItem("Theo dõi");
+                    menuTracking.Name = "menuTracking";
+
+                    ToolStripMenuItem menuUpcomingDeadlines = new ToolStripMenuItem("Sắp đến hạn (7 ngày)");
+                    menuUpcomingDeadlines.Name = "menuUpcomingDeadlines";
+                    menuUpcomingDeadlines.Click += menuUpcomingDeadlines_Click;
+                    menuTracking.DropDownItems.Add(menuUpcomingDeadlines);
+
+                    ToolStripMenuItem menuOverdue = new ToolStripMenuItem("Tài liệu quá hạn");
+                    menuOverdue.Name = "menuOverdue";
+                    menuOverdue.Click += menuOverdue_Click;
+                    menuTracking.DropDownItems.Add(menuOverdue);
+
+                    menuTracking.DropDownItems.Add(new ToolStripSeparator());
+
+                    ToolStripMenuItem menuCollections = new ToolStripMenuItem("Quản lý bộ sưu tập");
+                    menuCollections.Name = "menuCollections";
+                    menuCollections.Click += menuCollections_Click;
+                    menuTracking.DropDownItems.Add(menuCollections);
+
+                    // ===================================
+                    // TẠO MENU "TÀI KHOẢN"
+                    // ===================================
+                    ToolStripMenuItem menuAccount = new ToolStripMenuItem("Tài khoản");
+                    menuAccount.Name = "menuAccount";
+
+                    ToolStripMenuItem menuAccountSettings = new ToolStripMenuItem("Cài đặt tài khoản");
+                    menuAccountSettings.Name = "menuAccountSettings";
+                    menuAccountSettings.Click += menuAccountSettings_Click;
+                    menuAccount.DropDownItems.Add(menuAccountSettings);
+
+                    menuAccount.DropDownItems.Add(new ToolStripSeparator());
+
+                    ToolStripMenuItem menuAccountLogout = new ToolStripMenuItem("Đăng xuất");
+                    menuAccountLogout.Name = "menuAccountLogout";
+                    menuAccountLogout.ShortcutKeys = Keys.Control | Keys.L;
+                    menuAccountLogout.Click += menuLogout_Click;
+                    menuAccount.DropDownItems.Add(menuAccountLogout);
+
+                    // ===================================
+                    // TẠO MENU "QUẢN LÝ" (Admin only)
+                    // ===================================
+                    ToolStripMenuItem menuManagement = new ToolStripMenuItem("&Quản lý");
+                    menuManagement.Name = "menuManagement";
+
+                    ToolStripMenuItem menuManagementUsers = new ToolStripMenuItem("Quản lý người dùng");
+                    menuManagementUsers.Name = "menuManagementUsers";
+                    menuManagementUsers.ShortcutKeys = Keys.Control | Keys.U;
+                    menuManagementUsers.Click += menuManagementUsers_Click;
+                    menuManagement.DropDownItems.Add(menuManagementUsers);
+
+                    // Lưu reference để dùng trong ApplyPermissions
+                    this.menuManagement = menuManagement;
+
+                    // ===================================
+                    // TẠO NÚT "ĐĂNG XUẤT" (góc phải)
+                    // ===================================
+                    ToolStripMenuItem menuLogout = new ToolStripMenuItem("Đăng xuất");
+                    menuLogout.Name = "menuLogout";
+                    menuLogout.ShortcutKeys = Keys.Control | Keys.L;
+                    menuLogout.Alignment = ToolStripItemAlignment.Right;
+                    menuLogout.Click += menuLogout_Click;
+
+                    // ===================================
+                    // THÊM CÁC MENU VÀO MENUSTRIP
+                    // ===================================
+                    // Tìm vị trí sau "Trợ giúp"
+                    int helpIndex = -1;
+                    for (int i = 0; i < menuStrip.Items.Count; i++)
+                    {
+                        if (menuStrip.Items[i].Name == "menuHelp" || menuStrip.Items[i].Text.Contains("Trợ giúp"))
+                        {
+                            helpIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (helpIndex >= 0)
+                    {
+                        // Chèn trước Trợ giúp: Theo dõi, Tài khoản, Quản lý
+                        menuStrip.Items.Insert(helpIndex, menuTracking);
+                        menuStrip.Items.Insert(helpIndex + 1, menuAccount);
+                        menuStrip.Items.Insert(helpIndex + 2, menuManagement);
+                    }
+                    else
+                    {
+                        menuStrip.Items.Add(menuTracking);
+                        menuStrip.Items.Add(menuAccount);
+                        menuStrip.Items.Add(menuManagement);
+                    }
+
+                    // Thêm Đăng xuất ở cuối (sẽ hiển thị bên phải do Alignment)
+                    menuStrip.Items.Add(menuLogout);
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Error creating menu: " + ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Menu: Cài đặt tài khoản
+        /// </summary>
+        private void menuAccountSettings_Click(object sender, EventArgs e)
+        {
+            AccountSettingsForm form = new AccountSettingsForm();
+            form.ShowDialog();
+            
+            // Cập nhật title nếu user đổi tên
+            this.Text = $"Study Document Manager - {UserSession.FullName} [{UserSession.Role}]";
+            lblStatus.Text = $"Xin chào, {UserSession.FullName} ({UserSession.Role})";
         }
 
         // Field để lưu menu reference
@@ -286,7 +347,7 @@ namespace study_document_manager
             pnlSearch.BackColor = Color.White;
             pnlContent.BackColor = Color.FromArgb(245, 245, 245);
             
-            // Load danh sách users cho filter (chỉ Admin/Teacher)
+            // Chế độ cá nhân: Không cần filter theo người tạo
             LoadUsersForFilter();
             
             // Khởi tạo giá trị mặc định cho date pickers
@@ -309,11 +370,9 @@ namespace study_document_manager
                 menuManagement.Visible = UserSession.IsAdmin;
             }
 
-            // TẤT CẢ USER đều có quyền thêm tài liệu
-            // Nhưng Student và Teacher CHỈ sửa/xóa được tài liệu của mình
-            // Admin có thể sửa/xóa TẤT CẢ tài liệu
+            // Chế độ cá nhân: Mọi user chỉ sửa/xóa được tài liệu của mình
 
-            // Không disable buttons nữa - để tất cả user đều thấy
+            // Không disable buttons - để tất cả user đều thấy
             // Logic kiểm tra quyền sẽ được áp dụng khi click button Sửa/Xóa
         }
 
@@ -440,13 +499,10 @@ namespace study_document_manager
                     dgvDocuments.Columns["quan_trong"].DisplayIndex = dgvDocuments.Columns.Count - 2; // Gần cuối, trước Người tạo
                 }
 
-                // Cột Người tạo (mới) - chỉ hiện cho Teacher/Admin (cuối cùng)
+                // Cột Người tạo - ẨN vì chế độ cá nhân (mọi tài liệu đều của user hiện tại)
                 if (dgvDocuments.Columns.Contains("creator_name"))
                 {
-                    dgvDocuments.Columns["creator_name"].HeaderText = "Người tạo";
-                    dgvDocuments.Columns["creator_name"].Width = 120;
-                    dgvDocuments.Columns["creator_name"].Visible = !UserSession.IsStudent;
-                    dgvDocuments.Columns["creator_name"].DisplayIndex = dgvDocuments.Columns.Count - 1; // Cuối cùng
+                    dgvDocuments.Columns["creator_name"].Visible = false;
                 }
                 
                 if (dgvDocuments.Columns.Contains("creator_username"))
@@ -508,12 +564,11 @@ namespace study_document_manager
                     return;
                 }
 
-                // Sử dụng phân quyền: Student chỉ thấy tài liệu của mình
+                // Sử dụng phân quyền: Mọi user chỉ thấy tài liệu của mình
                 DataTable dt = DatabaseHelper.GetDocumentsForCurrentUser();
                 dgvDocuments.DataSource = dt;
                 SetupDataGridView();
-                string roleInfo = UserSession.IsStudent ? " (của bạn)" : "";
-                lblCount.Text = $"Tổng số: {dt.Rows.Count} tài liệu{roleInfo}";
+                lblCount.Text = $"Tổng số: {dt.Rows.Count} tài liệu";
                 lblStatus.Text = "Sẵn sàng";
             }
             catch (Exception ex)
@@ -923,14 +978,7 @@ namespace study_document_manager
         /// </summary>
         private void menuViewCategories_Click(object sender, EventArgs e)
         {
-            // Kiểm tra quyền: Chỉ Teacher và Admin
-            if (!UserSession.CanManageCategories)
-            {
-                MessageBox.Show("Bạn không có quyền truy cập chức năng này!\nChỉ Giáo viên và Admin mới được quản lý danh mục.",
-                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
+            // Chế độ cá nhân: Mọi user đều được quản lý danh mục của mình
             try
             {
                 CategoryManagementForm categoryForm = new CategoryManagementForm();
@@ -982,14 +1030,16 @@ namespace study_document_manager
 
             if (result == DialogResult.Yes)
             {
-                // Log activity
+                // Log activity (optional - skip if table doesn't exist)
                 try
                 {
                     DatabaseHelper.ExecuteNonQuery(
-                        "EXEC sp_LogActivity @user_id, @action, @description",
+                        @"INSERT INTO activity_logs (user_id, action, entity_type, description, created_date) 
+                          VALUES (@user_id, @action, @entity_type, @description, GETDATE())",
                         new System.Data.SqlClient.SqlParameter[] {
                             new System.Data.SqlClient.SqlParameter("@user_id", UserSession.UserId),
                             new System.Data.SqlClient.SqlParameter("@action", "Logout"),
+                            new System.Data.SqlClient.SqlParameter("@entity_type", "Session"),
                             new System.Data.SqlClient.SqlParameter("@description", "Đăng xuất khỏi hệ thống")
                         });
                 }
@@ -1164,45 +1214,14 @@ namespace study_document_manager
         #region Advanced Filter Methods
 
         /// <summary>
-        /// Load danh sách users để filter (chỉ cho Admin/Teacher)
+        /// Load danh sách users để filter - ĐÃ XÓA vì chế độ cá nhân
         /// </summary>
         private void LoadUsersForFilter()
         {
-            if (UserSession.IsAdmin || UserSession.IsTeacher)
-            {
-                try
-                {
-                    DataTable users = DatabaseHelper.GetUsersForFilter();
-                    DataTable dtWithAll = users.Clone();
-                    DataRow allRow = dtWithAll.NewRow();
-                    allRow["id"] = 0;
-                    allRow["username"] = "";
-                    allRow["full_name"] = "-- Tất cả --";
-                    dtWithAll.Rows.InsertAt(allRow, 0);
-                    
-                    foreach (DataRow row in users.Rows)
-                    {
-                        dtWithAll.ImportRow(row);
-                    }
-                    
-                    cboCreatorFilter.DataSource = dtWithAll;
-                    cboCreatorFilter.DisplayMember = "full_name";
-                    cboCreatorFilter.ValueMember = "id";
-                    cboCreatorFilter.SelectedIndex = 0;
-                    lblCreatorFilter.Visible = true;
-                    cboCreatorFilter.Visible = true;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi khi load danh sách người dùng: " + ex.Message,
-                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            else
-            {
-                lblCreatorFilter.Visible = false;
-                cboCreatorFilter.Visible = false;
-            }
+            // Chế độ cá nhân: Không cần filter theo người tạo
+            // Mọi user chỉ thấy tài liệu của mình
+            if (lblCreatorFilter != null) lblCreatorFilter.Visible = false;
+            if (cboCreatorFilter != null) cboCreatorFilter.Visible = false;
         }
 
         /// <summary>
@@ -1241,15 +1260,9 @@ namespace study_document_manager
                 }
                 
                 bool? isImportant = chkImportantOnly.Checked ? (bool?)true : null;
+                
+                // Chế độ cá nhân: Không cần filter theo người tạo
                 int? creatorUserId = null;
-                if ((UserSession.IsAdmin || UserSession.IsTeacher) && cboCreatorFilter.Visible)
-                {
-                    int selectedId = Convert.ToInt32(cboCreatorFilter.SelectedValue);
-                    if (selectedId > 0)
-                    {
-                        creatorUserId = selectedId;
-                    }
-                }
                 
                 lblStatus.Text = "Đang lọc dữ liệu...";
                 Application.DoEvents();
@@ -1262,8 +1275,7 @@ namespace study_document_manager
                 dgvDocuments.DataSource = dt;
                 SetupDataGridView();
                 
-                string roleInfo = UserSession.IsStudent ? " (của bạn)" : "";
-                lblCount.Text = $"Tìm thấy: {dt.Rows.Count} tài liệu{roleInfo}";
+                lblCount.Text = $"Tìm thấy: {dt.Rows.Count} tài liệu";
                 lblStatus.Text = "Đã áp dụng filter";
             }
             catch (Exception ex)
@@ -1456,8 +1468,7 @@ namespace study_document_manager
                 dgvDocuments.DataSource = dt;
                 SetupDataGridView();
                 
-                string roleInfo = UserSession.IsStudent ? " (của bạn)" : "";
-                lblCount.Text = $"Sắp đến hạn: {dt.Rows.Count} tài liệu{roleInfo}";
+                lblCount.Text = $"Sắp đến hạn: {dt.Rows.Count} tài liệu";
                 lblStatus.Text = "Đang xem tài liệu sắp đến hạn (7 ngày tới)";
             }
             catch (Exception ex)
@@ -1477,8 +1488,7 @@ namespace study_document_manager
                 dgvDocuments.DataSource = dt;
                 SetupDataGridView();
                 
-                string roleInfo = UserSession.IsStudent ? " (của bạn)" : "";
-                lblCount.Text = $"Quá hạn: {dt.Rows.Count} tài liệu{roleInfo}";
+                lblCount.Text = $"Quá hạn: {dt.Rows.Count} tài liệu";
                 lblStatus.Text = "Đang xem tài liệu đã quá hạn";
             }
             catch (Exception ex)

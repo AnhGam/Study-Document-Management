@@ -2,6 +2,10 @@
 
 > Tài liệu định hướng các tính năng thực sự hữu ích cho Study Document Manager.
 > Mục tiêu: tập trung vào trải nghiệm người dùng, hiệu quả học tập và khả năng bảo trì.
+> 
+> **Lưu ý:** Ứng dụng sử dụng mô hình **cá nhân hóa** (Personal Mode) với 2 cấp quyền:
+> - **User**: Quản lý hoàn toàn tài liệu, danh mục của riêng mình
+> - **Admin**: Có quyền User + quản lý người dùng
 
 ---
 
@@ -21,25 +25,32 @@
   - Xem thông tin chi tiết
 
 **Tác động:**
-- Tăng tốc thao tác quản lý tài liệu, đặc biệt cho giáo viên và admin.
+- Tăng tốc thao tác quản lý tài liệu cho mọi người dùng.
 
 ---
 
-### 2. Phím tắt (Keyboard Shortcuts) cho Form chính
+### 2. Phím tắt (Keyboard Shortcuts) cho Form chính (ĐÃ ÁP DỤNG MỘT PHẦN)
 **Mục tiêu:** Cho phép power-user thao tác không cần dùng chuột nhiều.
 
-**Gợi ý phím tắt:**
+**Đã triển khai:**
+- Ctrl+N: Thêm tài liệu mới
+- Ctrl+O: Mở file đã chọn
+- Ctrl+U: Sửa tài liệu
+- Delete: Xóa tài liệu
+- Ctrl+E: Xuất dữ liệu
+- Ctrl+S: Thống kê
+- Ctrl+M: Quản lý danh mục
+- Ctrl+L: Đăng xuất
+- F5: Làm mới danh sách
+
+**Chưa triển khai:**
 - F2: Sửa tài liệu đang chọn
-- Delete: Xóa tài liệu đang chọn
-- Enter: Mở tài liệu đang chọn
-- Ctrl + F: Focus ô tìm kiếm
-- Ctrl + R: Refresh danh sách
-- Ctrl + N: Thêm tài liệu mới
-- Ctrl + E: Export dữ liệu
-- Esc: Xóa từ khóa tìm kiếm hiện tại
+- Enter: Mở tài liệu đang chọn (khi focus DataGridView)
+- Ctrl+F: Focus ô tìm kiếm
+- Esc: Xóa từ khóa tìm kiếm
 
 **Tác động:**
-- Phù hợp môi trường phòng máy, giáo viên dùng nhiều, thao tác nhanh hơn rõ rệt.
+- Thao tác nhanh hơn rõ rệt cho người dùng thường xuyên.
 
 ---
 
@@ -70,8 +81,8 @@
 - Cho phép đánh dấu một số tài liệu là Yêu thích và ghim lên đầu.
 
 **Tác động:**
-- Sinh viên dễ quay lại các bộ đề/slide đang học.
-- Giáo viên dễ mở lại giáo án, đề thi đang sử dụng.
+- Dễ quay lại các tài liệu đang học hoặc làm việc.
+- Tiết kiệm thời gian tìm kiếm lại.
 
 ---
 
@@ -88,9 +99,9 @@
 
 ---
 
-## Phase 2 – Hỗ trợ học tập và tổ chức tài liệu (2–3 tuần) (ĐÃ THỰC HIỆN)
+## Phase 2 – Hỗ trợ học tập và tổ chức tài liệu (2–3 tuần) (ĐÃ HOÀN THÀNH)
 
-### 6. Tags (nhãn) cho tài liệu
+### 6. Tags (nhãn) cho tài liệu (ĐÃ ÁP DỤNG)
 **Mục tiêu:** Phân loại linh hoạt hơn so với chỉ dùng môn học và loại tài liệu.
 
 **Tính năng:**
@@ -101,11 +112,11 @@
 - Gợi ý tags hay dùng dựa trên dữ liệu hiện có.
 
 **Tác động:**
-- Rất phù hợp cho sinh viên ôn thi theo chủ đề, giáo viên phân nhóm tài liệu theo mục đích.
+- Rất phù hợp cho việc ôn thi theo chủ đề, phân nhóm tài liệu theo mục đích.
 
 ---
 
-### 7. Ghi chú cá nhân cho tài liệu
+### 7. Ghi chú cá nhân cho tài liệu (ĐÃ ÁP DỤNG)
 **Mục tiêu:** Cho phép người dùng ghi lại ý chính, mẹo, hoặc trạng thái học của từng tài liệu.
 
 **Tính năng:**
@@ -118,7 +129,7 @@
 
 ---
 
-### 8. Bộ sưu tập tài liệu (Collections)
+### 8. Bộ sưu tập tài liệu (Collections) (ĐÃ ÁP DỤNG)
 **Mục tiêu:** Gom nhóm nhiều tài liệu thành một bộ cho từng kỳ thi hoặc môn học.
 
 **Tính năng:**
@@ -127,12 +138,12 @@
 - Mở nhanh toàn bộ tài liệu trong collection hoặc duyệt theo collection.
 
 **Tác động:**
-- Giáo viên tạo bộ tài liệu cho từng lớp.
-- Sinh viên tạo bộ đề/slide cho từng kỳ thi.
+- Tạo bộ tài liệu cho từng dự án hoặc kỳ học.
+- Dễ dàng gom nhóm và mở nhanh nhiều file liên quan.
 
 ---
 
-### 9. Deadline và nhắc việc đơn giản
+### 9. Deadline và nhắc việc đơn giản (ĐÃ ÁP DỤNG)
 **Mục tiêu:** Hỗ trợ quản lý thời hạn ôn tập, nộp bài, kiểm tra.
 
 **Tính năng:**
@@ -141,22 +152,22 @@
 - Highlight tài liệu gần deadline trong danh sách.
 
 **Tác động:**
-- Giúp sinh viên và giáo viên không bỏ lỡ các mốc quan trọng.
+- Giúp người dùng không bỏ lỡ các mốc quan trọng.
 
 ---
 
 ## Phase 3 – Quản trị và độ tin cậy hệ thống (2–3 tuần)
 
 ### 10. Dashboard thống kê nâng cao
-**Mục tiêu:** Cung cấp cái nhìn nhanh cho giáo viên/admin về việc sử dụng tài liệu.
+**Mục tiêu:** Cung cấp cái nhìn tổng quan về tài liệu của người dùng.
 
 **Tính năng:**
-- Thống kê số lượng tài liệu theo môn học, loại, người tạo.
+- Thống kê số lượng tài liệu theo môn học, loại.
 - Biểu đồ tài liệu tạo mới theo thời gian (7 ngày, 30 ngày, theo tháng).
 - Thống kê tài liệu quan trọng, tài liệu chưa có file, tài liệu gần deadline.
 
 **Tác động:**
-- Hỗ trợ giáo viên/admin tối ưu cách tổ chức tài liệu và phát hiện bất thường.
+- Hỗ trợ người dùng tối ưu cách tổ chức tài liệu.
 
 ---
 
@@ -169,7 +180,7 @@
 - Export log ra CSV khi cần báo cáo.
 
 **Tác động:**
-- Tăng độ tin cậy và khả năng audit, đặc biệt trong môi trường nhiều giáo viên dùng chung.
+- Tăng độ tin cậy và khả năng audit cho Admin.
 
 ---
 
@@ -204,12 +215,28 @@ Các ý tưởng dưới đây mang tính định hướng, chỉ triển khai k
 
 ---
 
-## Gợi ý lộ trình thực hiện ngắn hạn
+## Tổng kết tiến độ
 
-- Sprint 1 (1 tuần): Context Menu, Phím tắt, Fix file thiếu.
-- Sprint 2 (1 tuần): Recent/Favorites, Lưu cấu hình người dùng.
-- Sprint 3 (2 tuần): Tags, Ghi chú cá nhân, Collections.
-- Sprint 4 (2 tuần): Deadline, Dashboard đơn giản, Activity log cơ bản.
+### ĐÃ HOÀN THÀNH 
+- Context Menu trên danh sách tài liệu
+- Phím tắt cơ bản (Ctrl+N, Ctrl+O, Ctrl+U, Delete, Ctrl+E, Ctrl+S, Ctrl+M, Ctrl+L, F5)
+- Kiểm tra và xử lý file bị thiếu
+- Tags (nhãn) cho tài liệu
+- Ghi chú cá nhân cho tài liệu
+- Bộ sưu tập tài liệu (Collections)
+- Deadline và xem tài liệu sắp đến hạn/quá hạn
+- Cài đặt tài khoản (đổi thông tin, đổi mật khẩu)
+- Tái cấu trúc menu (Công cụ, Theo dõi, Tài khoản, Quản lý)
 
-Tùy thời gian thực tế, có thể chọn 4–6 tính năng ưu tiên nhất trong Phase 1–2 để làm thành một bản demo mạnh cho đồ án.
+### CHƯA TRIỂN KHAI 
+- Phím tắt nâng cao (F2, Enter mở file, Ctrl+F, Esc)
+- Recent & Favorites
+- Lưu cấu hình người dùng đầy đủ
+- Dashboard thống kê nâng cao
+- Activity log cho Admin
+- Backup/Restore một chạm
+
+---
+
+Tùy thời gian thực tế, có thể chọn 4–6 tính năng ưu tiên nhất trong danh sách chưa triển khai để làm thành bản demo hoàn chỉnh.
 

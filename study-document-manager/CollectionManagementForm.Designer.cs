@@ -49,7 +49,6 @@ namespace study_document_manager
             // 
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.splitContainer.Name = "splitContainer";
             // 
             // splitContainer.Panel1
@@ -58,7 +57,7 @@ namespace study_document_manager
             this.splitContainer.Panel1.Controls.Add(this.lstCollections);
             this.splitContainer.Panel1.Controls.Add(this.pnlCollectionButtons);
             this.splitContainer.Panel1.Controls.Add(this.lblCollectionTitle);
-            this.splitContainer.Panel1.Padding = new System.Windows.Forms.Padding(15);
+            this.splitContainer.Panel1.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
             // 
             // splitContainer.Panel2
             // 
@@ -66,10 +65,9 @@ namespace study_document_manager
             this.splitContainer.Panel2.Controls.Add(this.dgvDocuments);
             this.splitContainer.Panel2.Controls.Add(this.pnlDocButtons);
             this.splitContainer.Panel2.Controls.Add(this.lblDocTitle);
-            this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(15);
-            this.splitContainer.Size = new System.Drawing.Size(1350, 771);
-            this.splitContainer.SplitterDistance = 420;
-            this.splitContainer.SplitterWidth = 6;
+            this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
+            this.splitContainer.Size = new System.Drawing.Size(900, 500);
+            this.splitContainer.SplitterDistance = 280;
             this.splitContainer.TabIndex = 0;
             // 
             // lstCollections
@@ -81,11 +79,10 @@ namespace study_document_manager
             this.lstCollections.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lstCollections.FullRowSelect = true;
             this.lstCollections.HideSelection = false;
-            this.lstCollections.Location = new System.Drawing.Point(15, 62);
-            this.lstCollections.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.lstCollections.Location = new System.Drawing.Point(10, 41);
             this.lstCollections.MultiSelect = false;
             this.lstCollections.Name = "lstCollections";
-            this.lstCollections.Size = new System.Drawing.Size(390, 617);
+            this.lstCollections.Size = new System.Drawing.Size(260, 399);
             this.lstCollections.TabIndex = 1;
             this.lstCollections.UseCompatibleStateImageBehavior = false;
             this.lstCollections.View = System.Windows.Forms.View.Details;
@@ -93,12 +90,12 @@ namespace study_document_manager
             // 
             // colName
             // 
-            this.colName.Text = "Ten";
+            this.colName.Text = "Tên";
             this.colName.Width = 160;
             // 
             // colCount
             // 
-            this.colCount.Text = "So luong";
+            this.colCount.Text = "Số lượng";
             this.colCount.Width = 80;
             // 
             // pnlCollectionButtons
@@ -106,10 +103,9 @@ namespace study_document_manager
             this.pnlCollectionButtons.Controls.Add(this.btnDeleteCollection);
             this.pnlCollectionButtons.Controls.Add(this.btnNewCollection);
             this.pnlCollectionButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlCollectionButtons.Location = new System.Drawing.Point(15, 679);
-            this.pnlCollectionButtons.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.pnlCollectionButtons.Location = new System.Drawing.Point(10, 440);
             this.pnlCollectionButtons.Name = "pnlCollectionButtons";
-            this.pnlCollectionButtons.Size = new System.Drawing.Size(390, 77);
+            this.pnlCollectionButtons.Size = new System.Drawing.Size(260, 50);
             this.pnlCollectionButtons.TabIndex = 2;
             // 
             // btnDeleteCollection
@@ -120,12 +116,11 @@ namespace study_document_manager
             this.btnDeleteCollection.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDeleteCollection.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnDeleteCollection.ForeColor = System.Drawing.Color.White;
-            this.btnDeleteCollection.Location = new System.Drawing.Point(202, 15);
-            this.btnDeleteCollection.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnDeleteCollection.Location = new System.Drawing.Point(135, 10);
             this.btnDeleteCollection.Name = "btnDeleteCollection";
-            this.btnDeleteCollection.Size = new System.Drawing.Size(180, 49);
+            this.btnDeleteCollection.Size = new System.Drawing.Size(120, 32);
             this.btnDeleteCollection.TabIndex = 1;
-            this.btnDeleteCollection.Text = "Xoa";
+            this.btnDeleteCollection.Text = "Xóa";
             this.btnDeleteCollection.UseVisualStyleBackColor = false;
             this.btnDeleteCollection.Click += new System.EventHandler(this.btnDeleteCollection_Click);
             // 
@@ -136,12 +131,11 @@ namespace study_document_manager
             this.btnNewCollection.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNewCollection.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnNewCollection.ForeColor = System.Drawing.Color.White;
-            this.btnNewCollection.Location = new System.Drawing.Point(8, 15);
-            this.btnNewCollection.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnNewCollection.Location = new System.Drawing.Point(5, 10);
             this.btnNewCollection.Name = "btnNewCollection";
-            this.btnNewCollection.Size = new System.Drawing.Size(180, 49);
+            this.btnNewCollection.Size = new System.Drawing.Size(120, 32);
             this.btnNewCollection.TabIndex = 0;
-            this.btnNewCollection.Text = "+ Tao moi";
+            this.btnNewCollection.Text = "+ Tạo mới";
             this.btnNewCollection.UseVisualStyleBackColor = false;
             this.btnNewCollection.Click += new System.EventHandler(this.btnNewCollection_Click);
             // 
@@ -151,13 +145,12 @@ namespace study_document_manager
             this.lblCollectionTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblCollectionTitle.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.lblCollectionTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(150)))), ((int)(((byte)(243)))));
-            this.lblCollectionTitle.Location = new System.Drawing.Point(15, 15);
-            this.lblCollectionTitle.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblCollectionTitle.Location = new System.Drawing.Point(10, 10);
             this.lblCollectionTitle.Name = "lblCollectionTitle";
-            this.lblCollectionTitle.Padding = new System.Windows.Forms.Padding(0, 0, 0, 15);
-            this.lblCollectionTitle.Size = new System.Drawing.Size(136, 47);
+            this.lblCollectionTitle.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
+            this.lblCollectionTitle.Size = new System.Drawing.Size(90, 31);
             this.lblCollectionTitle.TabIndex = 0;
-            this.lblCollectionTitle.Text = "Bo suu tap";
+            this.lblCollectionTitle.Text = "Bộ sưu tập";
             // 
             // dgvDocuments
             // 
@@ -166,15 +159,14 @@ namespace study_document_manager
             this.dgvDocuments.BackgroundColor = System.Drawing.Color.White;
             this.dgvDocuments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDocuments.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvDocuments.Location = new System.Drawing.Point(15, 62);
-            this.dgvDocuments.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.dgvDocuments.Location = new System.Drawing.Point(10, 41);
             this.dgvDocuments.MultiSelect = false;
             this.dgvDocuments.Name = "dgvDocuments";
             this.dgvDocuments.ReadOnly = true;
             this.dgvDocuments.RowHeadersVisible = false;
             this.dgvDocuments.RowHeadersWidth = 62;
             this.dgvDocuments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvDocuments.Size = new System.Drawing.Size(894, 617);
+            this.dgvDocuments.Size = new System.Drawing.Size(596, 399);
             this.dgvDocuments.TabIndex = 1;
             this.dgvDocuments.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDocuments_CellDoubleClick);
             // 
@@ -184,10 +176,9 @@ namespace study_document_manager
             this.pnlDocButtons.Controls.Add(this.btnOpenAll);
             this.pnlDocButtons.Controls.Add(this.btnRemoveFromCollection);
             this.pnlDocButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlDocButtons.Location = new System.Drawing.Point(15, 679);
-            this.pnlDocButtons.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.pnlDocButtons.Location = new System.Drawing.Point(10, 440);
             this.pnlDocButtons.Name = "pnlDocButtons";
-            this.pnlDocButtons.Size = new System.Drawing.Size(894, 77);
+            this.pnlDocButtons.Size = new System.Drawing.Size(596, 50);
             this.pnlDocButtons.TabIndex = 2;
             // 
             // btnClose
@@ -198,12 +189,11 @@ namespace study_document_manager
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClose.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnClose.ForeColor = System.Drawing.Color.White;
-            this.btnClose.Location = new System.Drawing.Point(729, 15);
-            this.btnClose.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnClose.Location = new System.Drawing.Point(486, 10);
             this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(150, 49);
+            this.btnClose.Size = new System.Drawing.Size(100, 32);
             this.btnClose.TabIndex = 2;
-            this.btnClose.Text = "Dong";
+            this.btnClose.Text = "Đóng";
             this.btnClose.UseVisualStyleBackColor = false;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
@@ -215,12 +205,11 @@ namespace study_document_manager
             this.btnOpenAll.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOpenAll.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnOpenAll.ForeColor = System.Drawing.Color.White;
-            this.btnOpenAll.Location = new System.Drawing.Point(8, 15);
-            this.btnOpenAll.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnOpenAll.Location = new System.Drawing.Point(5, 10);
             this.btnOpenAll.Name = "btnOpenAll";
-            this.btnOpenAll.Size = new System.Drawing.Size(195, 49);
+            this.btnOpenAll.Size = new System.Drawing.Size(130, 32);
             this.btnOpenAll.TabIndex = 0;
-            this.btnOpenAll.Text = "Mo tat ca";
+            this.btnOpenAll.Text = "Mở tất cả";
             this.btnOpenAll.UseVisualStyleBackColor = false;
             this.btnOpenAll.Click += new System.EventHandler(this.btnOpenAll_Click);
             // 
@@ -231,12 +220,11 @@ namespace study_document_manager
             this.btnRemoveFromCollection.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRemoveFromCollection.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnRemoveFromCollection.ForeColor = System.Drawing.Color.White;
-            this.btnRemoveFromCollection.Location = new System.Drawing.Point(218, 15);
-            this.btnRemoveFromCollection.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnRemoveFromCollection.Location = new System.Drawing.Point(145, 10);
             this.btnRemoveFromCollection.Name = "btnRemoveFromCollection";
-            this.btnRemoveFromCollection.Size = new System.Drawing.Size(270, 49);
+            this.btnRemoveFromCollection.Size = new System.Drawing.Size(180, 32);
             this.btnRemoveFromCollection.TabIndex = 1;
-            this.btnRemoveFromCollection.Text = "Xoa khoi bo suu tap";
+            this.btnRemoveFromCollection.Text = "Xóa khỏi bộ sưu tập";
             this.btnRemoveFromCollection.UseVisualStyleBackColor = false;
             this.btnRemoveFromCollection.Click += new System.EventHandler(this.btnRemoveFromCollection_Click);
             // 
@@ -246,13 +234,12 @@ namespace study_document_manager
             this.lblDocTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblDocTitle.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.lblDocTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(150)))), ((int)(((byte)(243)))));
-            this.lblDocTitle.Location = new System.Drawing.Point(15, 15);
-            this.lblDocTitle.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblDocTitle.Location = new System.Drawing.Point(10, 10);
             this.lblDocTitle.Name = "lblDocTitle";
-            this.lblDocTitle.Padding = new System.Windows.Forms.Padding(0, 0, 0, 15);
-            this.lblDocTitle.Size = new System.Drawing.Size(295, 47);
+            this.lblDocTitle.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
+            this.lblDocTitle.Size = new System.Drawing.Size(195, 31);
             this.lblDocTitle.TabIndex = 0;
-            this.lblDocTitle.Text = "Tai lieu trong bo suu tap";
+            this.lblDocTitle.Text = "Tài liệu trong bộ sưu tập";
             // 
             // statusStrip
             // 
@@ -260,38 +247,36 @@ namespace study_document_manager
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblStatus,
             this.lblDocCount});
-            this.statusStrip.Location = new System.Drawing.Point(0, 771);
+            this.statusStrip.Location = new System.Drawing.Point(0, 500);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Padding = new System.Windows.Forms.Padding(2, 0, 21, 0);
-            this.statusStrip.Size = new System.Drawing.Size(1350, 32);
+            this.statusStrip.Size = new System.Drawing.Size(900, 22);
             this.statusStrip.TabIndex = 1;
             // 
             // lblStatus
             // 
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(84, 25);
-            this.lblStatus.Text = "San sang";
+            this.lblStatus.Size = new System.Drawing.Size(54, 17);
+            this.lblStatus.Text = "Sẵn sàng";
             // 
             // lblDocCount
             // 
             this.lblDocCount.Name = "lblDocCount";
-            this.lblDocCount.Size = new System.Drawing.Size(1243, 25);
+            this.lblDocCount.Size = new System.Drawing.Size(831, 17);
             this.lblDocCount.Spring = true;
             this.lblDocCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // CollectionManagementForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1350, 803);
+            this.ClientSize = new System.Drawing.Size(900, 522);
             this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.statusStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.MinimumSize = new System.Drawing.Size(1039, 585);
+            this.MinimumSize = new System.Drawing.Size(698, 394);
             this.Name = "CollectionManagementForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Quan ly Bo suu tap";
+            this.Text = "Quản lý Bộ sưu tập";
             this.Load += new System.EventHandler(this.CollectionManagementForm_Load);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();
