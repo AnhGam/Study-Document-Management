@@ -372,22 +372,53 @@ namespace study_document_manager
             // Form background
             this.BackColor = AppTheme.BackgroundSoft;
             
-            // MenuStrip
+            // MenuStrip - Teal header style
+            menuStrip.BackColor = AppTheme.BackgroundMain;
+            menuStrip.ForeColor = AppTheme.TextPrimary;
+            menuStrip.Font = AppTheme.FontSmall;
+            menuStrip.Padding = new Padding(8, 2, 8, 2);
             AppTheme.ApplyMenuStripStyle(menuStrip);
             
-            // ToolStrip
+            // ToolStrip - Clean modern look
+            toolStrip.BackColor = AppTheme.BackgroundMain;
+            toolStrip.GripStyle = ToolStripGripStyle.Hidden;
+            toolStrip.Padding = new Padding(8, 4, 8, 4);
             AppTheme.ApplyToolStripStyle(toolStrip);
             
-            // Search Panel
+            // Search Panel - Soft background with rounded feel
             pnlSearch.BackColor = AppTheme.BackgroundMain;
-            lblSearch.ForeColor = AppTheme.TextSecondary;
-            AppTheme.ApplyTextBoxStyle(txtSearch);
-            AppTheme.ApplyComboBoxStyle(cboSubject);
-            AppTheme.ApplyComboBoxStyle(cboType);
+            pnlSearch.Padding = new Padding(16, 12, 16, 12);
             
-            // Search button - Primary style
+            // Search label
+            lblSearch.ForeColor = AppTheme.TextSecondary;
+            lblSearch.Font = AppTheme.FontSmall;
+            
+            // Subject/Type labels
+            lblSubject.ForeColor = AppTheme.TextSecondary;
+            lblSubject.Font = AppTheme.FontSmall;
+            lblType.ForeColor = AppTheme.TextSecondary;
+            lblType.Font = AppTheme.FontSmall;
+            
+            // Search TextBox - Modern rounded feel
+            txtSearch.BackColor = Color.White;
+            txtSearch.ForeColor = AppTheme.TextPrimary;
+            txtSearch.Font = AppTheme.FontInput;
+            txtSearch.BorderStyle = BorderStyle.FixedSingle;
+            
+            // ComboBoxes - Consistent white style
+            cboSubject.BackColor = Color.White;
+            cboSubject.ForeColor = AppTheme.TextPrimary;
+            cboSubject.Font = AppTheme.FontBody;
+            cboSubject.FlatStyle = FlatStyle.Flat;
+            
+            cboType.BackColor = AppTheme.Primary;
+            cboType.ForeColor = Color.White;
+            cboType.Font = AppTheme.FontBody;
+            cboType.FlatStyle = FlatStyle.Flat;
+            
+            // Search button - Primary Teal
             btnSearch.BackColor = AppTheme.Primary;
-            btnSearch.ForeColor = AppTheme.TextWhite;
+            btnSearch.ForeColor = Color.White;
             btnSearch.FlatStyle = FlatStyle.Flat;
             btnSearch.FlatAppearance.BorderSize = 0;
             btnSearch.Font = AppTheme.FontButton;
@@ -397,22 +428,42 @@ namespace study_document_manager
             
             // Content Panel
             pnlContent.BackColor = AppTheme.BackgroundSoft;
+            pnlContent.Padding = new Padding(16);
             
-            // DataGridView
+            // DataGridView - Clean modern table
             AppTheme.ApplyDataGridViewStyle(dgvDocuments);
+            dgvDocuments.BorderStyle = BorderStyle.None;
+            dgvDocuments.BackgroundColor = AppTheme.BackgroundMain;
             
             // Status Strip
-            AppTheme.ApplyStatusStripStyle(statusStrip);
+            statusStrip.BackColor = AppTheme.BackgroundSoft;
+            statusStrip.ForeColor = AppTheme.TextSecondary;
+            lblStatus.ForeColor = AppTheme.Primary;
+            lblCount.ForeColor = AppTheme.Primary;
             
-            // Advanced Filter GroupBox
-            AppTheme.ApplyGroupBoxStyle(grpAdvancedFilter);
+            // Advanced Filter GroupBox - Card style
             grpAdvancedFilter.BackColor = AppTheme.BackgroundMain;
+            grpAdvancedFilter.ForeColor = AppTheme.TextPrimary;
+            grpAdvancedFilter.Font = AppTheme.FontSmallBold;
             
-            // Filter Buttons
+            // Filter labels
+            lblDateFilter.ForeColor = AppTheme.TextSecondary;
+            lblDateTo.ForeColor = AppTheme.TextSecondary;
+            lblSizeFilter.ForeColor = AppTheme.TextSecondary;
+            lblSizeTo.ForeColor = AppTheme.TextSecondary;
+            lblSizeMB.ForeColor = AppTheme.TextSecondary;
+            
+            // Checkboxes
+            chkEnableDateFilter.ForeColor = AppTheme.TextPrimary;
+            chkEnableSizeFilter.ForeColor = AppTheme.TextPrimary;
+            chkImportantOnly.ForeColor = AppTheme.TextPrimary;
+            
+            // Filter Buttons - Primary and Secondary
             btnApplyAdvancedFilter.BackColor = AppTheme.Primary;
-            btnApplyAdvancedFilter.ForeColor = AppTheme.TextWhite;
+            btnApplyAdvancedFilter.ForeColor = Color.White;
             btnApplyAdvancedFilter.FlatStyle = FlatStyle.Flat;
             btnApplyAdvancedFilter.FlatAppearance.BorderSize = 0;
+            btnApplyAdvancedFilter.Font = AppTheme.FontButton;
             btnApplyAdvancedFilter.Cursor = Cursors.Hand;
             btnApplyAdvancedFilter.MouseEnter += (s, e) => btnApplyAdvancedFilter.BackColor = AppTheme.PrimaryLight;
             btnApplyAdvancedFilter.MouseLeave += (s, e) => btnApplyAdvancedFilter.BackColor = AppTheme.Primary;
@@ -422,9 +473,18 @@ namespace study_document_manager
             btnClearAdvancedFilter.FlatStyle = FlatStyle.Flat;
             btnClearAdvancedFilter.FlatAppearance.BorderSize = 1;
             btnClearAdvancedFilter.FlatAppearance.BorderColor = AppTheme.BorderMedium;
+            btnClearAdvancedFilter.Font = AppTheme.FontButton;
             btnClearAdvancedFilter.Cursor = Cursors.Hand;
             btnClearAdvancedFilter.MouseEnter += (s, e) => { btnClearAdvancedFilter.BackColor = AppTheme.BorderLight; };
             btnClearAdvancedFilter.MouseLeave += (s, e) => { btnClearAdvancedFilter.BackColor = AppTheme.BackgroundSoft; };
+            
+            // Date pickers styling
+            dtpFromDate.Font = AppTheme.FontSmall;
+            dtpToDate.Font = AppTheme.FontSmall;
+            
+            // Numeric updowns styling  
+            nudMinSize.Font = AppTheme.FontSmall;
+            nudMaxSize.Font = AppTheme.FontSmall;
         }
 
         /// <summary>
@@ -515,11 +575,13 @@ namespace study_document_manager
                     {
                         Name = "Icon",
                         HeaderText = "",
-                        Width = 30,
+                        Width = 24,
+                        MinimumWidth = 24,
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                         ImageLayout = DataGridViewImageCellLayout.Zoom,
                         DisplayIndex = 0,
-                        // Quan trọng: Đặt null value
-                        DefaultCellStyle = { NullValue = null }
+                        Resizable = DataGridViewTriState.False,
+                        DefaultCellStyle = { NullValue = null, Padding = new Padding(2) }
                     };
                     dgvDocuments.Columns.Insert(0, iconColumn);
                 }
@@ -610,11 +672,24 @@ namespace study_document_manager
             dgvDocuments.RowsDefaultCellStyle.BackColor = AppTheme.BackgroundMain;
             dgvDocuments.RowsDefaultCellStyle.SelectionBackColor = AppTheme.GridRowSelected;
             dgvDocuments.RowsDefaultCellStyle.SelectionForeColor = AppTheme.TextPrimary;
+            dgvDocuments.RowsDefaultCellStyle.Font = AppTheme.FontSmall;
+            dgvDocuments.RowsDefaultCellStyle.Padding = new Padding(4, 2, 4, 2);
+            
+            // Header style
             dgvDocuments.ColumnHeadersDefaultCellStyle.BackColor = AppTheme.GridHeaderBg;
             dgvDocuments.ColumnHeadersDefaultCellStyle.ForeColor = AppTheme.GridHeaderFg;
             dgvDocuments.ColumnHeadersDefaultCellStyle.Font = AppTheme.FontSmallBold;
+            dgvDocuments.ColumnHeadersDefaultCellStyle.Padding = new Padding(8, 6, 8, 6);
+            dgvDocuments.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dgvDocuments.ColumnHeadersHeight = 36;
+            dgvDocuments.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvDocuments.EnableHeadersVisualStyles = false;
-            dgvDocuments.RowTemplate.Height = 40;
+            
+            // Row settings
+            dgvDocuments.RowTemplate.Height = 36;
+            dgvDocuments.RowHeadersVisible = false;
+            dgvDocuments.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvDocuments.GridColor = AppTheme.BorderLight;
         }
 
         /// <summary>

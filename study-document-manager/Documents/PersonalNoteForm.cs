@@ -31,21 +31,34 @@ namespace study_document_manager
             
             // Document name styling
             lblDocumentName.ForeColor = AppTheme.TextSecondary;
+            lblDocumentName.Font = new Font("Segoe UI", 10F, FontStyle.Italic);
             
             // Labels
             lblStatus.ForeColor = AppTheme.TextPrimary;
+            lblStatus.Font = AppTheme.FontSmallBold;
             lblNote.ForeColor = AppTheme.TextPrimary;
+            lblNote.Font = AppTheme.FontSmallBold;
             
             // ComboBox styling
             AppTheme.ApplyComboBoxStyle(cboStatus);
             
-            // TextBox styling
-            AppTheme.ApplyTextBoxStyle(txtNote);
+            // TextBox styling - larger for note
+            txtNote.BackColor = Color.White;
+            txtNote.ForeColor = AppTheme.TextPrimary;
+            txtNote.Font = AppTheme.FontBody;
+            txtNote.BorderStyle = BorderStyle.FixedSingle;
             
             // Buttons
             AppTheme.ApplyButtonSuccess(btnSave);
             AppTheme.ApplyButtonDanger(btnDelete);
-            AppTheme.ApplyButtonSecondary(btnCancel);
+            
+            // Cancel button
+            btnCancel.BackColor = AppTheme.BackgroundSoft;
+            btnCancel.ForeColor = AppTheme.TextSecondary;
+            btnCancel.FlatStyle = FlatStyle.Flat;
+            btnCancel.FlatAppearance.BorderSize = 1;
+            btnCancel.FlatAppearance.BorderColor = AppTheme.BorderMedium;
+            btnCancel.Cursor = Cursors.Hand;
         }
 
         private void PersonalNoteForm_Load(object sender, EventArgs e)

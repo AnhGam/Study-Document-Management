@@ -31,12 +31,20 @@ namespace study_document_manager
             // Buttons
             AppTheme.ApplyButtonPrimary(btnScan);
             AppTheme.ApplyButtonDanger(btnDeleteAll);
-            AppTheme.ApplyButtonSecondary(btnClose);
+            
+            // Close button
+            btnClose.BackColor = AppTheme.BackgroundSoft;
+            btnClose.ForeColor = AppTheme.TextSecondary;
+            btnClose.FlatStyle = FlatStyle.Flat;
+            btnClose.FlatAppearance.BorderSize = 1;
+            btnClose.FlatAppearance.BorderColor = AppTheme.BorderMedium;
+            btnClose.Cursor = Cursors.Hand;
             
             // Labels
             lblProgress.ForeColor = AppTheme.TextSecondary;
-            lblSummary.ForeColor = AppTheme.TextPrimary;
-            lblSummary.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblProgress.Font = AppTheme.FontSmall;
+            lblSummary.ForeColor = AppTheme.Primary;
+            lblSummary.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             
             // Progress bar
             progressBar.ForeColor = AppTheme.Primary;

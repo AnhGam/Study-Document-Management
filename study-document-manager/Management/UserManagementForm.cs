@@ -18,18 +18,25 @@ namespace study_document_manager
         {
             this.BackColor = AppTheme.BackgroundMain;
             
-            // Header panel
+            // Header panel - Teal
             pnlHeader.BackColor = AppTheme.Primary;
             lblTitle.ForeColor = Color.White;
+            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             
-            // Buttons
+            // Buttons - Styled with theme
             AppTheme.ApplyButtonPrimary(btnRefresh);
             AppTheme.ApplyButtonSuccess(btnAdd);
             AppTheme.ApplyButtonPrimary(btnChangePassword);
             AppTheme.ApplyButtonSecondary(btnEditRole);
             AppTheme.ApplyButtonWarning(btnToggleActive);
             AppTheme.ApplyButtonDanger(btnDelete);
-            AppTheme.ApplyButtonDanger(btnClose);
+            
+            // Close button
+            btnClose.BackColor = Color.FromArgb(239, 68, 68);
+            btnClose.ForeColor = Color.White;
+            btnClose.FlatStyle = FlatStyle.Flat;
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.Cursor = Cursors.Hand;
             
             // Status strip
             statusStrip1.BackColor = AppTheme.BackgroundSoft;

@@ -21,19 +21,25 @@ namespace study_document_manager
         {
             this.BackColor = AppTheme.BackgroundMain;
             
-            // Top panel
+            // Top panel - Teal header
             pnlTop.BackColor = AppTheme.Primary;
             lblTitle.ForeColor = Color.White;
-            lblTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             
             // Close button
-            AppTheme.ApplyButtonDanger(btnClose);
+            btnClose.BackColor = Color.FromArgb(239, 68, 68);
+            btnClose.ForeColor = Color.White;
+            btnClose.FlatStyle = FlatStyle.Flat;
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.Cursor = Cursors.Hand;
             
             // Options panel
             pnlOptions.BackColor = AppTheme.BackgroundMain;
             pnlOptions.BorderStyle = BorderStyle.None;
             lblStatType.ForeColor = AppTheme.TextPrimary;
+            lblStatType.Font = AppTheme.FontSmallBold;
             lblChartType.ForeColor = AppTheme.TextPrimary;
+            lblChartType.Font = AppTheme.FontSmallBold;
             
             // Statistic buttons
             AppTheme.ApplyButtonSuccess(btnBySubject);
@@ -43,7 +49,8 @@ namespace study_document_manager
             AppTheme.ApplyComboBoxStyle(cboChartType);
             
             // Total label
-            lblTotal.ForeColor = AppTheme.Success;
+            lblTotal.ForeColor = AppTheme.Primary;
+            lblTotal.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             
             // Chart panel
             pnlChart.BackColor = AppTheme.BackgroundSoft;
@@ -53,6 +60,7 @@ namespace study_document_manager
             
             // Status strip
             statusStrip.BackColor = AppTheme.BackgroundSoft;
+            lblStatus.ForeColor = AppTheme.TextSecondary;
         }
 
         /// <summary>

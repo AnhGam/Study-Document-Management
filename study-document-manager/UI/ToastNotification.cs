@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using study_document_manager.UI;
 
 namespace study_document_manager
 {
@@ -24,30 +25,30 @@ namespace study_document_manager
         private readonly Timer _fadeTimer;
         private readonly ToastType _toastType;
         private readonly string _message;
-        private const int ToastWidth = 320;
-        private const int ToastHeight = 48;
-        private const int ToastMargin = 12;
-        private const int AnimationInterval = 16;
-        private const double FadeStep = 0.12;
-        private const int BorderRadius = 8;
+        private const int ToastWidth = 360;
+        private const int ToastHeight = 56;
+        private const int ToastMargin = 16;
+        private const int AnimationInterval = 12;
+        private const double FadeStep = 0.15;
+        private const int BorderRadius = 12;
 
         private static readonly Color SuccessBg = Color.FromArgb(240, 253, 244);
-        private static readonly Color SuccessAccent = Color.FromArgb(34, 197, 94);
+        private static readonly Color SuccessAccent = AppTheme.StatusSuccess;
         private static readonly Color SuccessText = Color.FromArgb(21, 128, 61);
         
         private static readonly Color ErrorBg = Color.FromArgb(254, 242, 242);
-        private static readonly Color ErrorAccent = Color.FromArgb(239, 68, 68);
+        private static readonly Color ErrorAccent = AppTheme.StatusError;
         private static readonly Color ErrorText = Color.FromArgb(185, 28, 28);
         
         private static readonly Color WarningBg = Color.FromArgb(255, 251, 235);
-        private static readonly Color WarningAccent = Color.FromArgb(245, 158, 11);
+        private static readonly Color WarningAccent = AppTheme.StatusWarning;
         private static readonly Color WarningText = Color.FromArgb(180, 83, 9);
         
-        private static readonly Color InfoBg = Color.FromArgb(239, 246, 255);
-        private static readonly Color InfoAccent = Color.FromArgb(59, 130, 246);
-        private static readonly Color InfoText = Color.FromArgb(29, 78, 216);
+        private static readonly Color InfoBg = Color.FromArgb(240, 253, 250);
+        private static readonly Color InfoAccent = AppTheme.Primary;
+        private static readonly Color InfoText = AppTheme.PrimaryDark;
 
-        private static readonly Color CloseButtonColor = Color.FromArgb(156, 163, 175);
+        private static readonly Color CloseButtonColor = AppTheme.TextMuted;
 
         private ToastNotification(string message, ToastType type, int durationMs = 3000)
         {
@@ -65,7 +66,8 @@ namespace study_document_manager
             SetStyle(ControlStyles.AllPaintingInWmPaint | 
                      ControlStyles.UserPaint | 
                      ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.ResizeRedraw, true);
+                     ControlStyles.ResizeRedraw |
+                     ControlStyles.SupportsTransparentBackColor, true);
 
             _closeTimer = new Timer { Interval = durationMs };
             _closeTimer.Tick += (s, e) =>
@@ -87,6 +89,7 @@ namespace study_document_manager
                 
                 CreateParams cp = base.CreateParams;
                 cp.ExStyle |= 0x02000000;
+                cp.ClassStyle |= 0x00020000;
                 return cp;
             }
         }
@@ -98,7 +101,9 @@ namespace study_document_manager
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            var bounds = new Rectangle(0, 0, Width, Height);
+            var bounds = new Rectangle(2, 2, Width - 4, Height - 4);
+            
+            DrawShadow(g, bounds);
             
             using (var path = CreateRoundedRectangle(bounds, BorderRadius))
             {
@@ -109,17 +114,36 @@ namespace study_document_manager
                     g.FillPath(bgBrush, path);
                 }
                 
-                DrawLeftAccent(g);
-                DrawIcon(g);
-                DrawMessage(g);
-                DrawCloseButton(g);
+                using (var borderPen = new Pen(Color.FromArgb(30, GetAccentColor(_toastType)), 1))
+                {
+                    g.DrawPath(borderPen, path);
+                }
+                
+                DrawLeftAccent(g, bounds);
+                DrawIcon(g, bounds);
+                DrawMessage(g, bounds);
+                DrawCloseButton(g, bounds);
             }
         }
 
-        private void DrawLeftAccent(Graphics g)
+        private void DrawShadow(Graphics g, Rectangle bounds)
+        {
+            for (int i = 4; i > 0; i--)
+            {
+                int alpha = 8 * (5 - i);
+                using (var shadowPath = CreateRoundedRectangle(
+                    new Rectangle(bounds.X + i, bounds.Y + i, bounds.Width, bounds.Height), BorderRadius))
+                using (var shadowBrush = new SolidBrush(Color.FromArgb(alpha, 0, 0, 0)))
+                {
+                    g.FillPath(shadowBrush, shadowPath);
+                }
+            }
+        }
+
+        private void DrawLeftAccent(Graphics g, Rectangle bounds)
         {
             var accentColor = GetAccentColor(_toastType);
-            var accentRect = new Rectangle(0, 0, 4, Height);
+            var accentRect = new Rectangle(bounds.X, bounds.Y, 5, bounds.Height);
             
             using (var accentBrush = new SolidBrush(accentColor))
             using (var accentPath = CreateRoundedRectangle(accentRect, BorderRadius, true, false, false, true))
@@ -128,27 +152,41 @@ namespace study_document_manager
             }
         }
 
-        private void DrawIcon(Graphics g)
+        private void DrawIcon(Graphics g, Rectangle bounds)
         {
             var accentColor = GetAccentColor(_toastType);
-            var iconText = GetIconText(_toastType);
+            var iconBgColor = Color.FromArgb(40, accentColor);
             
-            using (var iconFont = new Font("Segoe UI", 11, FontStyle.Bold))
+            int iconSize = 28;
+            int iconX = bounds.X + 16;
+            int iconY = bounds.Y + (bounds.Height - iconSize) / 2;
+            var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
+            
+            using (var iconBgBrush = new SolidBrush(iconBgColor))
+            using (var iconPath = CreateRoundedRectangle(iconRect, iconSize / 2))
+            {
+                g.FillPath(iconBgBrush, iconPath);
+            }
+            
+            var iconText = GetIconText(_toastType);
+            using (var iconFont = new Font("Segoe UI", 10, FontStyle.Bold))
             using (var iconBrush = new SolidBrush(accentColor))
             {
-                var iconSize = g.MeasureString(iconText, iconFont);
-                var iconX = 16;
-                var iconY = (Height - iconSize.Height) / 2;
-                g.DrawString(iconText, iconFont, iconBrush, iconX, iconY);
+                var sf = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+                g.DrawString(iconText, iconFont, iconBrush, iconRect, sf);
             }
         }
 
-        private void DrawMessage(Graphics g)
+        private void DrawMessage(Graphics g, Rectangle bounds)
         {
             var textColor = GetTextColor(_toastType);
-            var messageRect = new RectangleF(38, 0, ToastWidth - 70, Height);
+            var messageRect = new RectangleF(bounds.X + 54, bounds.Y, bounds.Width - 90, bounds.Height);
             
-            using (var messageFont = new Font("Segoe UI", 9.5f, FontStyle.Regular))
+            using (var messageFont = new Font("Segoe UI", 10f, FontStyle.Regular))
             using (var messageBrush = new SolidBrush(textColor))
             {
                 var sf = new StringFormat 
@@ -162,19 +200,31 @@ namespace study_document_manager
             }
         }
 
-        private void DrawCloseButton(Graphics g)
+        private void DrawCloseButton(Graphics g, Rectangle bounds)
         {
-            var closeRect = new Rectangle(ToastWidth - 32, (Height - 20) / 2, 20, 20);
+            int closeSize = 24;
+            var closeRect = new Rectangle(bounds.Right - closeSize - 12, bounds.Y + (bounds.Height - closeSize) / 2, closeSize, closeSize);
             var mousePos = PointToClient(MousePosition);
             bool isHovered = closeRect.Contains(mousePos);
             
-            using (var closeFont = new Font("Segoe UI", 10, FontStyle.Regular))
+            if (isHovered)
+            {
+                using (var hoverBrush = new SolidBrush(Color.FromArgb(30, GetAccentColor(_toastType))))
+                using (var hoverPath = CreateRoundedRectangle(closeRect, closeSize / 2))
+                {
+                    g.FillPath(hoverBrush, hoverPath);
+                }
+            }
+            
+            using (var closeFont = new Font("Segoe UI", 11, FontStyle.Regular))
             using (var closeBrush = new SolidBrush(isHovered ? GetAccentColor(_toastType) : CloseButtonColor))
             {
-                var closeSize = g.MeasureString("×", closeFont);
-                var closeX = closeRect.X + (closeRect.Width - closeSize.Width) / 2;
-                var closeY = closeRect.Y + (closeRect.Height - closeSize.Height) / 2;
-                g.DrawString("×", closeFont, closeBrush, closeX, closeY);
+                var sf = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+                g.DrawString("×", closeFont, closeBrush, closeRect, sf);
             }
         }
 
@@ -391,7 +441,9 @@ namespace study_document_manager
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
-            var closeRect = new Rectangle(ToastWidth - 32, (Height - 20) / 2, 20, 20);
+            int closeSize = 24;
+            var bounds = new Rectangle(2, 2, Width - 4, Height - 4);
+            var closeRect = new Rectangle(bounds.Right - closeSize - 12, bounds.Y + (bounds.Height - closeSize) / 2, closeSize, closeSize);
             if (closeRect.Contains(e.Location))
             {
                 StartFadeOut();

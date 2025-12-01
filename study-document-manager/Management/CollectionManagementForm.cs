@@ -24,16 +24,25 @@ namespace study_document_manager
             
             // Collection title
             lblCollectionTitle.ForeColor = AppTheme.Primary;
+            lblCollectionTitle.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             
             // Doc title
             lblDocTitle.ForeColor = AppTheme.Primary;
+            lblDocTitle.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             
             // Buttons
             AppTheme.ApplyButtonSuccess(btnNewCollection);
             AppTheme.ApplyButtonDanger(btnDeleteCollection);
             AppTheme.ApplyButtonWarning(btnRemoveFromCollection);
             AppTheme.ApplyButtonPrimary(btnOpenAll);
-            AppTheme.ApplyButtonSecondary(btnClose);
+            
+            // Close button
+            btnClose.BackColor = AppTheme.BackgroundSoft;
+            btnClose.ForeColor = AppTheme.TextSecondary;
+            btnClose.FlatStyle = FlatStyle.Flat;
+            btnClose.FlatAppearance.BorderSize = 1;
+            btnClose.FlatAppearance.BorderColor = AppTheme.BorderMedium;
+            btnClose.Cursor = Cursors.Hand;
             
             // Status strip
             statusStrip.BackColor = AppTheme.BackgroundSoft;
@@ -41,6 +50,7 @@ namespace study_document_manager
             // ListView styling
             lstCollections.BackColor = Color.White;
             lstCollections.ForeColor = AppTheme.TextPrimary;
+            lstCollections.Font = AppTheme.FontBody;
             
             // Split container panels
             splitContainer.Panel1.BackColor = AppTheme.BackgroundMain;

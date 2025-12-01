@@ -50,8 +50,8 @@ namespace study_document_manager.UI
         public static readonly Color InputBorderFocus = Color.FromArgb(20, 184, 166);
         public static readonly Color InputBorderHover = Color.FromArgb(148, 163, 184);
 
-        public static readonly Color GridHeaderBg = Color.FromArgb(248, 250, 252);
-        public static readonly Color GridHeaderFg = Color.FromArgb(51, 65, 85);
+        public static readonly Color GridHeaderBg = Color.FromArgb(15, 118, 110);  // Teal-700 - header nền Teal đậm
+        public static readonly Color GridHeaderFg = Color.FromArgb(255, 255, 255);  // White - text trắng
         public static readonly Color GridRowAlt = Color.FromArgb(248, 250, 252);
         public static readonly Color GridRowSelected = Color.FromArgb(204, 251, 241);
         public static readonly Color GridBorder = Color.FromArgb(226, 232, 240);

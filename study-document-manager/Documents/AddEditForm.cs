@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using study_document_manager.UI;
@@ -23,25 +24,38 @@ namespace study_document_manager
         {
             this.BackColor = AppTheme.BackgroundMain;
             
+            // Style all labels
             foreach (Control ctrl in this.Controls)
             {
                 if (ctrl is Label lbl)
                 {
-                    lbl.ForeColor = AppTheme.TextSecondary;
-                    lbl.Font = AppTheme.FontSmall;
+                    lbl.ForeColor = AppTheme.TextPrimary;
+                    lbl.Font = AppTheme.FontSmallBold;
                 }
                 else if (ctrl is TextBox txt)
                 {
-                    AppTheme.ApplyTextBoxStyle(txt);
+                    txt.BackColor = Color.White;
+                    txt.ForeColor = AppTheme.TextPrimary;
+                    txt.Font = AppTheme.FontBody;
+                    txt.BorderStyle = BorderStyle.FixedSingle;
                 }
                 else if (ctrl is ComboBox cbo)
                 {
-                    AppTheme.ApplyComboBoxStyle(cbo);
+                    cbo.BackColor = Color.White;
+                    cbo.ForeColor = AppTheme.TextPrimary;
+                    cbo.Font = AppTheme.FontBody;
+                    cbo.FlatStyle = FlatStyle.Flat;
+                }
+                else if (ctrl is CheckBox chk)
+                {
+                    chk.ForeColor = AppTheme.TextPrimary;
+                    chk.Font = AppTheme.FontSmall;
                 }
             }
             
+            // Choose file button - Primary
             btn_chon_file.BackColor = AppTheme.Primary;
-            btn_chon_file.ForeColor = AppTheme.TextWhite;
+            btn_chon_file.ForeColor = Color.White;
             btn_chon_file.FlatStyle = FlatStyle.Flat;
             btn_chon_file.FlatAppearance.BorderSize = 0;
             btn_chon_file.Font = AppTheme.FontButton;
@@ -49,15 +63,17 @@ namespace study_document_manager
             btn_chon_file.MouseEnter += (s, e) => btn_chon_file.BackColor = AppTheme.PrimaryLight;
             btn_chon_file.MouseLeave += (s, e) => btn_chon_file.BackColor = AppTheme.Primary;
             
-            btn_luu.BackColor = AppTheme.Primary;
-            btn_luu.ForeColor = AppTheme.TextWhite;
+            // Save button - Success
+            btn_luu.BackColor = AppTheme.StatusSuccess;
+            btn_luu.ForeColor = Color.White;
             btn_luu.FlatStyle = FlatStyle.Flat;
             btn_luu.FlatAppearance.BorderSize = 0;
             btn_luu.Font = AppTheme.FontButton;
             btn_luu.Cursor = Cursors.Hand;
-            btn_luu.MouseEnter += (s, e) => btn_luu.BackColor = AppTheme.PrimaryLight;
-            btn_luu.MouseLeave += (s, e) => btn_luu.BackColor = AppTheme.Primary;
+            btn_luu.MouseEnter += (s, e) => btn_luu.BackColor = AppTheme.SecondaryLight;
+            btn_luu.MouseLeave += (s, e) => btn_luu.BackColor = AppTheme.StatusSuccess;
             
+            // Cancel button - Secondary
             btn_huy.BackColor = AppTheme.BackgroundSoft;
             btn_huy.ForeColor = AppTheme.TextSecondary;
             btn_huy.FlatStyle = FlatStyle.Flat;
@@ -68,7 +84,12 @@ namespace study_document_manager
             btn_huy.MouseEnter += (s, e) => btn_huy.BackColor = AppTheme.BorderLight;
             btn_huy.MouseLeave += (s, e) => btn_huy.BackColor = AppTheme.BackgroundSoft;
             
+            // Important checkbox - Amber color
             chk_quan_trong.ForeColor = AppTheme.AccentAmber;
+            chk_quan_trong.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            
+            // Deadline checkbox
+            chkHasDeadline.ForeColor = AppTheme.TextSecondary;
         }
 
         private void ChkHasDeadline_CheckedChanged(object sender, EventArgs e)
