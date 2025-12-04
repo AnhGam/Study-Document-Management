@@ -263,11 +263,11 @@ DialogResult result = MessageBox.Show(
 ```
 study-document-manager/
 ├── study-document-manager/     # Project chính
-│   ├── Form1.cs               # Form chính
-│   ├── DatabaseHelper.cs      # Data access layer
-│   ├── UserSession.cs         # Quản lý session
-│   ├── ToastNotification.cs   # Thông báo Toast
-│   ├── IconHelper.cs          # Tạo icon động
+│   ├── Documents/Dashboard.cs   # Form chính
+│   ├── Data/DatabaseHelper.cs   # Data access layer
+│   ├── Core/UserSession.cs      # Quản lý session
+│   ├── UI/ToastNotification.cs  # Thông báo Toast
+│   ├── UI/IconHelper.cs         # Tạo icon động
 │   └── ...
 ├── DATABASE.md                # Cấu trúc database
 ├── FEATURES.md                # Roadmap tính năng

@@ -54,7 +54,10 @@
 - Checkbox đánh dấu tài liệu quan trọng
 - Validate dữ liệu đầu vào
 
-### Form thống kê
+### Form thống kê (Dashboard nâng cao)
+- **6 Stat Cards**: Tổng tài liệu, Quan trọng, Quá hạn, Sắp đến hạn, Chưa có file, Bộ sưu tập
+- **Biểu đồ 7 ngày**: Timeline tài liệu tạo mới trong 7 ngày gần nhất
+- **Biểu đồ theo tháng**: Thống kê theo 12 tháng gần nhất
 - Biểu đồ động với nhiều kiểu (Cột, Tròn, Đường, Vùng)
 - Thống kê theo môn học hoặc loại tài liệu
 - Màu sắc đẹp mắt và dễ nhìn
@@ -69,6 +72,7 @@
 ### Form cài đặt tài khoản
 - Tab **Thông tin cá nhân**: Xem và sửa họ tên, email
 - Tab **Đổi mật khẩu**: Đổi mật khẩu (cần xác thực mật khẩu hiện tại)
+- **Nút bật/tắt hiển thị mật khẩu** (click toggle thay vì giữ)
 - Hiển thị vai trò và thời gian đăng nhập
 
 ### Toast Notification
@@ -218,26 +222,37 @@ Database **quan_ly_tai_lieu** gồm 7 bảng chính:
 - Click nút **Đăng xuất** ở góc phải menu bar, hoặc
 - Menu **Tài khoản > Đăng xuất** (`Ctrl+L`)
 
-## Thiết kế màu sắc
+## Thiết kế màu sắc (Teal/Emerald Theme)
 ```
-=== Màu chính (Material Design) ===
-Primary:    #2196F3 (Blue)      - Button chính, selection, Info Toast
-Success:    #4CAF50 (Green)     - Thành công, button Lưu, Success Toast
-Danger:     #F44336 (Red)       - Lỗi, xóa, quá hạn, Error Toast
-Warning:    #FF9800 (Orange)    - Cảnh báo, PowerPoint icon, Warning Toast
+=== Màu chính (Teal/Emerald) ===
+Primary:        #14B8A6 (Teal)       - Button chính, accent, menu highlight
+PrimaryDark:    #0D9488 (Teal Dark)  - Hover state, pressed
+PrimaryLight:   #5EEAD4 (Teal Light) - Hover nhẹ, selection
+Secondary:      #10B981 (Emerald)    - Accent, status active
+
+=== Status Colors ===
+Success:    #22C55E (Green)     - Thành công, Success Toast
+Error:      #EF4444 (Red)       - Lỗi, xóa, quá hạn, Error Toast  
+Warning:    #F59E0B (Amber)     - Cảnh báo, Warning Toast
+Info:       #3B82F6 (Blue)      - Thông tin, Info Toast
 Star:       #FFCA28 (Yellow)    - Đánh dấu quan trọng
 
 === Background & Layout ===
-Background: #E3F2FD (Light Blue) - Form chính
-Panel:      #FFFFFF (White)
-Alternating: #F5F5F5 (Light Gray) - DataGridView rows
-Header:     #34495E (Dark)       - DataGridView header
+BackgroundMain: #FFFFFF (White)     - Form background
+BackgroundSoft: #F8FAFC (Gray 50)   - Panel, card
+BorderLight:    #E2E8F0 (Gray 200)  - Border nhẹ
+BorderMedium:   #CBD5E1 (Gray 300)  - Border rõ
+
+=== Text Colors ===
+TextPrimary:   #0F172A (Slate 900) - Text chính
+TextSecondary: #475569 (Slate 600) - Text phụ
+TextMuted:     #94A3B8 (Slate 400) - Text mờ
 
 === Toast Notification ===
-Toast Success: #4CAF50 - Xanh lá, icon ✓
-Toast Error:   #F44336 - Đỏ, icon ✕
-Toast Warning: #FF9800 - Cam, icon !
-Toast Info:    #2196F3 - Xanh dương, icon i
+Toast Success: #22C55E - Xanh lá, icon ✓
+Toast Error:   #EF4444 - Đỏ, icon ✕
+Toast Warning: #F59E0B - Cam vàng, icon !
+Toast Info:    #3B82F6 - Xanh dương, icon i
 ```
 ## Các phím tắt
 

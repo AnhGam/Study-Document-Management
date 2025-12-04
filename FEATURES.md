@@ -90,7 +90,7 @@
 **Mục tiêu:** Form mở lại vẫn giữ đúng trạng thái quen thuộc của người dùng.
 
 **Tính năng:**
-- Lưu vị trí và kích thước cửa sổ Form1.
+- Lưu vị trí và kích thước cửa sổ Dashboard.
 - Lưu trạng thái cột trong DataGridView (thứ tự, độ rộng).
 - Lưu bộ lọc đơn giản đã chọn lần gần nhất (môn học, loại, filter nâng cao).
 
@@ -158,13 +158,15 @@
 
 ## Phase 3 – Quản trị và độ tin cậy hệ thống (2–3 tuần)
 
-### 10. Dashboard thống kê nâng cao
+### 10. Dashboard thống kê nâng cao (ĐÃ ÁP DỤNG)
 **Mục tiêu:** Cung cấp cái nhìn tổng quan về tài liệu của người dùng.
 
 **Tính năng:**
 - Thống kê số lượng tài liệu theo danh mục, loại.
 - Biểu đồ tài liệu tạo mới theo thời gian (7 ngày, 30 ngày, theo tháng).
 - Thống kê tài liệu quan trọng, tài liệu chưa có file, tài liệu gần deadline.
+- 6 stat cards hiển thị: Tổng tài liệu, Quan trọng, Quá hạn, Sắp đến hạn, Chưa có file, Bộ sưu tập.
+- Biểu đồ timeline 7 ngày gần nhất và biểu đồ theo tháng (12 tháng).
 
 **Tác động:**
 - Hỗ trợ người dùng tối ưu cách tổ chức tài liệu.
@@ -230,12 +232,14 @@ Các ý tưởng dưới đây mang tính định hướng, chỉ triển khai k
 - Toast Notification hiện đại (Success/Error/Warning/Info) với hiệu ứng fade
 - IconHelper mở rộng với nhiều icon UI (Add, Edit, Delete, Settings, Chart...)
 - Cá nhân hóa giao diện (đổi "Môn học" thành "Danh mục")
+- **Dashboard thống kê nâng cao** với 6 stat cards và biểu đồ timeline/monthly
+- **Password toggle click** - nút bật/tắt hiển thị mật khẩu (click thay vì giữ)
+- **Teal/Emerald Theme** - giao diện màu chủ đạo Teal (#14B8A6) nhất quán
 
 ### CHƯA TRIỂN KHAI 
 - Phím tắt nâng cao (F2, Enter mở file, Ctrl+F, Esc)
 - Recent & Favorites
 - Lưu cấu hình người dùng đầy đủ
-- Dashboard thống kê nâng cao
 - Activity log cho Admin
 - Backup/Restore một chạm
 

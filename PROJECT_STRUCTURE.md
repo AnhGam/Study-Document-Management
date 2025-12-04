@@ -17,7 +17,7 @@ Tài liệu này mô tả kiến trúc, luồng dữ liệu và cấu trúc thư
 │  PRESENTATION LAYER (UI - Windows Forms)                    │
 │  ├── Authentication/: LoginForm, RegisterForm,              │
 │  │                    AccountSettingsForm                   │
-│  ├── Documents/: Form1, AddEditForm, PersonalNoteForm       │
+│  ├── Documents/: Dashboard, AddEditForm, PersonalNoteForm   │
 │  ├── Management/: CategoryManagementForm, UserManagementForm│
 │  │               CollectionManagementForm, FileIntegrityForm│
 │  ├── Reports/: Report                                       │
@@ -32,7 +32,7 @@ Tài liệu này mô tả kiến trúc, luồng dữ liệu và cấu trúc thư
 │  Tables: users, tai_lieu, collections, personal_notes...   │
 1. **Presentation Layer (UI)**
    - **Authentication/**: `LoginForm`, `RegisterForm`, `AccountSettingsForm` - Forms xác thực và cài đặt tài khoản.
-   - **Documents/**: `Form1`, `AddEditForm`, `PersonalNoteForm` - Forms quản lý tài liệu chính.
+   - **Documents/**: `Dashboard`, `AddEditForm`, `PersonalNoteForm` - Forms quản lý tài liệu chính.
    - **Management/**: `CategoryManagementForm`, `CollectionManagementForm`, `UserManagementForm`, `FileIntegrityCheckForm` - Forms quản lý hệ thống.
    - **Reports/**: `Report` - Thống kê và báo cáo.
    - **UI/**: `ToastNotification`, `IconHelper` - UI Components dùng chung.
@@ -94,7 +94,7 @@ study-document-manager/
 │   │   └── AccountSettingsForm.cs / .Designer.cs / .resx # Cài đặt tài khoản
 │   │
 │   ├── Documents/                      # Forms quản lý tài liệu
-│   │   ├── Form1.cs / .Designer.cs / .resx           # Form chính: danh sách, filter
+│   │   ├── Dashboard.cs / .Designer.cs / .resx       # Form chính: danh sách, filter, menu
 │   │   ├── AddEditForm.cs / .Designer.cs / .resx     # Thêm / sửa tài liệu
 │   │   └── PersonalNoteForm.cs / .Designer.cs / .resx # Ghi chú cá nhân
 │   │
@@ -105,15 +105,17 @@ study-document-manager/
 │   │   └── FileIntegrityCheckForm.cs / .Designer.cs / .resx  # Kiểm tra file thiếu
 │   │
 │   ├── Reports/                        # Báo cáo & thống kê
-│   │   └── Report.cs / .Designer.cs / .resx          # Thống kê biểu đồ
+│   │   └── Report.cs / .Designer.cs / .resx          # Dashboard thống kê nâng cao
 │   │
 │   ├── Data/                           # Data Access Layer
 │   │   ├── DatabaseHelper.cs           # Truy vấn tài liệu, CRUD, collections
-│   │   └── DatabaseHelper_UserAuth.cs  # Partial class - Auth & User management
+│   │   ├── DatabaseHelper_UserAuth.cs  # Partial class - Auth & User management
+│   │   └── DashboardStats.cs           # Model class thống kê dashboard
 │   │
 │   ├── UI/                             # UI Components
 │   │   ├── ToastNotification.cs / .resx # Thông báo Toast
-│   │   └── IconHelper.cs               # Sinh icon động theo loại tài liệu
+│   │   ├── IconHelper.cs               # Sinh icon động theo loại tài liệu
+│   │   └── AppTheme.cs                 # Định nghĩa màu sắc Teal/Emerald theme
 │   │
 │   ├── Core/                           # Core/Shared
 │   │   ├── UserSession.cs              # Thông tin user đăng nhập (static)
@@ -202,7 +204,7 @@ UserSession.CanManageCategories  // true (tất cả user đều có quyền)
 
 ## 4. Vai trò từng Form và lớp chính
 
-### 4.1. Documents/Form1 – Màn hình chính
+### 4.1. Documents/Dashboard – Màn hình chính
 
 **Chức năng:**
 
@@ -235,6 +237,7 @@ UserSession.CanManageCategories  // true (tất cả user đều có quyền)
 - Gọi `DatabaseHelper.GetUpcomingDeadlines()`, `GetOverdueDocuments()` cho Phase 2.
 - Sử dụng `DatabaseHelper.DeleteDocument`, `CanUserEditDocument` để xóa / kiểm tra quyền.
 - Sử dụng `UserSession` để biết `UserId`, `Role`, `IsAdmin / IsUser`.
+- Form được mở từ `Program.cs` sau khi đăng nhập thành công.
 
 ### 4.2. Documents/AddEditForm – Thêm / sửa tài liệu
 
@@ -266,22 +269,31 @@ UserSession.CanManageCategories  // true (tất cả user đều có quyền)
 - Quản lý Danh mục và Loại tài liệu (lấy distinct từ bảng `tai_lieu` của user hiện tại).
 - Thêm / sửa / xóa danh mục, với cảnh báo khi thao tác có thể ảnh hưởng đến dữ liệu tài liệu.
 - Tất cả users đều có quyền quản lý danh mục của riêng mình.
-- Sau khi đóng form, `Form1` reload lại dữ liệu để áp dụng thay đổi.
+- Sau khi đóng form, `Dashboard` reload lại dữ liệu để áp dụng thay đổi.
 
-### 4.5. Reports/Report – Thống kê
+### 4.5. Reports/Report – Thống kê (Dashboard nâng cao)
 
-- Sử dụng `System.Windows.Forms.DataVisualization.Charting` để:
-  - Thống kê số lượng tài liệu theo danh mục, loại.
-  - Chọn kiểu biểu đồ: Cột dọc, Cột ngang, Tròn, Đường, Vùng.
-- Màu sắc Material Design cho từng data point.
-- Lấy dữ liệu tổng hợp từ `DatabaseHelper.GetStatisticsBySubject()`, `GetStatisticsByType()`.
+- **6 Stat Cards** hiển thị:
+  - Tổng số tài liệu
+  - Tài liệu quan trọng
+  - Tài liệu quá hạn
+  - Tài liệu sắp đến hạn (7 ngày)
+  - Tài liệu chưa có file
+  - Tổng số bộ sưu tập
+- **Biểu đồ 7 ngày**: Timeline tài liệu tạo mới trong 7 ngày gần nhất
+- **Biểu đồ theo tháng**: Thống kê theo 12 tháng gần nhất  
+- Sử dụng `System.Windows.Forms.DataVisualization.Charting`
+- Chọn kiểu biểu đồ: Cột dọc, Cột ngang, Tròn, Đường, Vùng
+- Màu sắc Teal/Emerald Theme cho từng data point
+- Lấy dữ liệu từ `DatabaseHelper.GetDashboardStatistics()`, `GetDocumentsByDay()`, `GetDocumentsByMonth()`, `GetStatisticsBySubject()`, `GetStatisticsByType()`
+- Sử dụng `DashboardStats` model class để lưu trữ thống kê
 
 ### 4.6. Authentication/ – LoginForm, RegisterForm, UserManagementForm
 
 - **LoginForm**
   - Người dùng nhập `username` và `password`.
   - Gọi `DatabaseHelper.AuthenticateUser()` để xác thực với BCrypt.
-  - Nếu thành công, thiết lập `UserSession` và mở `Form1`.
+  - Nếu thành công, thiết lập `UserSession` và mở `Dashboard`.
   - Hỗ trợ Remember Me (lưu username vào Settings).
 
 - **RegisterForm**
@@ -317,6 +329,7 @@ UserSession.CanManageCategories  // true (tất cả user đều có quyền)
 
 - **Tab Thông tin cá nhân**: Xem/sửa họ tên, email.
 - **Tab Đổi mật khẩu**: Đổi mật khẩu (cần nhập mật khẩu hiện tại).
+- **Nút toggle hiển thị mật khẩu** (click để bật/tắt thay vì giữ).
 - Hiển thị vai trò và thời gian đăng nhập.
 - Lưu vào bảng `users` thông qua `DatabaseHelper.UpdateUserProfile()` và `ChangePasswordSelf()`.
 
@@ -339,6 +352,9 @@ UserSession.CanManageCategories  // true (tất cả user đều có quyền)
     - `GetDocumentsInCollection()`, `AddDocumentToCollection()`, `RemoveDocumentFromCollection()`.
   - **Statistics methods:**
     - `GetStatisticsBySubject()`, `GetStatisticsByType()`, `GetTotalDocumentCount()`.
+    - `GetDashboardStatistics()` - trả về `DashboardStats` với các thống kê tổng hợp.
+    - `GetDocumentsByDay(days)` - thống kê tài liệu theo ngày (7 ngày gần nhất).
+    - `GetDocumentsByMonth(months)` - thống kê tài liệu theo tháng (12 tháng gần nhất).
   - **Category methods:**
     - `GetDistinctSubjects()`, `GetDistinctTypes()`.
     - `UpdateSubjectName()`, `UpdateTypeName()`.
@@ -382,6 +398,18 @@ UserSession.CanManageCategories  // true (tất cả user đều có quyền)
   - Static methods: `Show()`, `Success()`, `Error()`, `Warning()`, `Info()`, `CloseAll()`.
   - Tự động đóng sau vài giây, có nút X để đóng nhanh.
 
+- **UI/AppTheme** (static class)
+  - Định nghĩa màu sắc theme Teal/Emerald cho toàn bộ ứng dụng.
+  - Primary colors: `Primary` (#14B8A6), `PrimaryDark`, `PrimaryLight`, `Secondary`.
+  - Status colors: `StatusSuccess`, `StatusError`, `StatusWarning`, `StatusInfo`.
+  - Background colors: `BackgroundMain`, `BackgroundSoft`, `BackgroundMuted`.
+  - Text colors: `TextPrimary`, `TextSecondary`, `TextMuted`.
+  - Helper methods: `ApplyMenuStripStyle()`, `ApplyToolStripStyle()`, `ApplyDataGridViewStyle()`.
+
+- **Data/DashboardStats** (model class)
+  - Model lưu trữ thống kê dashboard.
+  - Properties: `TotalDocuments`, `ImportantDocuments`, `NoFileDocuments`, `NearDeadlineDocuments`, `OverdueDocuments`, `TotalCategories`, `TotalCollections`.
+
 ---
 
 ## 5. Luồng dữ liệu chính
@@ -396,8 +424,8 @@ Program.Main()
                             └── BCrypt.Verify(password, storedHash)
                     └── UserSession (set static props)
                     └── DatabaseHelper.UpdateLastLogin()
-    └── Form1 (if login success)
-            └── Form1_Load()
+    └── Dashboard (if login success)
+            └── Dashboard_Load()
                     └── CreateManagementMenu() - tạo menu động
                     └── InitializeCustomComponents()
                     └── LoadData() → GetDocumentsForCurrentUser()
@@ -408,30 +436,30 @@ Program.Main()
 
 ```
 THÊM:
-Form1.btn_them_Click()
+Dashboard.btn_them_Click()
     └── AddEditForm() [new]
             └── btn_luu_Click()
                     └── DatabaseHelper.InsertDocument(..., UserSession.UserId)
-    └── Form1.LoadData() [refresh]
+    └── Dashboard.LoadData() [refresh]
 
-SỬA:
-Form1.btn_sua_Click()
+SỬa:
+Dashboard.btn_sua_Click()
     └── DatabaseHelper.CanUserEditDocument(id, userId, role)
     └── AddEditForm(id) [edit mode]
             └── LoadDocumentData()
             └── btn_luu_Click()
                     └── DatabaseHelper.UpdateDocument(...)
-    └── Form1.LoadData() [refresh]
+    └── Dashboard.LoadData() [refresh]
 
 XÓA:
-Form1.btn_xoa_Click()
+Dashboard.btn_xoa_Click()
     └── DatabaseHelper.CanUserEditDocument()
     └── MessageBox.Confirm()
     └── DatabaseHelper.DeleteDocument(id)
-    └── Form1.LoadData() [refresh]
+    └── Dashboard.LoadData() [refresh]
 
 MỞ FILE:
-Form1.OpenSelectedFile()
+Dashboard.OpenSelectedFile()
     └── File.Exists(duong_dan)
     └── Process.Start(duong_dan)
 ```
@@ -439,7 +467,7 @@ Form1.OpenSelectedFile()
 ### 5.3. Tìm kiếm & Filter nâng cao
 
 ```
-Form1.ApplyAdvancedFilter()
+Dashboard.ApplyAdvancedFilter()
     └── Collect filter values từ UI controls
     └── DatabaseHelper.SearchDocumentsAdvanced(
             keyword, danh_muc, loai, 
@@ -473,13 +501,13 @@ Xử lý từng file:
 
 ```
 THÊM VÀO BỘ SƯU TẬP:
-Form1.ctxMenuAddToCollection_Click()
+Dashboard.ctxMenuAddToCollection_Click()
     └── DatabaseHelper.GetCollections()
     └── Show dialog chọn collection
     └── DatabaseHelper.AddDocumentToCollection(collectionId, docId)
 
 GHI CHÚ CÁ NHÂN:
-Form1.ctxMenuPersonalNote_Click()
+Dashboard.ctxMenuPersonalNote_Click()
     └── PersonalNoteForm(docId, docName)
             └── LoadNote() → SELECT FROM personal_notes
             └── btnSave_Click() → INSERT/UPDATE personal_notes
@@ -532,7 +560,7 @@ Form1.ctxMenuPersonalNote_Click()
 1. Cập nhật `Database.sql` hoặc chạy `ALTER TABLE tai_lieu ADD [column] ...`
 2. Cập nhật `DatabaseHelper.InsertDocument()` và `UpdateDocument()` - thêm parameter mới
 3. Cập nhật `AddEditForm` - thêm control nhập liệu
-4. Cập nhật `Form1.SetupDataGridView()` - cấu hình hiển thị cột
+4. Cập nhật `Dashboard.SetupDataGridView()` - cấu hình hiển thị cột
 
 ### 8.2. Thêm Form mới
 
@@ -547,7 +575,7 @@ Form1.ctxMenuPersonalNote_Click()
    ```csharp
    public static bool CanDoSomething => IsAdmin; // hoặc logic khác
    ```
-2. Cập nhật `Form1.ApplyPermissions()` để ẩn/hiện UI
+2. Cập nhật `Dashboard.ApplyPermissions()` để ẩn/hiện UI
 3. Thêm check trong `DatabaseHelper` nếu cần filter data (luôn filter theo `user_id`)
 
 ### 8.4. Thêm loại biểu đồ mới
