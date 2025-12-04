@@ -1102,8 +1102,8 @@ namespace study_document_manager
         /// </summary>
         private void menuHelpAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Study Document Manager v1.0\n\n" +
-                "Ứng dụng quản lý tài liệu học tập\n\n" +
+            MessageBox.Show("Study Document Manager v2.0\n\n" +
+                "Ứng dụng quản lý tài liệu cá nhân\n\n" +
                 "Phát triển bởi: Vũ Đức Dũng - TT601K14\n" +
                 "Công nghệ: C# Windows Forms, SQL Server",
                 "Giới thiệu", MessageBoxButtons.OK, MessageBoxIcon.Information);

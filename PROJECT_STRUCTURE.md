@@ -198,7 +198,7 @@ UserSession.IsUser          // Role == "User"
 UserSession.CanManageCategories  // true (tất cả user đều có quyền)
 ```
 
-> **Lưu ý**: Các property `IsTeacher`, `IsStudent`, `CanEditAllDocuments` đã bị deprecated và luôn trả về `false`.
+> **Lưu ý**: Các property `IsTeacher`, `IsStudent` đã bị deprecated và luôn trả về `false`.
 
 ---
 

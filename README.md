@@ -1,3 +1,7 @@
+<div align="center">
+
+![Study Document Manager](assets/logo/hero-banner.png)
+
 # Study Document Manager
 
 > Ứng dụng quản lý tài liệu cá nhân
@@ -6,6 +10,8 @@
 [![SQL Server](https://img.shields.io/badge/SQL%20Server-2012+-CC2927?logo=microsoft-sql-server)](https://www.microsoft.com/sql-server)
 [![Windows Forms](https://img.shields.io/badge/Windows%20Forms-C%23-239120?logo=c-sharp)](https://docs.microsoft.com/dotnet/desktop/winforms/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+</div>
 
 ## Giới thiệu
 
@@ -227,7 +233,7 @@ Database **quan_ly_tai_lieu** gồm 7 bảng chính:
 === Màu chính (Teal/Emerald) ===
 Primary:        #14B8A6 (Teal)       - Button chính, accent, menu highlight
 PrimaryDark:    #0D9488 (Teal Dark)  - Hover state, pressed
-PrimaryLight:   #5EEAD4 (Teal Light) - Hover nhẹ, selection
+PrimaryLight:   #2DD4BF (Teal Light) - Hover nhẹ, selection
 Secondary:      #10B981 (Emerald)    - Accent, status active
 
 === Status Colors ===
