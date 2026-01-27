@@ -1,6 +1,6 @@
 using System;
 using System.Data;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Drawing;
 using System.Windows.Forms;
 using study_document_manager.UI;
@@ -24,34 +24,34 @@ namespace study_document_manager
         private void ApplyTheme()
         {
             this.BackColor = AppTheme.BackgroundMain;
-            
+
             // Title styling
             lblTitle.ForeColor = AppTheme.Primary;
             lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            
+
             // Document name styling
             lblDocumentName.ForeColor = AppTheme.TextSecondary;
             lblDocumentName.Font = new Font("Segoe UI", 10F, FontStyle.Italic);
-            
+
             // Labels
             lblStatus.ForeColor = AppTheme.TextPrimary;
             lblStatus.Font = AppTheme.FontSmallBold;
             lblNote.ForeColor = AppTheme.TextPrimary;
             lblNote.Font = AppTheme.FontSmallBold;
-            
+
             // ComboBox styling
             AppTheme.ApplyComboBoxStyle(cboStatus);
-            
+
             // TextBox styling - larger for note
             txtNote.BackColor = Color.White;
             txtNote.ForeColor = AppTheme.TextPrimary;
             txtNote.Font = AppTheme.FontBody;
             txtNote.BorderStyle = BorderStyle.FixedSingle;
-            
+
             // Buttons
             AppTheme.ApplyButtonSuccess(btnSave);
             AppTheme.ApplyButtonDanger(btnDelete);
-            
+
             // Cancel button
             btnCancel.BackColor = AppTheme.BackgroundSoft;
             btnCancel.ForeColor = AppTheme.TextSecondary;
@@ -80,13 +80,13 @@ namespace study_document_manager
         {
             try
             {
-                string query = @"SELECT id, note_content, status FROM personal_notes 
-                                WHERE user_id = @userId AND document_id = @docId";
-                
-                SqlParameter[] parameters = new SqlParameter[]
+                // Chế độ cá nhân: không cần user_id, mỗi document chỉ có 1 note
+                string query = @"SELECT id, note_content, status FROM personal_notes
+                                WHERE document_id = @docId";
+
+                SQLiteParameter[] parameters = new SQLiteParameter[]
                 {
-                    new SqlParameter("@userId", UserSession.UserId),
-                    new SqlParameter("@docId", documentId)
+                    new SQLiteParameter("@docId", documentId)
                 };
 
                 DataTable dt = DatabaseHelper.ExecuteQuery(query, parameters);
@@ -96,7 +96,7 @@ namespace study_document_manager
                     DataRow row = dt.Rows[0];
                     noteId = Convert.ToInt32(row["id"]);
                     txtNote.Text = row["note_content"]?.ToString() ?? "";
-                    
+
                     string status = row["status"]?.ToString() ?? "Chưa đọc";
                     int statusIndex = cboStatus.Items.IndexOf(status);
                     if (statusIndex >= 0)
@@ -119,31 +119,30 @@ namespace study_document_manager
                 if (noteId.HasValue)
                 {
                     // Update existing note
-                    string query = @"UPDATE personal_notes 
-                                    SET note_content = @content, status = @status, updated_at = GETDATE()
+                    string query = @"UPDATE personal_notes
+                                    SET note_content = @content, status = @status, updated_at = datetime('now', 'localtime')
                                     WHERE id = @id";
-                    
-                    SqlParameter[] parameters = new SqlParameter[]
+
+                    SQLiteParameter[] parameters = new SQLiteParameter[]
                     {
-                        new SqlParameter("@content", string.IsNullOrEmpty(noteContent) ? DBNull.Value : (object)noteContent),
-                        new SqlParameter("@status", status),
-                        new SqlParameter("@id", noteId.Value)
+                        new SQLiteParameter("@content", string.IsNullOrEmpty(noteContent) ? DBNull.Value : (object)noteContent),
+                        new SQLiteParameter("@status", status),
+                        new SQLiteParameter("@id", noteId.Value)
                     };
 
                     DatabaseHelper.ExecuteNonQuery(query, parameters);
                 }
                 else
                 {
-                    // Insert new note
-                    string query = @"INSERT INTO personal_notes (user_id, document_id, note_content, status)
-                                    VALUES (@userId, @docId, @content, @status)";
-                    
-                    SqlParameter[] parameters = new SqlParameter[]
+                    // Insert new note - không cần user_id nữa
+                    string query = @"INSERT INTO personal_notes (document_id, note_content, status)
+                                    VALUES (@docId, @content, @status)";
+
+                    SQLiteParameter[] parameters = new SQLiteParameter[]
                     {
-                        new SqlParameter("@userId", UserSession.UserId),
-                        new SqlParameter("@docId", documentId),
-                        new SqlParameter("@content", string.IsNullOrEmpty(noteContent) ? DBNull.Value : (object)noteContent),
-                        new SqlParameter("@status", status)
+                        new SQLiteParameter("@docId", documentId),
+                        new SQLiteParameter("@content", string.IsNullOrEmpty(noteContent) ? DBNull.Value : (object)noteContent),
+                        new SQLiteParameter("@status", status)
                     };
 
                     DatabaseHelper.ExecuteNonQuery(query, parameters);
@@ -173,19 +172,19 @@ namespace study_document_manager
                 return;
             }
 
-            if (MessageBox.Show("Xóa ghi chú này?", "Xác nhận", 
+            if (MessageBox.Show("Xóa ghi chú này?", "Xác nhận",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 try
                 {
                     string query = "DELETE FROM personal_notes WHERE id = @id";
-                    SqlParameter[] parameters = new SqlParameter[]
+                    SQLiteParameter[] parameters = new SQLiteParameter[]
                     {
-                        new SqlParameter("@id", noteId.Value)
+                        new SQLiteParameter("@id", noteId.Value)
                     };
 
                     DatabaseHelper.ExecuteNonQuery(query, parameters);
-                    
+
                     ToastNotification.Success("Đã xóa ghi chú!");
                     this.DialogResult = DialogResult.OK;
                     this.Close();

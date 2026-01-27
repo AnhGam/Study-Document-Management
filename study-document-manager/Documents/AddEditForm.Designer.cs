@@ -36,7 +36,7 @@
             this.cbo_loai = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.txt_duong_dan = new System.Windows.Forms.TextBox();
-            this.btn_chon_file = new System.Windows.Forms.Button();
+            this.btn_chon_file = new study_document_manager.UI.Controls.ModernButton();
             this.label5 = new System.Windows.Forms.Label();
             this.txt_ghi_chu = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -44,8 +44,8 @@
             this.label7 = new System.Windows.Forms.Label();
             this.txt_kich_thuoc = new System.Windows.Forms.TextBox();
             this.chk_quan_trong = new System.Windows.Forms.CheckBox();
-            this.btn_luu = new System.Windows.Forms.Button();
-            this.btn_huy = new System.Windows.Forms.Button();
+            this.btn_luu = new study_document_manager.UI.Controls.ModernButton();
+            this.btn_huy = new study_document_manager.UI.Controls.ModernButton();
             this.label8 = new System.Windows.Forms.Label();
             this.lblTags = new System.Windows.Forms.Label();
             this.txtTags = new System.Windows.Forms.TextBox();
@@ -129,10 +129,14 @@
             this.txt_duong_dan.ReadOnly = true;
             this.txt_duong_dan.Size = new System.Drawing.Size(250, 23);
             this.txt_duong_dan.TabIndex = 7;
-            // 
+            //
             // btn_chon_file
-            // 
+            //
             this.btn_chon_file.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(150)))), ((int)(((byte)(243)))));
+            this.btn_chon_file.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(150)))), ((int)(((byte)(243)))));
+            this.btn_chon_file.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btn_chon_file.BorderRadius = 15;
+            this.btn_chon_file.BorderSize = 0;
             this.btn_chon_file.FlatAppearance.BorderSize = 0;
             this.btn_chon_file.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_chon_file.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -142,6 +146,7 @@
             this.btn_chon_file.Size = new System.Drawing.Size(100, 23);
             this.btn_chon_file.TabIndex = 8;
             this.btn_chon_file.Text = "Chọn file...";
+            this.btn_chon_file.TextColor = System.Drawing.Color.White;
             this.btn_chon_file.UseVisualStyleBackColor = false;
             this.btn_chon_file.Click += new System.EventHandler(this.btn_chon_file_Click);
             // 
@@ -213,10 +218,14 @@
             this.chk_quan_trong.TabIndex = 15;
             this.chk_quan_trong.Text = "★ Quan trọng";
             this.chk_quan_trong.UseVisualStyleBackColor = true;
-            // 
+            //
             // btn_luu
-            // 
+            //
             this.btn_luu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(76)))), ((int)(((byte)(175)))), ((int)(((byte)(80)))));
+            this.btn_luu.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(76)))), ((int)(((byte)(175)))), ((int)(((byte)(80)))));
+            this.btn_luu.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btn_luu.BorderRadius = 15;
+            this.btn_luu.BorderSize = 0;
             this.btn_luu.FlatAppearance.BorderSize = 0;
             this.btn_luu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_luu.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -226,12 +235,17 @@
             this.btn_luu.Size = new System.Drawing.Size(100, 35);
             this.btn_luu.TabIndex = 24;
             this.btn_luu.Text = "Lưu";
+            this.btn_luu.TextColor = System.Drawing.Color.White;
             this.btn_luu.UseVisualStyleBackColor = false;
             this.btn_luu.Click += new System.EventHandler(this.btn_luu_Click);
-            // 
+            //
             // btn_huy
-            // 
+            //
             this.btn_huy.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(67)))), ((int)(((byte)(54)))));
+            this.btn_huy.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(67)))), ((int)(((byte)(54)))));
+            this.btn_huy.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btn_huy.BorderRadius = 15;
+            this.btn_huy.BorderSize = 0;
             this.btn_huy.FlatAppearance.BorderSize = 0;
             this.btn_huy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_huy.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -241,6 +255,7 @@
             this.btn_huy.Size = new System.Drawing.Size(90, 35);
             this.btn_huy.TabIndex = 25;
             this.btn_huy.Text = "Hủy";
+            this.btn_huy.TextColor = System.Drawing.Color.White;
             this.btn_huy.UseVisualStyleBackColor = false;
             this.btn_huy.Click += new System.EventHandler(this.btn_huy_Click);
             // 
@@ -357,7 +372,7 @@
         internal System.Windows.Forms.ComboBox cbo_loai;
         private System.Windows.Forms.Label label4;
         internal System.Windows.Forms.TextBox txt_duong_dan;
-        private System.Windows.Forms.Button btn_chon_file;
+        private study_document_manager.UI.Controls.ModernButton btn_chon_file;
         private System.Windows.Forms.Label label5;
         internal System.Windows.Forms.TextBox txt_ghi_chu;
         private System.Windows.Forms.Label label6;
@@ -365,8 +380,8 @@
         private System.Windows.Forms.Label label7;
         internal System.Windows.Forms.TextBox txt_kich_thuoc;
         private System.Windows.Forms.CheckBox chk_quan_trong;
-        private System.Windows.Forms.Button btn_luu;
-        private System.Windows.Forms.Button btn_huy;
+        private study_document_manager.UI.Controls.ModernButton btn_luu;
+        private study_document_manager.UI.Controls.ModernButton btn_huy;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label lblTags;
         internal System.Windows.Forms.TextBox txtTags;

@@ -150,9 +150,9 @@ namespace study_document_manager
             {
                 var dt = DatabaseHelper.ExecuteQuery(
                     "SELECT * FROM tai_lieu WHERE id = @id",
-                    new System.Data.SqlClient.SqlParameter[]
+                    new System.Data.SQLite.SQLiteParameter[]
                     {
-                        new System.Data.SqlClient.SqlParameter("@id", document_id.Value)
+                        new System.Data.SQLite.SQLiteParameter("@id", document_id.Value)
                     });
 
                 if (dt.Rows.Count > 0)

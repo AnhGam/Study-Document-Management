@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System;
 using System.Windows.Forms;
 
 namespace study_document_manager
@@ -16,15 +13,15 @@ namespace study_document_manager
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            
-            // Hiển thị LoginForm trước
-            LoginForm loginForm = new LoginForm();
-            if (loginForm.ShowDialog() == DialogResult.OK)
-            {
-                // Nếu đăng nhập thành công, mở Form1
-                Application.Run(new Dashboard());
-            }
-            // Nếu không đăng nhập hoặc thoát, app sẽ đóng
+
+            // Khởi tạo SQLite native library
+            SQLitePCL.Batteries_V2.Init();
+
+            // Khởi tạo database SQLite (tạo file và bảng nếu chưa có)
+            DatabaseHelper.InitializeDatabase();
+
+            // Mở Dashboard trực tiếp - không cần đăng nhập
+            Application.Run(new Dashboard());
         }
     }
 }

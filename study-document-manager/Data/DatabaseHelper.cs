@@ -1,71 +1,159 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
+using System.Data.SQLite;
+using System.IO;
 using System.Windows.Forms;
-using System.Xml.Linq;
-using study_document_manager.Core;
 
 namespace study_document_manager
 {
     /// <summary>
-    /// Class quản lý kết nối và thao tác với SQL Server Database
+    /// Class quản lý kết nối và thao tác với SQLite Database (Local)
     /// </summary>
     public partial class DatabaseHelper
     {
-        // Connection string - ưu tiên đọc từ .env, fallback về App.config
-        private static string connection_string = GetConnectionStringFromEnvOrConfig();
+        private static string _databasePath;
+        private static string _connectionString;
 
         /// <summary>
-        /// Đọc connection string từ .env hoặc App.config
+        /// Đường dẫn đến file database SQLite
         /// </summary>
-        private static string GetConnectionStringFromEnvOrConfig()
+        public static string DatabasePath
         {
-            try
+            get
             {
-                EnvLoader.Load();
-                
-                var envConnectionString = EnvLoader.GetConnectionString();
-                if (!string.IsNullOrEmpty(envConnectionString))
+                if (string.IsNullOrEmpty(_databasePath))
                 {
-                    return envConnectionString;
+                    string appFolder = Path.GetDirectoryName(Application.ExecutablePath);
+                    _databasePath = Path.Combine(appFolder, "data", "study_documents.db");
                 }
-                
-                string configPath = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-                XDocument doc = XDocument.Load(configPath);
-                var connectionString = doc.Descendants("connectionStrings")
-                    .Descendants("add")
-                    .Where(x => x.Attribute("name")?.Value == "DefaultConnection")
-                    .Select(x => x.Attribute("connectionString")?.Value)
-                    .FirstOrDefault();
-                
-                return connectionString ?? "Server=DESKTOP-H1DIIG3\\SQL2012;Database=quan_ly_tai_lieu;Integrated Security=True;";
-            }
-            catch
-            {
-                return "Server=DESKTOP-H1DIIG3\\SQL2012;Database=quan_ly_tai_lieu;Integrated Security=True;";
+                return _databasePath;
             }
         }
 
         /// <summary>
-        /// Lấy connection string hiện tại
+        /// Connection string cho SQLite
         /// </summary>
         public static string ConnectionString
         {
-            get { return connection_string; }
-            set { connection_string = value; }
+            get
+            {
+                if (string.IsNullOrEmpty(_connectionString))
+                {
+                    _connectionString = $"Data Source={DatabasePath};Version=3;";
+                }
+                return _connectionString;
+            }
+        }
+
+        /// <summary>
+        /// Khởi tạo database - tạo file và các bảng nếu chưa tồn tại
+        /// </summary>
+        public static void InitializeDatabase()
+        {
+            try
+            {
+                // Tạo thư mục data nếu chưa có
+                string dataFolder = Path.GetDirectoryName(DatabasePath);
+                if (!Directory.Exists(dataFolder))
+                {
+                    Directory.CreateDirectory(dataFolder);
+                }
+
+                // Tạo file database nếu chưa có
+                if (!File.Exists(DatabasePath))
+                {
+                    SQLiteConnection.CreateFile(DatabasePath);
+                }
+
+                // Tạo các bảng
+                CreateTables();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khởi tạo database: " + ex.Message,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Tạo các bảng trong database
+        /// </summary>
+        private static void CreateTables()
+        {
+            string createTablesQuery = @"
+                -- Bảng tài liệu chính
+                CREATE TABLE IF NOT EXISTS tai_lieu (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ten TEXT NOT NULL,
+                    mon_hoc TEXT,
+                    loai TEXT,
+                    duong_dan TEXT,
+                    ghi_chu TEXT,
+                    ngay_them DATETIME DEFAULT (datetime('now', 'localtime')),
+                    kich_thuoc REAL,
+                    tac_gia TEXT,
+                    quan_trong INTEGER DEFAULT 0,
+                    tags TEXT,
+                    deadline DATETIME
+                );
+
+                -- Bảng collections (bộ sưu tập)
+                CREATE TABLE IF NOT EXISTS collections (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    description TEXT,
+                    created_at DATETIME DEFAULT (datetime('now', 'localtime'))
+                );
+
+                -- Bảng liên kết tài liệu với collections
+                CREATE TABLE IF NOT EXISTS collection_items (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    collection_id INTEGER NOT NULL,
+                    document_id INTEGER NOT NULL,
+                    added_at DATETIME DEFAULT (datetime('now', 'localtime')),
+                    FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE CASCADE,
+                    FOREIGN KEY (document_id) REFERENCES tai_lieu(id) ON DELETE CASCADE,
+                    UNIQUE(collection_id, document_id)
+                );
+
+                -- Bảng ghi chú cá nhân
+                CREATE TABLE IF NOT EXISTS personal_notes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    document_id INTEGER NOT NULL,
+                    content TEXT,
+                    created_at DATETIME DEFAULT (datetime('now', 'localtime')),
+                    updated_at DATETIME DEFAULT (datetime('now', 'localtime')),
+                    FOREIGN KEY (document_id) REFERENCES tai_lieu(id) ON DELETE CASCADE
+                );
+
+                -- Index để tối ưu tìm kiếm
+                CREATE INDEX IF NOT EXISTS idx_tai_lieu_mon_hoc ON tai_lieu(mon_hoc);
+                CREATE INDEX IF NOT EXISTS idx_tai_lieu_loai ON tai_lieu(loai);
+                CREATE INDEX IF NOT EXISTS idx_tai_lieu_ngay_them ON tai_lieu(ngay_them);
+                CREATE INDEX IF NOT EXISTS idx_tai_lieu_deadline ON tai_lieu(deadline);
+                CREATE INDEX IF NOT EXISTS idx_collection_items_collection ON collection_items(collection_id);
+                CREATE INDEX IF NOT EXISTS idx_collection_items_document ON collection_items(document_id);
+            ";
+
+            using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(createTablesQuery, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
 
         /// <summary>
         /// Kiểm tra kết nối đến database
         /// </summary>
-        /// <returns>True nếu kết nối thành công, False nếu thất bại</returns>
         public static bool TestConnection()
         {
             try
             {
-                using (SqlConnection conn = new SqlConnection(connection_string))
+                using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
                 {
                     conn.Open();
                     return true;
@@ -73,7 +161,7 @@ namespace study_document_manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi kết nối database: " + ex.Message + "\n\nConnection string: " + connection_string, 
+                MessageBox.Show("Lỗi kết nối database: " + ex.Message,
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
@@ -82,32 +170,29 @@ namespace study_document_manager
         /// <summary>
         /// Thực hiện câu lệnh SELECT và trả về DataTable
         /// </summary>
-        /// <param name="query">Câu truy vấn SELECT</param>
-        /// <param name="parameters">Dictionary chứa parameters (tùy chọn)</param>
-        /// <returns>DataTable chứa kết quả</returns>
-        public static DataTable ExecuteQuery(string query, SqlParameter[] parameters = null)
+        public static DataTable ExecuteQuery(string query, SQLiteParameter[] parameters = null)
         {
             DataTable dt = new DataTable();
             try
             {
-                using (SqlConnection conn = new SqlConnection(connection_string))
+                using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
                 {
                     conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
                     {
                         if (parameters != null)
                         {
                             cmd.Parameters.AddRange(parameters);
                         }
-                        
-                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+
+                        SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd);
                         adapter.Fill(dt);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi truy vấn: " + ex.Message, 
+                MessageBox.Show("Lỗi truy vấn: " + ex.Message,
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return dt;
@@ -116,18 +201,15 @@ namespace study_document_manager
         /// <summary>
         /// Thực hiện câu lệnh INSERT, UPDATE, DELETE
         /// </summary>
-        /// <param name="query">Câu truy vấn</param>
-        /// <param name="parameters">Mảng SqlParameter</param>
-        /// <returns>Số dòng bị ảnh hưởng</returns>
-        public static int ExecuteNonQuery(string query, SqlParameter[] parameters = null)
+        public static int ExecuteNonQuery(string query, SQLiteParameter[] parameters = null)
         {
             int affected_rows = 0;
             try
             {
-                using (SqlConnection conn = new SqlConnection(connection_string))
+                using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
                 {
                     conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
                     {
                         if (parameters != null)
                         {
@@ -139,7 +221,7 @@ namespace study_document_manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi thực thi: " + ex.Message, 
+                MessageBox.Show("Lỗi thực thi: " + ex.Message,
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return affected_rows;
@@ -148,18 +230,15 @@ namespace study_document_manager
         /// <summary>
         /// Thực hiện câu lệnh trả về giá trị đơn (COUNT, SUM, v.v.)
         /// </summary>
-        /// <param name="query">Câu truy vấn</param>
-        /// <param name="parameters">Mảng SqlParameter</param>
-        /// <returns>Giá trị đơn (object)</returns>
-        public static object ExecuteScalar(string query, SqlParameter[] parameters = null)
+        public static object ExecuteScalar(string query, SQLiteParameter[] parameters = null)
         {
             object result = null;
             try
             {
-                using (SqlConnection conn = new SqlConnection(connection_string))
+                using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
                 {
                     conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
                     {
                         if (parameters != null)
                         {
@@ -171,14 +250,14 @@ namespace study_document_manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi thực thi: " + ex.Message, 
+                MessageBox.Show("Lỗi thực thi: " + ex.Message,
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return result;
         }
 
         /// <summary>
-        /// Lấy tất cả tài liệu (deprecated - dùng GetDocumentsForCurrentUser)
+        /// Lấy tất cả tài liệu
         /// </summary>
         public static DataTable GetAllDocuments()
         {
@@ -187,21 +266,11 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Lấy tài liệu của user hiện tại
-        /// Chế độ cá nhân: TẤT CẢ user (kể cả Admin) chỉ thấy tài liệu của mình
+        /// Lấy tài liệu (tương thích với code cũ)
         /// </summary>
         public static DataTable GetDocumentsForCurrentUser()
         {
-            // Chế độ cá nhân: Mọi user chỉ thấy tài liệu của mình
-            string query = @"SELECT t.*, u.full_name as creator_name, u.username as creator_username
-                         FROM tai_lieu t
-                         LEFT JOIN users u ON t.user_id = u.id
-                         WHERE t.user_id = @userId
-                         ORDER BY t.ngay_them DESC";
-            
-            SqlParameter[] parameters = new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) };
-
-            return ExecuteQuery(query, parameters);
+            return GetAllDocuments();
         }
 
         /// <summary>
@@ -209,17 +278,17 @@ namespace study_document_manager
         /// </summary>
         public static DataTable SearchDocuments(string keyword)
         {
-            string query = @"SELECT * FROM tai_lieu 
-                           WHERE ten LIKE @keyword 
-                           OR mon_hoc LIKE @keyword 
-                           OR ghi_chu LIKE @keyword 
+            string query = @"SELECT * FROM tai_lieu
+                           WHERE ten LIKE @keyword
+                           OR mon_hoc LIKE @keyword
+                           OR ghi_chu LIKE @keyword
                            ORDER BY ngay_them DESC";
-            
-            SqlParameter[] parameters = new SqlParameter[]
+
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@keyword", "%" + keyword + "%")
+                new SQLiteParameter("@keyword", "%" + keyword + "%")
             };
-            
+
             return ExecuteQuery(query, parameters);
         }
 
@@ -229,30 +298,30 @@ namespace study_document_manager
         public static DataTable FilterDocuments(string mon_hoc, string loai)
         {
             string query = "SELECT * FROM tai_lieu WHERE 1=1";
-            
+
             if (!string.IsNullOrEmpty(mon_hoc) && mon_hoc != "Tất cả")
             {
                 query += " AND mon_hoc = @mon_hoc";
             }
-            
+
             if (!string.IsNullOrEmpty(loai) && loai != "Tất cả")
             {
                 query += " AND loai = @loai";
             }
-            
+
             query += " ORDER BY ngay_them DESC";
 
-            SqlParameter[] parameters = new SqlParameter[]
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@mon_hoc", string.IsNullOrEmpty(mon_hoc) ? DBNull.Value : (object)mon_hoc),
-                new SqlParameter("@loai", string.IsNullOrEmpty(loai) ? DBNull.Value : (object)loai)
+                new SQLiteParameter("@mon_hoc", string.IsNullOrEmpty(mon_hoc) ? DBNull.Value : (object)mon_hoc),
+                new SQLiteParameter("@loai", string.IsNullOrEmpty(loai) ? DBNull.Value : (object)loai)
             };
-            
+
             return ExecuteQuery(query, parameters);
         }
 
         /// <summary>
-        /// Tìm kiếm và lọc tài liệu nâng cao với phân quyền
+        /// Tìm kiếm và lọc tài liệu nâng cao
         /// </summary>
         public static DataTable SearchDocumentsAdvanced(
             string keyword = null,
@@ -265,162 +334,133 @@ namespace study_document_manager
             bool? isImportant = null,
             int? creatorUserId = null)
         {
-            string baseQuery = @"SELECT t.*, u.full_name as creator_name, u.username as creator_username
-                                FROM tai_lieu t
-                                LEFT JOIN users u ON t.user_id = u.id
-                                WHERE 1=1";
+            string baseQuery = @"SELECT * FROM tai_lieu WHERE 1=1";
 
-            List<SqlParameter> parameterList = new List<SqlParameter>();
+            List<SQLiteParameter> parameterList = new List<SQLiteParameter>();
 
-            // Chế độ cá nhân: Mọi user chỉ thấy tài liệu của mình
-            baseQuery += " AND t.user_id = @currentUserId";
-            parameterList.Add(new SqlParameter("@currentUserId", UserSession.UserId));
-
-            // Keyword search (Phase 2: bao gồm cả tags)
+            // Keyword search
             if (!string.IsNullOrWhiteSpace(keyword))
             {
-                baseQuery += " AND (t.ten LIKE @keyword OR t.mon_hoc LIKE @keyword OR t.ghi_chu LIKE @keyword OR t.tags LIKE @keyword)";
-                parameterList.Add(new SqlParameter("@keyword", "%" + keyword + "%"));
+                baseQuery += " AND (ten LIKE @keyword OR mon_hoc LIKE @keyword OR ghi_chu LIKE @keyword OR tags LIKE @keyword)";
+                parameterList.Add(new SQLiteParameter("@keyword", "%" + keyword + "%"));
             }
 
             // Môn học
             if (!string.IsNullOrEmpty(mon_hoc) && mon_hoc != "Tất cả")
             {
-                baseQuery += " AND t.mon_hoc = @mon_hoc";
-                parameterList.Add(new SqlParameter("@mon_hoc", mon_hoc));
+                baseQuery += " AND mon_hoc = @mon_hoc";
+                parameterList.Add(new SQLiteParameter("@mon_hoc", mon_hoc));
             }
 
             // Loại
             if (!string.IsNullOrEmpty(loai) && loai != "Tất cả")
             {
-                baseQuery += " AND t.loai = @loai";
-                parameterList.Add(new SqlParameter("@loai", loai));
+                baseQuery += " AND loai = @loai";
+                parameterList.Add(new SQLiteParameter("@loai", loai));
             }
 
             // Ngày từ
             if (fromDate.HasValue)
             {
-                baseQuery += " AND t.ngay_them >= @fromDate";
-                parameterList.Add(new SqlParameter("@fromDate", fromDate.Value.Date));
+                baseQuery += " AND date(ngay_them) >= date(@fromDate)";
+                parameterList.Add(new SQLiteParameter("@fromDate", fromDate.Value.ToString("yyyy-MM-dd")));
             }
 
             // Ngày đến
             if (toDate.HasValue)
             {
-                baseQuery += " AND t.ngay_them <= @toDate";
-                parameterList.Add(new SqlParameter("@toDate", toDate.Value.Date.AddDays(1).AddSeconds(-1)));
+                baseQuery += " AND date(ngay_them) <= date(@toDate)";
+                parameterList.Add(new SQLiteParameter("@toDate", toDate.Value.ToString("yyyy-MM-dd")));
             }
 
             // Kích thước min
             if (minSize.HasValue)
             {
-                baseQuery += " AND t.kich_thuoc >= @minSize";
-                parameterList.Add(new SqlParameter("@minSize", minSize.Value));
+                baseQuery += " AND kich_thuoc >= @minSize";
+                parameterList.Add(new SQLiteParameter("@minSize", minSize.Value));
             }
 
             // Kích thước max
             if (maxSize.HasValue)
             {
-                baseQuery += " AND t.kich_thuoc <= @maxSize";
-                parameterList.Add(new SqlParameter("@maxSize", maxSize.Value));
+                baseQuery += " AND kich_thuoc <= @maxSize";
+                parameterList.Add(new SQLiteParameter("@maxSize", maxSize.Value));
             }
 
             // Quan trọng
             if (isImportant.HasValue && isImportant.Value == true)
             {
-                baseQuery += " AND t.quan_trong = 1";
-                System.Diagnostics.Debug.WriteLine("[FILTER] Filtering important documents only");
+                baseQuery += " AND quan_trong = 1";
             }
 
-            // Chế độ cá nhân: Không cần filter theo người tạo vì đã filter ở trên
-            // creatorUserId parameter được giữ lại cho tương thích nhưng không sử dụng
-
-            baseQuery += " ORDER BY t.ngay_them DESC";
+            baseQuery += " ORDER BY ngay_them DESC";
 
             return ExecuteQuery(baseQuery, parameterList.ToArray());
         }
 
         /// <summary>
-        /// Thêm tài liệu mới (Phase 2: thêm tags và deadline)
+        /// Thêm tài liệu mới
         /// </summary>
-        public static bool InsertDocument(string ten, string mon_hoc, string loai, 
+        public static bool InsertDocument(string ten, string mon_hoc, string loai,
             string duong_dan, string ghi_chu, double? kich_thuoc, string tac_gia, bool quan_trong,
             string tags = null, DateTime? deadline = null)
         {
-            // Debug: Kiểm tra UserSession
-            System.Diagnostics.Debug.WriteLine($"[INSERT] UserSession.UserId = {UserSession.UserId}");
-            
-            if (UserSession.UserId <= 0)
-            {
-                MessageBox.Show("Lỗi: Chưa đăng nhập hoặc UserId không hợp lệ!", "Debug", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
+            string query = @"INSERT INTO tai_lieu
+                (ten, mon_hoc, loai, duong_dan, ghi_chu, kich_thuoc, tac_gia, quan_trong, tags, deadline)
+                VALUES
+                (@ten, @mon_hoc, @loai, @duong_dan, @ghi_chu, @kich_thuoc, @tac_gia, @quan_trong, @tags, @deadline)";
 
-            string query = @"INSERT INTO tai_lieu 
-                (ten, mon_hoc, loai, duong_dan, ghi_chu, kich_thuoc, tac_gia, quan_trong, user_id, tags, deadline) 
-                VALUES 
-                (@ten, @mon_hoc, @loai, @duong_dan, @ghi_chu, @kich_thuoc, @tac_gia, @quan_trong, @user_id, @tags, @deadline)";
-
-            SqlParameter[] parameters = new SqlParameter[]
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@ten", ten),
-                new SqlParameter("@mon_hoc", string.IsNullOrEmpty(mon_hoc) ? DBNull.Value : (object)mon_hoc),
-                new SqlParameter("@loai", string.IsNullOrEmpty(loai) ? DBNull.Value : (object)loai),
-                new SqlParameter("@duong_dan", duong_dan),
-                new SqlParameter("@ghi_chu", string.IsNullOrEmpty(ghi_chu) ? DBNull.Value : (object)ghi_chu),
-                new SqlParameter("@kich_thuoc", kich_thuoc.HasValue ? (object)kich_thuoc.Value : DBNull.Value),
-                new SqlParameter("@tac_gia", string.IsNullOrEmpty(tac_gia) ? DBNull.Value : (object)tac_gia),
-                new SqlParameter("@quan_trong", quan_trong),
-                new SqlParameter("@user_id", UserSession.UserId),
-                new SqlParameter("@tags", string.IsNullOrEmpty(tags) ? DBNull.Value : (object)tags),
-                new SqlParameter("@deadline", deadline.HasValue ? (object)deadline.Value : DBNull.Value)
+                new SQLiteParameter("@ten", ten),
+                new SQLiteParameter("@mon_hoc", string.IsNullOrEmpty(mon_hoc) ? DBNull.Value : (object)mon_hoc),
+                new SQLiteParameter("@loai", string.IsNullOrEmpty(loai) ? DBNull.Value : (object)loai),
+                new SQLiteParameter("@duong_dan", duong_dan ?? (object)DBNull.Value),
+                new SQLiteParameter("@ghi_chu", string.IsNullOrEmpty(ghi_chu) ? DBNull.Value : (object)ghi_chu),
+                new SQLiteParameter("@kich_thuoc", kich_thuoc.HasValue ? (object)kich_thuoc.Value : DBNull.Value),
+                new SQLiteParameter("@tac_gia", string.IsNullOrEmpty(tac_gia) ? DBNull.Value : (object)tac_gia),
+                new SQLiteParameter("@quan_trong", quan_trong ? 1 : 0),
+                new SQLiteParameter("@tags", string.IsNullOrEmpty(tags) ? DBNull.Value : (object)tags),
+                new SQLiteParameter("@deadline", deadline.HasValue ? (object)deadline.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value)
             };
 
             int result = ExecuteNonQuery(query, parameters);
-            
-            // Debug: Hiển thị kết quả
-            System.Diagnostics.Debug.WriteLine($"[INSERT] Result = {result}");
-            if (result <= 0)
-            {
-                MessageBox.Show($"Insert thất bại! Rows affected: {result}", "Debug", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-            
             return result > 0;
         }
 
         /// <summary>
-        /// Cập nhật tài liệu (Phase 2: thêm tags và deadline)
+        /// Cập nhật tài liệu
         /// </summary>
-        public static bool UpdateDocument(int id, string ten, string mon_hoc, string loai, 
+        public static bool UpdateDocument(int id, string ten, string mon_hoc, string loai,
             string duong_dan, string ghi_chu, double? kich_thuoc, string tac_gia, bool quan_trong,
             string tags = null, DateTime? deadline = null)
         {
-            string query = @"UPDATE tai_lieu SET 
-                ten = @ten, 
-                mon_hoc = @mon_hoc, 
-                loai = @loai, 
-                duong_dan = @duong_dan, 
-                ghi_chu = @ghi_chu, 
-                kich_thuoc = @kich_thuoc, 
-                tac_gia = @tac_gia, 
+            string query = @"UPDATE tai_lieu SET
+                ten = @ten,
+                mon_hoc = @mon_hoc,
+                loai = @loai,
+                duong_dan = @duong_dan,
+                ghi_chu = @ghi_chu,
+                kich_thuoc = @kich_thuoc,
+                tac_gia = @tac_gia,
                 quan_trong = @quan_trong,
                 tags = @tags,
-                deadline = @deadline 
+                deadline = @deadline
                 WHERE id = @id";
 
-            SqlParameter[] parameters = new SqlParameter[]
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@id", id),
-                new SqlParameter("@ten", ten),
-                new SqlParameter("@mon_hoc", string.IsNullOrEmpty(mon_hoc) ? DBNull.Value : (object)mon_hoc),
-                new SqlParameter("@loai", string.IsNullOrEmpty(loai) ? DBNull.Value : (object)loai),
-                new SqlParameter("@duong_dan", duong_dan),
-                new SqlParameter("@ghi_chu", string.IsNullOrEmpty(ghi_chu) ? DBNull.Value : (object)ghi_chu),
-                new SqlParameter("@kich_thuoc", kich_thuoc.HasValue ? (object)kich_thuoc.Value : DBNull.Value),
-                new SqlParameter("@tac_gia", string.IsNullOrEmpty(tac_gia) ? DBNull.Value : (object)tac_gia),
-                new SqlParameter("@quan_trong", quan_trong),
-                new SqlParameter("@tags", string.IsNullOrEmpty(tags) ? DBNull.Value : (object)tags),
-                new SqlParameter("@deadline", deadline.HasValue ? (object)deadline.Value : DBNull.Value)
+                new SQLiteParameter("@id", id),
+                new SQLiteParameter("@ten", ten),
+                new SQLiteParameter("@mon_hoc", string.IsNullOrEmpty(mon_hoc) ? DBNull.Value : (object)mon_hoc),
+                new SQLiteParameter("@loai", string.IsNullOrEmpty(loai) ? DBNull.Value : (object)loai),
+                new SQLiteParameter("@duong_dan", duong_dan ?? (object)DBNull.Value),
+                new SQLiteParameter("@ghi_chu", string.IsNullOrEmpty(ghi_chu) ? DBNull.Value : (object)ghi_chu),
+                new SQLiteParameter("@kich_thuoc", kich_thuoc.HasValue ? (object)kich_thuoc.Value : DBNull.Value),
+                new SQLiteParameter("@tac_gia", string.IsNullOrEmpty(tac_gia) ? DBNull.Value : (object)tac_gia),
+                new SQLiteParameter("@quan_trong", quan_trong ? 1 : 0),
+                new SQLiteParameter("@tags", string.IsNullOrEmpty(tags) ? DBNull.Value : (object)tags),
+                new SQLiteParameter("@deadline", deadline.HasValue ? (object)deadline.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -433,10 +473,10 @@ namespace study_document_manager
         public static bool DeleteDocument(int id)
         {
             string query = "DELETE FROM tai_lieu WHERE id = @id";
-            
-            SqlParameter[] parameters = new SqlParameter[]
+
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@id", id)
+                new SQLiteParameter("@id", id)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -447,23 +487,18 @@ namespace study_document_manager
 
         /// <summary>
         /// Lấy tài liệu sắp đến hạn (trong N ngày tới)
-        /// Chế độ cá nhân: chỉ lấy của user hiện tại
         /// </summary>
         public static DataTable GetUpcomingDeadlines(int days = 7)
         {
-            string query = @"SELECT t.*, u.full_name as creator_name
-                            FROM tai_lieu t
-                            LEFT JOIN users u ON t.user_id = u.id
-                            WHERE t.deadline IS NOT NULL 
-                            AND t.deadline >= CAST(GETDATE() AS DATE)
-                            AND t.deadline <= DATEADD(day, @days, CAST(GETDATE() AS DATE))
-                            AND t.user_id = @userId
-                            ORDER BY t.deadline ASC";
+            string query = @"SELECT * FROM tai_lieu
+                            WHERE deadline IS NOT NULL
+                            AND date(deadline) >= date('now', 'localtime')
+                            AND date(deadline) <= date('now', 'localtime', '+' || @days || ' days')
+                            ORDER BY deadline ASC";
 
-            SqlParameter[] parameters = new SqlParameter[]
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@days", days),
-                new SqlParameter("@userId", UserSession.UserId)
+                new SQLiteParameter("@days", days)
             };
 
             return ExecuteQuery(query, parameters);
@@ -471,48 +506,31 @@ namespace study_document_manager
 
         /// <summary>
         /// Lấy tài liệu đã quá hạn
-        /// Chế độ cá nhân: chỉ lấy của user hiện tại
         /// </summary>
         public static DataTable GetOverdueDocuments()
         {
-            string query = @"SELECT t.*, u.full_name as creator_name
-                            FROM tai_lieu t
-                            LEFT JOIN users u ON t.user_id = u.id
-                            WHERE t.deadline IS NOT NULL 
-                            AND t.deadline < CAST(GETDATE() AS DATE)
-                            AND t.user_id = @userId
-                            ORDER BY t.deadline ASC";
+            string query = @"SELECT * FROM tai_lieu
+                            WHERE deadline IS NOT NULL
+                            AND date(deadline) < date('now', 'localtime')
+                            ORDER BY deadline ASC";
 
-            SqlParameter[] parameters = new SqlParameter[] 
-            { 
-                new SqlParameter("@userId", UserSession.UserId) 
-            };
-
-            return ExecuteQuery(query, parameters);
+            return ExecuteQuery(query);
         }
 
         /// <summary>
         /// Lấy danh sách tags đã sử dụng (cho autocomplete)
-        /// Chế độ cá nhân: chỉ lấy tags của user hiện tại
         /// </summary>
         public static List<string> GetDistinctTags()
         {
-            string query = @"SELECT DISTINCT tags FROM tai_lieu 
-                            WHERE tags IS NOT NULL AND tags != ''
-                            AND user_id = @userId";
+            string query = @"SELECT DISTINCT tags FROM tai_lieu
+                            WHERE tags IS NOT NULL AND tags != ''";
 
-            SqlParameter[] parameters = new SqlParameter[] 
-            { 
-                new SqlParameter("@userId", UserSession.UserId) 
-            };
-
-            DataTable dt = ExecuteQuery(query, parameters);
+            DataTable dt = ExecuteQuery(query);
             List<string> allTags = new List<string>();
 
             foreach (DataRow row in dt.Rows)
             {
                 string tagsString = row["tags"].ToString();
-                // Split by ; and add each tag
                 string[] tags = tagsString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string tag in tags)
                 {
@@ -530,25 +548,19 @@ namespace study_document_manager
 
         #endregion
 
-        #region Collections Methods (Phase 2)
+        #region Collections Methods
 
         /// <summary>
-        /// Lấy danh sách collections của user hiện tại
+        /// Lấy danh sách collections
         /// </summary>
         public static DataTable GetCollections()
         {
             string query = @"SELECT c.id, c.name, c.description, c.created_at,
                             (SELECT COUNT(*) FROM collection_items ci WHERE ci.collection_id = c.id) as item_count
                             FROM collections c
-                            WHERE c.user_id = @userId
                             ORDER BY c.name";
 
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@userId", UserSession.UserId)
-            };
-
-            return ExecuteQuery(query, parameters);
+            return ExecuteQuery(query);
         }
 
         /// <summary>
@@ -556,15 +568,14 @@ namespace study_document_manager
         /// </summary>
         public static int CreateCollection(string name, string description = null)
         {
-            string query = @"INSERT INTO collections (user_id, name, description)
-                            OUTPUT INSERTED.id
-                            VALUES (@userId, @name, @description)";
+            string query = @"INSERT INTO collections (name, description)
+                            VALUES (@name, @description);
+                            SELECT last_insert_rowid();";
 
-            SqlParameter[] parameters = new SqlParameter[]
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@userId", UserSession.UserId),
-                new SqlParameter("@name", name),
-                new SqlParameter("@description", string.IsNullOrEmpty(description) ? DBNull.Value : (object)description)
+                new SQLiteParameter("@name", name),
+                new SQLiteParameter("@description", string.IsNullOrEmpty(description) ? DBNull.Value : (object)description)
             };
 
             object result = ExecuteScalar(query, parameters);
@@ -577,14 +588,13 @@ namespace study_document_manager
         public static bool UpdateCollection(int collectionId, string name, string description = null)
         {
             string query = @"UPDATE collections SET name = @name, description = @description
-                            WHERE id = @id AND user_id = @userId";
+                            WHERE id = @id";
 
-            SqlParameter[] parameters = new SqlParameter[]
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@id", collectionId),
-                new SqlParameter("@userId", UserSession.UserId),
-                new SqlParameter("@name", name),
-                new SqlParameter("@description", string.IsNullOrEmpty(description) ? DBNull.Value : (object)description)
+                new SQLiteParameter("@id", collectionId),
+                new SQLiteParameter("@name", name),
+                new SQLiteParameter("@description", string.IsNullOrEmpty(description) ? DBNull.Value : (object)description)
             };
 
             return ExecuteNonQuery(query, parameters) > 0;
@@ -597,14 +607,13 @@ namespace study_document_manager
         {
             // Xóa items trước
             string deleteItems = "DELETE FROM collection_items WHERE collection_id = @id";
-            ExecuteNonQuery(deleteItems, new SqlParameter[] { new SqlParameter("@id", collectionId) });
+            ExecuteNonQuery(deleteItems, new SQLiteParameter[] { new SQLiteParameter("@id", collectionId) });
 
             // Xóa collection
-            string query = "DELETE FROM collections WHERE id = @id AND user_id = @userId";
-            SqlParameter[] parameters = new SqlParameter[]
+            string query = "DELETE FROM collections WHERE id = @id";
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@id", collectionId),
-                new SqlParameter("@userId", UserSession.UserId)
+                new SQLiteParameter("@id", collectionId)
             };
 
             return ExecuteNonQuery(query, parameters) > 0;
@@ -621,9 +630,9 @@ namespace study_document_manager
                             WHERE ci.collection_id = @collectionId
                             ORDER BY ci.added_at DESC";
 
-            SqlParameter[] parameters = new SqlParameter[]
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@collectionId", collectionId)
+                new SQLiteParameter("@collectionId", collectionId)
             };
 
             return ExecuteQuery(query, parameters);
@@ -636,10 +645,10 @@ namespace study_document_manager
         {
             // Kiểm tra đã tồn tại chưa
             string checkQuery = "SELECT COUNT(*) FROM collection_items WHERE collection_id = @colId AND document_id = @docId";
-            SqlParameter[] checkParams = new SqlParameter[]
+            SQLiteParameter[] checkParams = new SQLiteParameter[]
             {
-                new SqlParameter("@colId", collectionId),
-                new SqlParameter("@docId", documentId)
+                new SQLiteParameter("@colId", collectionId),
+                new SQLiteParameter("@docId", documentId)
             };
 
             object exists = ExecuteScalar(checkQuery, checkParams);
@@ -649,10 +658,10 @@ namespace study_document_manager
             }
 
             string query = "INSERT INTO collection_items (collection_id, document_id) VALUES (@colId, @docId)";
-            SqlParameter[] parameters = new SqlParameter[]
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@colId", collectionId),
-                new SqlParameter("@docId", documentId)
+                new SQLiteParameter("@colId", collectionId),
+                new SQLiteParameter("@docId", documentId)
             };
 
             return ExecuteNonQuery(query, parameters) > 0;
@@ -664,10 +673,10 @@ namespace study_document_manager
         public static bool RemoveDocumentFromCollection(int collectionId, int documentId)
         {
             string query = "DELETE FROM collection_items WHERE collection_id = @colId AND document_id = @docId";
-            SqlParameter[] parameters = new SqlParameter[]
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@colId", collectionId),
-                new SqlParameter("@docId", documentId)
+                new SQLiteParameter("@colId", collectionId),
+                new SQLiteParameter("@docId", documentId)
             };
 
             return ExecuteNonQuery(query, parameters) > 0;
@@ -677,63 +686,43 @@ namespace study_document_manager
 
         /// <summary>
         /// Lấy thống kê số lượng tài liệu theo môn học
-        /// Chế độ cá nhân: chỉ thống kê của user hiện tại
         /// </summary>
         public static DataTable GetStatisticsBySubject()
         {
-            string query = @"SELECT mon_hoc, COUNT(*) as so_luong 
-                           FROM tai_lieu 
-                           WHERE mon_hoc IS NOT NULL 
-                           AND user_id = @userId
-                           GROUP BY mon_hoc 
+            string query = @"SELECT mon_hoc, COUNT(*) as so_luong
+                           FROM tai_lieu
+                           WHERE mon_hoc IS NOT NULL
+                           GROUP BY mon_hoc
                            ORDER BY so_luong DESC";
-            
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@userId", UserSession.UserId)
-            };
-            
-            return ExecuteQuery(query, parameters);
+
+            return ExecuteQuery(query);
         }
 
         /// <summary>
         /// Lấy thống kê số lượng tài liệu theo loại
-        /// Chế độ cá nhân: chỉ thống kê của user hiện tại
         /// </summary>
         public static DataTable GetStatisticsByType()
         {
-            string query = @"SELECT loai, COUNT(*) as so_luong 
-                           FROM tai_lieu 
-                           WHERE loai IS NOT NULL 
-                           AND user_id = @userId
-                           GROUP BY loai 
+            string query = @"SELECT loai, COUNT(*) as so_luong
+                           FROM tai_lieu
+                           WHERE loai IS NOT NULL
+                           GROUP BY loai
                            ORDER BY so_luong DESC";
-            
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@userId", UserSession.UserId)
-            };
-            
-            return ExecuteQuery(query, parameters);
+
+            return ExecuteQuery(query);
         }
 
         /// <summary>
-        /// Đếm tổng số tài liệu của user hiện tại
+        /// Đếm tổng số tài liệu
         /// </summary>
         public static int GetTotalDocumentCount()
         {
-            string query = "SELECT COUNT(*) FROM tai_lieu WHERE user_id = @userId";
-            
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@userId", UserSession.UserId)
-            };
-            
-            object result = ExecuteScalar(query, parameters);
+            string query = "SELECT COUNT(*) FROM tai_lieu";
+            object result = ExecuteScalar(query);
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
-        #region Dashboard Statistics (Phase 3)
+        #region Dashboard Statistics
 
         /// <summary>
         /// Lấy thống kê tổng quan cho Dashboard
@@ -741,51 +730,47 @@ namespace study_document_manager
         public static DashboardStats GetDashboardStatistics()
         {
             var stats = new DashboardStats();
-            
-            SqlParameter[] userParam = new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) };
-            
+
             // Tổng tài liệu
-            string totalQuery = "SELECT COUNT(*) FROM tai_lieu WHERE user_id = @userId";
-            object totalResult = ExecuteScalar(totalQuery, userParam);
+            string totalQuery = "SELECT COUNT(*) FROM tai_lieu";
+            object totalResult = ExecuteScalar(totalQuery);
             stats.TotalDocuments = totalResult != null ? Convert.ToInt32(totalResult) : 0;
-            
+
             // Tài liệu quan trọng
-            string importantQuery = "SELECT COUNT(*) FROM tai_lieu WHERE user_id = @userId AND quan_trong = 1";
-            object importantResult = ExecuteScalar(importantQuery, new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) });
+            string importantQuery = "SELECT COUNT(*) FROM tai_lieu WHERE quan_trong = 1";
+            object importantResult = ExecuteScalar(importantQuery);
             stats.ImportantDocuments = importantResult != null ? Convert.ToInt32(importantResult) : 0;
-            
-            // Tài liệu chưa có file (đường dẫn rỗng hoặc null)
-            string noFileQuery = "SELECT COUNT(*) FROM tai_lieu WHERE user_id = @userId AND (duong_dan IS NULL OR duong_dan = '')";
-            object noFileResult = ExecuteScalar(noFileQuery, new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) });
+
+            // Tài liệu chưa có file
+            string noFileQuery = "SELECT COUNT(*) FROM tai_lieu WHERE duong_dan IS NULL OR duong_dan = ''";
+            object noFileResult = ExecuteScalar(noFileQuery);
             stats.NoFileDocuments = noFileResult != null ? Convert.ToInt32(noFileResult) : 0;
-            
+
             // Tài liệu gần deadline (trong 7 ngày tới)
-            string nearDeadlineQuery = @"SELECT COUNT(*) FROM tai_lieu 
-                                        WHERE user_id = @userId 
-                                        AND deadline IS NOT NULL 
-                                        AND deadline >= CAST(GETDATE() AS DATE)
-                                        AND deadline <= DATEADD(day, 7, CAST(GETDATE() AS DATE))";
-            object nearDeadlineResult = ExecuteScalar(nearDeadlineQuery, new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) });
+            string nearDeadlineQuery = @"SELECT COUNT(*) FROM tai_lieu
+                                        WHERE deadline IS NOT NULL
+                                        AND date(deadline) >= date('now', 'localtime')
+                                        AND date(deadline) <= date('now', 'localtime', '+7 days')";
+            object nearDeadlineResult = ExecuteScalar(nearDeadlineQuery);
             stats.NearDeadlineDocuments = nearDeadlineResult != null ? Convert.ToInt32(nearDeadlineResult) : 0;
-            
+
             // Tài liệu quá hạn
-            string overdueQuery = @"SELECT COUNT(*) FROM tai_lieu 
-                                   WHERE user_id = @userId 
-                                   AND deadline IS NOT NULL 
-                                   AND deadline < CAST(GETDATE() AS DATE)";
-            object overdueResult = ExecuteScalar(overdueQuery, new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) });
+            string overdueQuery = @"SELECT COUNT(*) FROM tai_lieu
+                                   WHERE deadline IS NOT NULL
+                                   AND date(deadline) < date('now', 'localtime')";
+            object overdueResult = ExecuteScalar(overdueQuery);
             stats.OverdueDocuments = overdueResult != null ? Convert.ToInt32(overdueResult) : 0;
-            
+
             // Số danh mục
-            string categoryQuery = "SELECT COUNT(DISTINCT mon_hoc) FROM tai_lieu WHERE user_id = @userId AND mon_hoc IS NOT NULL AND mon_hoc != ''";
-            object categoryResult = ExecuteScalar(categoryQuery, new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) });
+            string categoryQuery = "SELECT COUNT(DISTINCT mon_hoc) FROM tai_lieu WHERE mon_hoc IS NOT NULL AND mon_hoc != ''";
+            object categoryResult = ExecuteScalar(categoryQuery);
             stats.TotalCategories = categoryResult != null ? Convert.ToInt32(categoryResult) : 0;
-            
+
             // Số collections
-            string collectionQuery = "SELECT COUNT(*) FROM collections WHERE user_id = @userId";
-            object collectionResult = ExecuteScalar(collectionQuery, new SqlParameter[] { new SqlParameter("@userId", UserSession.UserId) });
+            string collectionQuery = "SELECT COUNT(*) FROM collections";
+            object collectionResult = ExecuteScalar(collectionQuery);
             stats.TotalCollections = collectionResult != null ? Convert.ToInt32(collectionResult) : 0;
-            
+
             return stats;
         }
 
@@ -794,30 +779,29 @@ namespace study_document_manager
         /// </summary>
         public static DataTable GetDocumentsByDay(int days = 7)
         {
+            // SQLite không có CTE recursive như SQL Server, dùng cách khác
             string query = @"
-                WITH DateSeries AS (
-                    SELECT CAST(GETDATE() AS DATE) AS ngay
+                WITH RECURSIVE DateSeries(ngay) AS (
+                    SELECT date('now', 'localtime')
                     UNION ALL
-                    SELECT DATEADD(day, -1, ngay)
+                    SELECT date(ngay, '-1 day')
                     FROM DateSeries
-                    WHERE DATEADD(day, -1, ngay) >= DATEADD(day, -@days + 1, CAST(GETDATE() AS DATE))
+                    WHERE date(ngay, '-1 day') >= date('now', 'localtime', '-' || (@days - 1) || ' days')
                 )
-                SELECT 
+                SELECT
                     ds.ngay,
-                    FORMAT(ds.ngay, 'dd/MM') as ngay_format,
-                    ISNULL(COUNT(t.id), 0) as so_luong
+                    strftime('%d/%m', ds.ngay) as ngay_format,
+                    COALESCE(COUNT(t.id), 0) as so_luong
                 FROM DateSeries ds
-                LEFT JOIN tai_lieu t ON CAST(t.ngay_them AS DATE) = ds.ngay AND t.user_id = @userId
+                LEFT JOIN tai_lieu t ON date(t.ngay_them) = ds.ngay
                 GROUP BY ds.ngay
-                ORDER BY ds.ngay ASC
-                OPTION (MAXRECURSION 365)";
-            
-            SqlParameter[] parameters = new SqlParameter[]
+                ORDER BY ds.ngay ASC";
+
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@days", days),
-                new SqlParameter("@userId", UserSession.UserId)
+                new SQLiteParameter("@days", days)
             };
-            
+
             return ExecuteQuery(query, parameters);
         }
 
@@ -827,29 +811,27 @@ namespace study_document_manager
         public static DataTable GetDocumentsByMonth(int months = 12)
         {
             string query = @"
-                WITH MonthSeries AS (
-                    SELECT DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1) AS thang
+                WITH RECURSIVE MonthSeries(thang) AS (
+                    SELECT date('now', 'localtime', 'start of month')
                     UNION ALL
-                    SELECT DATEADD(month, -1, thang)
+                    SELECT date(thang, '-1 month')
                     FROM MonthSeries
-                    WHERE DATEADD(month, -1, thang) >= DATEADD(month, -@months + 1, DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1))
+                    WHERE date(thang, '-1 month') >= date('now', 'localtime', 'start of month', '-' || (@months - 1) || ' months')
                 )
-                SELECT 
+                SELECT
                     ms.thang,
-                    FORMAT(ms.thang, 'MM/yyyy') as thang_format,
-                    ISNULL(COUNT(t.id), 0) as so_luong
+                    strftime('%m/%Y', ms.thang) as thang_format,
+                    COALESCE(COUNT(t.id), 0) as so_luong
                 FROM MonthSeries ms
-                LEFT JOIN tai_lieu t ON DATEFROMPARTS(YEAR(t.ngay_them), MONTH(t.ngay_them), 1) = ms.thang AND t.user_id = @userId
+                LEFT JOIN tai_lieu t ON strftime('%Y-%m', t.ngay_them) = strftime('%Y-%m', ms.thang)
                 GROUP BY ms.thang
-                ORDER BY ms.thang ASC
-                OPTION (MAXRECURSION 365)";
-            
-            SqlParameter[] parameters = new SqlParameter[]
+                ORDER BY ms.thang ASC";
+
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@months", months),
-                new SqlParameter("@userId", UserSession.UserId)
+                new SQLiteParameter("@months", months)
             };
-            
+
             return ExecuteQuery(query, parameters);
         }
 
@@ -859,58 +841,43 @@ namespace study_document_manager
 
         /// <summary>
         /// Lấy danh sách môn học DISTINCT kèm số lượng tài liệu
-        /// Chế độ cá nhân: chỉ lấy của user hiện tại
         /// </summary>
         public static DataTable GetDistinctSubjects()
         {
-            string query = @"SELECT mon_hoc, COUNT(*) as so_luong 
-                           FROM tai_lieu 
-                           WHERE mon_hoc IS NOT NULL AND mon_hoc != '' 
-                           AND user_id = @userId
-                           GROUP BY mon_hoc 
+            string query = @"SELECT mon_hoc, COUNT(*) as so_luong
+                           FROM tai_lieu
+                           WHERE mon_hoc IS NOT NULL AND mon_hoc != ''
+                           GROUP BY mon_hoc
                            ORDER BY mon_hoc";
-            
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@userId", UserSession.UserId)
-            };
-            
-            return ExecuteQuery(query, parameters);
+
+            return ExecuteQuery(query);
         }
 
         /// <summary>
         /// Lấy danh sách loại tài liệu DISTINCT kèm số lượng
-        /// Chế độ cá nhân: chỉ lấy của user hiện tại
         /// </summary>
         public static DataTable GetDistinctTypes()
         {
-            string query = @"SELECT loai, COUNT(*) as so_luong 
-                           FROM tai_lieu 
-                           WHERE loai IS NOT NULL AND loai != '' 
-                           AND user_id = @userId
-                           GROUP BY loai 
+            string query = @"SELECT loai, COUNT(*) as so_luong
+                           FROM tai_lieu
+                           WHERE loai IS NOT NULL AND loai != ''
+                           GROUP BY loai
                            ORDER BY loai";
-            
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@userId", UserSession.UserId)
-            };
-            
-            return ExecuteQuery(query, parameters);
+
+            return ExecuteQuery(query);
         }
 
         /// <summary>
-        /// Cập nhật tên môn học (chỉ tài liệu của user hiện tại)
+        /// Cập nhật tên môn học
         /// </summary>
         public static bool UpdateSubjectName(string oldName, string newName)
         {
-            string query = "UPDATE tai_lieu SET mon_hoc = @newName WHERE mon_hoc = @oldName AND user_id = @userId";
-            
-            SqlParameter[] parameters = new SqlParameter[]
+            string query = "UPDATE tai_lieu SET mon_hoc = @newName WHERE mon_hoc = @oldName";
+
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@oldName", oldName),
-                new SqlParameter("@newName", newName),
-                new SqlParameter("@userId", UserSession.UserId)
+                new SQLiteParameter("@oldName", oldName),
+                new SQLiteParameter("@newName", newName)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -918,17 +885,16 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Cập nhật tên loại tài liệu (chỉ tài liệu của user hiện tại)
+        /// Cập nhật tên loại tài liệu
         /// </summary>
         public static bool UpdateTypeName(string oldName, string newName)
         {
-            string query = "UPDATE tai_lieu SET loai = @newName WHERE loai = @oldName AND user_id = @userId";
-            
-            SqlParameter[] parameters = new SqlParameter[]
+            string query = "UPDATE tai_lieu SET loai = @newName WHERE loai = @oldName";
+
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@oldName", oldName),
-                new SqlParameter("@newName", newName),
-                new SqlParameter("@userId", UserSession.UserId)
+                new SQLiteParameter("@oldName", oldName),
+                new SQLiteParameter("@newName", newName)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -936,16 +902,15 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Xóa tài liệu có môn học này (chỉ của user hiện tại)
+        /// Xóa tài liệu có môn học này
         /// </summary>
         public static bool DeleteDocumentsBySubject(string subjectName)
         {
-            string query = "DELETE FROM tai_lieu WHERE mon_hoc = @subjectName AND user_id = @userId";
-            
-            SqlParameter[] parameters = new SqlParameter[]
+            string query = "DELETE FROM tai_lieu WHERE mon_hoc = @subjectName";
+
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@subjectName", subjectName),
-                new SqlParameter("@userId", UserSession.UserId)
+                new SQLiteParameter("@subjectName", subjectName)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -953,16 +918,15 @@ namespace study_document_manager
         }
 
         /// <summary>
-        /// Xóa tài liệu có loại này (chỉ của user hiện tại)
+        /// Xóa tài liệu có loại này
         /// </summary>
         public static bool DeleteDocumentsByType(string typeName)
         {
-            string query = "DELETE FROM tai_lieu WHERE loai = @typeName AND user_id = @userId";
-            
-            SqlParameter[] parameters = new SqlParameter[]
+            string query = "DELETE FROM tai_lieu WHERE loai = @typeName";
+
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@typeName", typeName),
-                new SqlParameter("@userId", UserSession.UserId)
+                new SQLiteParameter("@typeName", typeName)
             };
 
             int result = ExecuteNonQuery(query, parameters);
@@ -971,57 +935,78 @@ namespace study_document_manager
 
         #endregion
 
-        #region Phân quyền và Ownership
+        #region Personal Notes
 
         /// <summary>
-        /// Lấy user_id của tài liệu
+        /// Lấy ghi chú của tài liệu
         /// </summary>
-        public static int GetDocumentOwnerId(int documentId)
+        public static DataTable GetPersonalNote(int documentId)
         {
-            string query = "SELECT user_id FROM tai_lieu WHERE id = @id";
-            
-            SqlParameter[] parameters = new SqlParameter[]
+            string query = "SELECT * FROM personal_notes WHERE document_id = @documentId";
+
+            SQLiteParameter[] parameters = new SQLiteParameter[]
             {
-                new SqlParameter("@id", documentId)
-            };
-
-            object result = ExecuteScalar(query, parameters);
-            return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
-        }
-
-        /// <summary>
-        /// Kiểm tra user có quyền sửa/xóa tài liệu không
-        /// Chế độ cá nhân: mọi user chỉ sửa được tài liệu của mình
-        /// </summary>
-        public static bool CanUserEditDocument(int documentId, int userId, string userRole)
-        {
-            // Chế độ cá nhân: Mọi user (kể cả Admin) chỉ sửa được tài liệu của mình
-            int ownerId = GetDocumentOwnerId(documentId);
-            return ownerId == userId;
-        }
-
-        /// <summary>
-        /// Lấy tài liệu của user theo user_id
-        /// </summary>
-        public static DataTable GetDocumentsByUser(int userId)
-        {
-            string query = "SELECT * FROM tai_lieu WHERE user_id = @userId ORDER BY ngay_them DESC";
-            
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@userId", userId)
+                new SQLiteParameter("@documentId", documentId)
             };
 
             return ExecuteQuery(query, parameters);
         }
 
         /// <summary>
-        /// Lấy danh sách users (cho Admin)
+        /// Lưu hoặc cập nhật ghi chú
         /// </summary>
-        public static DataTable GetUsersForFilter()
+        public static bool SavePersonalNote(int documentId, string content)
         {
-            string query = "SELECT id, username, full_name FROM users WHERE is_active = 1 ORDER BY full_name";
-            return ExecuteQuery(query);
+            // Kiểm tra đã có note chưa
+            string checkQuery = "SELECT COUNT(*) FROM personal_notes WHERE document_id = @documentId";
+            SQLiteParameter[] checkParams = new SQLiteParameter[]
+            {
+                new SQLiteParameter("@documentId", documentId)
+            };
+
+            object exists = ExecuteScalar(checkQuery, checkParams);
+            bool hasNote = exists != null && Convert.ToInt32(exists) > 0;
+
+            if (hasNote)
+            {
+                // Update
+                string updateQuery = @"UPDATE personal_notes
+                                      SET content = @content, updated_at = datetime('now', 'localtime')
+                                      WHERE document_id = @documentId";
+                SQLiteParameter[] updateParams = new SQLiteParameter[]
+                {
+                    new SQLiteParameter("@documentId", documentId),
+                    new SQLiteParameter("@content", string.IsNullOrEmpty(content) ? DBNull.Value : (object)content)
+                };
+                return ExecuteNonQuery(updateQuery, updateParams) > 0;
+            }
+            else
+            {
+                // Insert
+                string insertQuery = @"INSERT INTO personal_notes (document_id, content)
+                                      VALUES (@documentId, @content)";
+                SQLiteParameter[] insertParams = new SQLiteParameter[]
+                {
+                    new SQLiteParameter("@documentId", documentId),
+                    new SQLiteParameter("@content", string.IsNullOrEmpty(content) ? DBNull.Value : (object)content)
+                };
+                return ExecuteNonQuery(insertQuery, insertParams) > 0;
+            }
+        }
+
+        /// <summary>
+        /// Xóa ghi chú
+        /// </summary>
+        public static bool DeletePersonalNote(int documentId)
+        {
+            string query = "DELETE FROM personal_notes WHERE document_id = @documentId";
+
+            SQLiteParameter[] parameters = new SQLiteParameter[]
+            {
+                new SQLiteParameter("@documentId", documentId)
+            };
+
+            return ExecuteNonQuery(query, parameters) > 0;
         }
 
         #endregion

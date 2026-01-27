@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using study_document_manager.UI;
+using study_document_manager.UI.Controls;
 
 namespace study_document_manager
 {
@@ -172,8 +173,8 @@ namespace study_document_manager
 
         private void btnNewCollection_Click(object sender, EventArgs e)
         {
-            string name = Microsoft.VisualBasic.Interaction.InputBox(
-                "Nhập tên bộ sưu tập:", "Tạo bộ sưu tập mới", "");
+            string name = ModernInputBox.Show(
+                "Tạo bộ sưu tập mới", "Nhập tên bộ sưu tập:", "");
 
             if (!string.IsNullOrWhiteSpace(name))
             {

@@ -3,6 +3,7 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using study_document_manager.UI;
+using study_document_manager.UI.Controls;
 
 namespace study_document_manager
 {
@@ -147,9 +148,9 @@ namespace study_document_manager
         {
             string title = currentTab == "subject" ? "Thêm danh mục mới" : "Thêm loại tài liệu mới";
             string label = currentTab == "subject" ? "Tên danh mục:" : "Tên loại tài liệu:";
-            
-            string newValue = ShowInputDialog(title, label, "");
-            
+
+            string newValue = ModernInputBox.Show(title, label, "");
+
             if (string.IsNullOrWhiteSpace(newValue))
                 return;
 
@@ -199,7 +200,7 @@ namespace study_document_manager
             string title = currentTab == "subject" ? "Sửa danh mục" : "Sửa loại tài liệu";
             string label = currentTab == "subject" ? "Tên danh mục mới:" : "Tên loại tài liệu mới:";
 
-            string newValue = ShowInputDialog(title, label, oldValue);
+            string newValue = ModernInputBox.Show(title, label, oldValue);
 
             if (string.IsNullOrWhiteSpace(newValue) || newValue == oldValue)
                 return;
@@ -343,85 +344,6 @@ namespace study_document_manager
                 return DatabaseHelper.DeleteDocumentsBySubject(categoryValue);
             else
                 return DatabaseHelper.DeleteDocumentsByType(categoryValue);
-        }
-
-        /// <summary>
-        /// Hiển thị dialog nhập liệu
-        /// </summary>
-        private string ShowInputDialog(string title, string label, string defaultValue)
-        {
-            Form prompt = new Form()
-            {
-                Width = 400,
-                Height = 180,
-                FormBorderStyle = FormBorderStyle.FixedDialog,
-                Text = title,
-                StartPosition = FormStartPosition.CenterParent,
-                MaximizeBox = false,
-                MinimizeBox = false,
-                BackColor = AppTheme.BackgroundMain
-            };
-
-            Label lblText = new Label() 
-            { 
-                Left = 20, 
-                Top = 20, 
-                Text = label,
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = AppTheme.TextPrimary,
-                AutoSize = true
-            };
-
-            TextBox txtInput = new TextBox() 
-            { 
-                Left = 20, 
-                Top = 45, 
-                Width = 340,
-                Font = new Font("Segoe UI", 9F),
-                Text = defaultValue,
-                BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle
-            };
-
-            Button btnOk = new Button() 
-            { 
-                Text = "OK", 
-                Left = 180, 
-                Width = 80, 
-                Top = 85, 
-                DialogResult = DialogResult.OK,
-                BackColor = AppTheme.Success,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand
-            };
-            btnOk.FlatAppearance.BorderSize = 0;
-
-            Button btnCancel = new Button() 
-            { 
-                Text = "Hủy", 
-                Left = 270, 
-                Width = 80, 
-                Top = 85, 
-                DialogResult = DialogResult.Cancel,
-                BackColor = AppTheme.TextMuted,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand
-            };
-            btnCancel.FlatAppearance.BorderSize = 0;
-
-            prompt.Controls.Add(lblText);
-            prompt.Controls.Add(txtInput);
-            prompt.Controls.Add(btnOk);
-            prompt.Controls.Add(btnCancel);
-            prompt.AcceptButton = btnOk;
-            prompt.CancelButton = btnCancel;
-
-            txtInput.SelectAll();
-            txtInput.Focus();
-
-            return prompt.ShowDialog() == DialogResult.OK ? txtInput.Text.Trim() : "";
         }
     }
 }

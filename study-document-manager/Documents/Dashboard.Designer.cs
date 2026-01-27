@@ -47,15 +47,15 @@
             this.toolBtnExport = new System.Windows.Forms.ToolStripButton();
             this.toolSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolBtnRefresh = new System.Windows.Forms.ToolStripButton();
-            this.pnlSearch = new System.Windows.Forms.Panel();
+            this.pnlSearch = new study_document_manager.UI.Controls.ModernPanel();
             this.lblSearch = new System.Windows.Forms.Label();
             this.txtSearch = new System.Windows.Forms.TextBox();
-            this.btnSearch = new System.Windows.Forms.Button();
+            this.btnSearch = new study_document_manager.UI.Controls.ModernButton();
             this.lblSubject = new System.Windows.Forms.Label();
             this.cboSubject = new System.Windows.Forms.ComboBox();
             this.lblType = new System.Windows.Forms.Label();
             this.cboType = new System.Windows.Forms.ComboBox();
-            this.pnlContent = new System.Windows.Forms.Panel();
+            this.pnlContent = new study_document_manager.UI.Controls.ModernPanel();
             this.dgvDocuments = new System.Windows.Forms.DataGridView();
             this.contextMenuDocument = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ctxMenuOpen = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,8 +70,8 @@
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblCount = new System.Windows.Forms.ToolStripStatusLabel();
             this.grpAdvancedFilter = new System.Windows.Forms.GroupBox();
-            this.btnClearAdvancedFilter = new System.Windows.Forms.Button();
-            this.btnApplyAdvancedFilter = new System.Windows.Forms.Button();
+            this.btnClearAdvancedFilter = new study_document_manager.UI.Controls.ModernButton();
+            this.btnApplyAdvancedFilter = new study_document_manager.UI.Controls.ModernButton();
             this.cboCreatorFilter = new System.Windows.Forms.ComboBox();
             this.lblCreatorFilter = new System.Windows.Forms.Label();
             this.chkImportantOnly = new System.Windows.Forms.CheckBox();
@@ -363,10 +363,14 @@
             this.txtSearch.Size = new System.Drawing.Size(380, 25);
             this.txtSearch.TabIndex = 1;
             this.txtSearch.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_tim_kiem_KeyPress);
-            // 
+            //
             // btnSearch
-            // 
+            //
             this.btnSearch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(150)))), ((int)(((byte)(243)))));
+            this.btnSearch.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(150)))), ((int)(((byte)(243)))));
+            this.btnSearch.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnSearch.BorderRadius = 15;
+            this.btnSearch.BorderSize = 0;
             this.btnSearch.FlatAppearance.BorderSize = 0;
             this.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSearch.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -376,6 +380,7 @@
             this.btnSearch.Size = new System.Drawing.Size(100, 27);
             this.btnSearch.TabIndex = 2;
             this.btnSearch.Text = "Tìm kiếm";
+            this.btnSearch.TextColor = System.Drawing.Color.White;
             this.btnSearch.UseVisualStyleBackColor = false;
             this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
@@ -573,10 +578,14 @@
             this.grpAdvancedFilter.TabIndex = 100;
             this.grpAdvancedFilter.TabStop = false;
             this.grpAdvancedFilter.Text = "Filter Nâng Cao";
-            // 
+            //
             // btnClearAdvancedFilter
-            // 
+            //
             this.btnClearAdvancedFilter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(158)))), ((int)(((byte)(158)))), ((int)(((byte)(158)))));
+            this.btnClearAdvancedFilter.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(158)))), ((int)(((byte)(158)))), ((int)(((byte)(158)))));
+            this.btnClearAdvancedFilter.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnClearAdvancedFilter.BorderRadius = 15;
+            this.btnClearAdvancedFilter.BorderSize = 0;
             this.btnClearAdvancedFilter.FlatAppearance.BorderSize = 0;
             this.btnClearAdvancedFilter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClearAdvancedFilter.ForeColor = System.Drawing.Color.White;
@@ -585,12 +594,17 @@
             this.btnClearAdvancedFilter.Size = new System.Drawing.Size(180, 35);
             this.btnClearAdvancedFilter.TabIndex = 15;
             this.btnClearAdvancedFilter.Text = "Xóa Filter";
+            this.btnClearAdvancedFilter.TextColor = System.Drawing.Color.White;
             this.btnClearAdvancedFilter.UseVisualStyleBackColor = false;
             this.btnClearAdvancedFilter.Click += new System.EventHandler(this.btnClearAdvancedFilter_Click);
-            // 
+            //
             // btnApplyAdvancedFilter
-            // 
+            //
             this.btnApplyAdvancedFilter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(150)))), ((int)(((byte)(243)))));
+            this.btnApplyAdvancedFilter.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(150)))), ((int)(((byte)(243)))));
+            this.btnApplyAdvancedFilter.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnApplyAdvancedFilter.BorderRadius = 15;
+            this.btnApplyAdvancedFilter.BorderSize = 0;
             this.btnApplyAdvancedFilter.FlatAppearance.BorderSize = 0;
             this.btnApplyAdvancedFilter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnApplyAdvancedFilter.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
@@ -600,6 +614,7 @@
             this.btnApplyAdvancedFilter.Size = new System.Drawing.Size(180, 35);
             this.btnApplyAdvancedFilter.TabIndex = 14;
             this.btnApplyAdvancedFilter.Text = "Áp dụng Filter";
+            this.btnApplyAdvancedFilter.TextColor = System.Drawing.Color.White;
             this.btnApplyAdvancedFilter.UseVisualStyleBackColor = false;
             this.btnApplyAdvancedFilter.Click += new System.EventHandler(this.btnApplyAdvancedFilter_Click);
             // 
@@ -818,15 +833,15 @@
         private System.Windows.Forms.ToolStripButton toolBtnExport;
         private System.Windows.Forms.ToolStripSeparator toolSeparator2;
         private System.Windows.Forms.ToolStripButton toolBtnRefresh;
-        private System.Windows.Forms.Panel pnlSearch;
+        private study_document_manager.UI.Controls.ModernPanel pnlSearch;
         private System.Windows.Forms.Label lblSearch;
         private System.Windows.Forms.TextBox txtSearch;
-        private System.Windows.Forms.Button btnSearch;
+        private study_document_manager.UI.Controls.ModernButton btnSearch;
         private System.Windows.Forms.Label lblSubject;
         private System.Windows.Forms.ComboBox cboSubject;
         private System.Windows.Forms.Label lblType;
         private System.Windows.Forms.ComboBox cboType;
-        private System.Windows.Forms.Panel pnlContent;
+        private study_document_manager.UI.Controls.ModernPanel pnlContent;
         private System.Windows.Forms.DataGridView dgvDocuments;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel lblStatus;
@@ -846,8 +861,8 @@
         private System.Windows.Forms.CheckBox chkImportantOnly;
         private System.Windows.Forms.Label lblCreatorFilter;
         private System.Windows.Forms.ComboBox cboCreatorFilter;
-        private System.Windows.Forms.Button btnApplyAdvancedFilter;
-        private System.Windows.Forms.Button btnClearAdvancedFilter;
+        private study_document_manager.UI.Controls.ModernButton btnApplyAdvancedFilter;
+        private study_document_manager.UI.Controls.ModernButton btnClearAdvancedFilter;
         private System.Windows.Forms.ContextMenuStrip contextMenuDocument;
         private System.Windows.Forms.ToolStripMenuItem ctxMenuOpen;
         private System.Windows.Forms.ToolStripMenuItem ctxMenuEdit;

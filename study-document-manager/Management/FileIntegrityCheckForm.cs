@@ -1,6 +1,6 @@
 using System;
 using System.Data;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -191,10 +191,10 @@ namespace study_document_manager
                     {
                         string newPath = ofd.FileName;
                         string query = "UPDATE tai_lieu SET duong_dan = @duong_dan WHERE id = @id";
-                        SqlParameter[] parameters = new SqlParameter[]
+                        SQLiteParameter[] parameters = new SQLiteParameter[]
                         {
-                            new SqlParameter("@duong_dan", newPath),
-                            new SqlParameter("@id", id)
+                            new SQLiteParameter("@duong_dan", newPath),
+                            new SQLiteParameter("@id", id)
                         };
 
                         int result = DatabaseHelper.ExecuteNonQuery(query, parameters);
@@ -230,9 +230,9 @@ namespace study_document_manager
                 try
                 {
                     string query = "UPDATE tai_lieu SET duong_dan = '' WHERE id = @id";
-                    SqlParameter[] parameters = new SqlParameter[]
+                    SQLiteParameter[] parameters = new SQLiteParameter[]
                     {
-                        new SqlParameter("@id", id)
+                        new SQLiteParameter("@id", id)
                     };
 
                     int result = DatabaseHelper.ExecuteNonQuery(query, parameters);
