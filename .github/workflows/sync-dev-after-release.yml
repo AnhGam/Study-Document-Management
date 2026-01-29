@@ -1,15 +1,14 @@
-name: Sync Dev After Release
+name: Sync After Release
 
 on:
   workflow_run:
     workflows: ["Release"]
     types: [completed]
-    branches: [Production]
 
 jobs:
-  sync-dev:
-    # Only run if Release workflow succeeded on Production branch
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'Production' }}
+  merge-to-production:
+    name: Merge Development to Production
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     permissions:
@@ -27,35 +26,54 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Sync development with Production
+      - name: Merge development into Production
         run: |
-          git fetch origin Production development
-          git checkout development
+          git fetch origin development Production
 
-          # Attempt merge, handle version conflicts by taking Production's versions
-          if ! git merge origin/Production --no-edit -m "chore(sync): merge Production into development after release [skip ci]"; then
-            echo "Merge conflicts detected, resolving version files..."
+          # Checkout Production branch
+          git checkout Production
 
-            # For version files, take Production's version (new stable base)
-            for file in study-document-manager/Properties/AssemblyInfo.cs setup.iss CHANGELOG.md; do
+          # Merge development into Production
+          if ! git merge origin/development --no-edit -m "chore(sync): merge development into Production after release [skip ci]"; then
+            echo "Merge conflicts detected, attempting to resolve..."
+
+            # For version files, take development's version (the latest)
+            for file in Properties/AssemblyInfo.cs setup.iss VERSION CHANGELOG.md; do
               if git diff --name-only --diff-filter=U | grep -q "^${file}$"; then
                 git checkout --theirs "$file"
                 git add "$file"
               fi
             done
 
-            # Complete the merge
-            git commit --no-edit
+            # For installer files, take development's version
+            if git diff --name-only --diff-filter=U | grep -q "^installer/"; then
+              git checkout --theirs installer/
+              git add installer/
+            fi
+
+            git commit --no-edit || echo "No changes to commit"
           fi
 
-          git push origin development
+          git push origin Production
 
-      - name: Discord notification
+      - name: Discord notification (success)
+        if: success()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
           if [ -n "$DISCORD_WEBHOOK" ]; then
             curl -H "Content-Type: application/json" \
-              -d "{\"embeds\": [{\"title\": \"🔄 Dev Synced with Production\", \"description\": \"Development branch has been automatically synced after release.\", \"color\": 3447003}]}" \
+              -d "{\"embeds\": [{\"title\": \"Production Synced\", \"description\": \"Development branch merged into Production after release.\", \"color\": 3066993}]}" \
+              $DISCORD_WEBHOOK
+          fi
+
+      - name: Discord notification (failure)
+        if: failure()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          if [ -n "$DISCORD_WEBHOOK" ]; then
+            curl -H "Content-Type: application/json" \
+              -d "{\"embeds\": [{\"title\": \"Sync Failed\", \"description\": \"Failed to merge development into Production.\\n\\n[View Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"color\": 15158332}]}" \
               $DISCORD_WEBHOOK
           fi
