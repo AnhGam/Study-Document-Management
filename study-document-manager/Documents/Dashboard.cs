@@ -448,9 +448,10 @@ namespace study_document_manager
                 var doc = dgvDocuments.Rows[e.RowIndex].DataBoundItem as StudyDocument;
                 if (doc != null)
                 {
-                    doc.QuanTrong = !doc.QuanTrong;
+                    // doc.QuanTrong is already updated by CommitEdit
                     _repository.Update(doc);
                     dgvDocuments.InvalidateRow(e.RowIndex);
+                    // Show message based on the new value
                     ShowMessage(doc.QuanTrong ? "Đã đánh dấu quan trọng" : "Đã bỏ đánh dấu quan trọng");
                 }
             }

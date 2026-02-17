@@ -2,7 +2,7 @@
 ; Created by Claude Code
 
 #define MyAppName "Study Document Manager"
-#define MyAppVersion "2.0.2"
+#define MyAppVersion "2.0.4"
 #define MyAppPublisher "hayato-shino05"
 #define MyAppURL "https://github.com/hayato-shino05/study-document-manager"
 #define MyAppExeName "study-document-manager.exe"
@@ -43,6 +43,7 @@ Source: "study-document-manager\bin\Release\study-document-manager.exe.config"; 
 Source: "study-document-manager\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "study-document-manager\bin\Release\x64\*"; DestDir: "{app}\x64"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "study-document-manager\bin\Release\x86\*"; DestDir: "{app}\x86"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "study-document-manager\bin\Release\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
