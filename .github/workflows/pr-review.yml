@@ -43,6 +43,10 @@ jobs:
         id: review
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          CHANGED_FILES: ${{ steps.changed-files.outputs.files }}
+          DIFF_CONTENT: ${{ steps.diff.outputs.diff }}
         run: |
           # Skip if no API key
           if [ -z "$GEMINI_API_KEY" ]; then
@@ -76,10 +80,7 @@ jobs:
           ## Verdict
           [APPROVE/REQUEST_CHANGES/COMMENT] - [brief reason]"
 
-          PR_TITLE="${{ github.event.pull_request.title }}"
-          PR_BODY="${{ github.event.pull_request.body }}"
-          CHANGED_FILES="${{ steps.changed-files.outputs.files }}"
-          DIFF_CONTENT="${{ steps.diff.outputs.diff }}"
+
 
           USER_PROMPT="Review this Pull Request:
 
