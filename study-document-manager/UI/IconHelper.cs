@@ -500,13 +500,189 @@ namespace study_document_manager
                     // Arrow pointing UP
                     float m = size * 0.2f;
                     float cx = size / 2f;
-                    
+
                     // Vertical line
                     g.DrawLine(pen, cx, size - m, cx, m);
-                    
+
                     // Arrow head
                     g.DrawLine(pen, cx, m, cx - size * 0.25f, m + size * 0.25f);
                     g.DrawLine(pen, cx, m, cx + size * 0.25f, m + size * 0.25f);
+                }
+            }
+            return bmp;
+        }
+
+        /// <summary>
+        /// Icon Import: Thư mục với mũi tên xuống
+        /// </summary>
+        public static Bitmap CreateImportIcon(int size = 20, Color? color = null)
+        {
+            Color c = color ?? Color.FromArgb(16, 185, 129);
+            Bitmap bmp = new Bitmap(size, size);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(Color.Transparent);
+                using (Pen pen = new Pen(c, 1.8f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                {
+                    // Hộp/tray bên dưới
+                    g.DrawLine(pen, size * 0.15f, size * 0.55f, size * 0.15f, size * 0.85f);
+                    g.DrawLine(pen, size * 0.15f, size * 0.85f, size * 0.85f, size * 0.85f);
+                    g.DrawLine(pen, size * 0.85f, size * 0.85f, size * 0.85f, size * 0.55f);
+                    // Mũi tên xuống
+                    float cx = size / 2f;
+                    g.DrawLine(pen, cx, size * 0.1f, cx, size * 0.6f);
+                    g.DrawLine(pen, cx, size * 0.6f, cx - size * 0.2f, size * 0.4f);
+                    g.DrawLine(pen, cx, size * 0.6f, cx + size * 0.2f, size * 0.4f);
+                }
+            }
+            return bmp;
+        }
+
+        /// <summary>
+        /// Icon Recycle Bin: Thùng rác với nắp
+        /// </summary>
+        public static Bitmap CreateRecycleBinIcon(int size = 20, Color? color = null)
+        {
+            Color c = color ?? Color.FromArgb(245, 158, 11);
+            Bitmap bmp = new Bitmap(size, size);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(Color.Transparent);
+                using (Pen pen = new Pen(c, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                {
+                    // Nắp thùng rác
+                    g.DrawLine(pen, size * 0.12f, size * 0.25f, size * 0.88f, size * 0.25f);
+                    g.DrawLine(pen, size * 0.38f, size * 0.25f, size * 0.38f, size * 0.12f);
+                    g.DrawLine(pen, size * 0.38f, size * 0.12f, size * 0.62f, size * 0.12f);
+                    g.DrawLine(pen, size * 0.62f, size * 0.12f, size * 0.62f, size * 0.25f);
+                    // Thân thùng (hình thang)
+                    g.DrawLine(pen, size * 0.2f, size * 0.25f, size * 0.25f, size * 0.88f);
+                    g.DrawLine(pen, size * 0.25f, size * 0.88f, size * 0.75f, size * 0.88f);
+                    g.DrawLine(pen, size * 0.75f, size * 0.88f, size * 0.8f, size * 0.25f);
+                    // Vạch dọc bên trong
+                    g.DrawLine(pen, size * 0.4f, size * 0.38f, size * 0.4f, size * 0.75f);
+                    g.DrawLine(pen, size * 0.6f, size * 0.38f, size * 0.6f, size * 0.75f);
+                }
+            }
+            return bmp;
+        }
+
+        /// <summary>
+        /// Icon Bulk/Checklist: Danh sách với checkbox
+        /// </summary>
+        public static Bitmap CreateChecklistIcon(int size = 20, Color? color = null)
+        {
+            Color c = color ?? Color.FromArgb(59, 130, 246);
+            Bitmap bmp = new Bitmap(size, size);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(Color.Transparent);
+                using (Pen pen = new Pen(c, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                {
+                    float boxSize = size * 0.2f;
+                    // Checkbox 1 (checked)
+                    float y1 = size * 0.15f;
+                    g.DrawRectangle(pen, size * 0.1f, y1, boxSize, boxSize);
+                    g.DrawLine(pen, size * 0.13f, y1 + boxSize * 0.5f, size * 0.2f, y1 + boxSize * 0.85f);
+                    g.DrawLine(pen, size * 0.2f, y1 + boxSize * 0.85f, size * 0.28f, y1 + boxSize * 0.15f);
+                    g.DrawLine(pen, size * 0.4f, y1 + boxSize * 0.5f, size * 0.85f, y1 + boxSize * 0.5f);
+                    // Checkbox 2 (checked)
+                    float y2 = size * 0.42f;
+                    g.DrawRectangle(pen, size * 0.1f, y2, boxSize, boxSize);
+                    g.DrawLine(pen, size * 0.13f, y2 + boxSize * 0.5f, size * 0.2f, y2 + boxSize * 0.85f);
+                    g.DrawLine(pen, size * 0.2f, y2 + boxSize * 0.85f, size * 0.28f, y2 + boxSize * 0.15f);
+                    g.DrawLine(pen, size * 0.4f, y2 + boxSize * 0.5f, size * 0.7f, y2 + boxSize * 0.5f);
+                    // Checkbox 3 (unchecked)
+                    float y3 = size * 0.69f;
+                    g.DrawRectangle(pen, size * 0.1f, y3, boxSize, boxSize);
+                    g.DrawLine(pen, size * 0.4f, y3 + boxSize * 0.5f, size * 0.75f, y3 + boxSize * 0.5f);
+                }
+            }
+            return bmp;
+        }
+
+        /// <summary>
+        /// Icon Clock/Recent: Đồng hồ
+        /// </summary>
+        public static Bitmap CreateClockIcon(int size = 20, Color? color = null)
+        {
+            Color c = color ?? Color.FromArgb(14, 165, 233);
+            Bitmap bmp = new Bitmap(size, size);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(Color.Transparent);
+                float m = size * 0.12f;
+                using (Pen pen = new Pen(c, 1.8f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                {
+                    // Mặt đồng hồ
+                    g.DrawEllipse(pen, m, m, size - m * 2, size - m * 2);
+                    float cx = size / 2f, cy = size / 2f;
+                    // Kim giờ (chỉ 10h)
+                    g.DrawLine(pen, cx, cy, cx - size * 0.12f, cy - size * 0.2f);
+                    // Kim phút (chỉ 2)
+                    g.DrawLine(pen, cx, cy, cx + size * 0.22f, cy - size * 0.08f);
+                }
+            }
+            return bmp;
+        }
+
+        /// <summary>
+        /// Icon Backup/Save: Ổ đĩa floppy disk
+        /// </summary>
+        public static Bitmap CreateBackupIcon(int size = 20, Color? color = null)
+        {
+            Color c = color ?? Color.FromArgb(99, 102, 241);
+            Bitmap bmp = new Bitmap(size, size);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(Color.Transparent);
+                using (Pen pen = new Pen(c, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                {
+                    float m = size * 0.12f;
+                    // Hình đĩa mềm (floppy disk outline)
+                    g.DrawLine(pen, m, m, size * 0.65f, m);                    // top-left to notch
+                    g.DrawLine(pen, size * 0.65f, m, size - m, m + size * 0.2f); // notch diagonal
+                    g.DrawLine(pen, size - m, m + size * 0.2f, size - m, size - m); // right side
+                    g.DrawLine(pen, size - m, size - m, m, size - m);            // bottom
+                    g.DrawLine(pen, m, size - m, m, m);                          // left side
+                    // Khe đĩa bên trong (label area)
+                    g.DrawRectangle(pen, size * 0.3f, size * 0.5f, size * 0.4f, size * 0.35f);
+                    // Khe trên (metal slider)
+                    g.DrawLine(pen, size * 0.35f, m, size * 0.35f, size * 0.3f);
+                    g.DrawLine(pen, size * 0.35f, size * 0.3f, size * 0.6f, size * 0.3f);
+                    g.DrawLine(pen, size * 0.6f, size * 0.3f, size * 0.6f, m);
+                }
+            }
+            return bmp;
+        }
+
+        /// <summary>
+        /// Icon Duplicate/Copy: Hai tài liệu chồng lên nhau
+        /// </summary>
+        public static Bitmap CreateDuplicateIcon(int size = 20, Color? color = null)
+        {
+            Color c = color ?? Color.FromArgb(234, 179, 8);
+            Bitmap bmp = new Bitmap(size, size);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(Color.Transparent);
+                using (Pen pen = new Pen(c, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+                {
+                    // Tài liệu phía sau (offset phải-dưới)
+                    g.DrawRectangle(pen, size * 0.3f, size * 0.3f, size * 0.58f, size * 0.58f);
+                    // Tài liệu phía trước (offset trái-trên)
+                    using (Brush fill = new SolidBrush(Color.FromArgb(40, c)))
+                        g.FillRectangle(fill, size * 0.12f, size * 0.12f, size * 0.58f, size * 0.58f);
+                    g.DrawRectangle(pen, size * 0.12f, size * 0.12f, size * 0.58f, size * 0.58f);
+                    // Dòng text trên tài liệu trước
+                    g.DrawLine(pen, size * 0.22f, size * 0.32f, size * 0.55f, size * 0.32f);
+                    g.DrawLine(pen, size * 0.22f, size * 0.48f, size * 0.45f, size * 0.48f);
                 }
             }
             return bmp;

@@ -40,6 +40,8 @@ namespace study_document_manager
 
         private study_document_manager.UI.Controls.DocumentPreviewPanel previewPanel;
         private SplitContainer splitPreview;
+        private TreeView treeCategory;
+        private SplitContainer splitCategory;
 
         public Dashboard()
         {
@@ -64,6 +66,9 @@ namespace study_document_manager
 
             // Preview panel (hidden by default)
             SetupPreviewPanel();
+
+            // Category tree (left sidebar)
+            SetupCategoryTree();
         }
 
         private void AddPersonalNoteContextMenu()
@@ -102,6 +107,7 @@ namespace study_document_manager
         private void TriggerRefresh()
         {
             RefreshRequested?.Invoke(this, EventArgs.Empty);
+            PopulateCategoryTree();
         }
 
         private void ClearUIFilters()
@@ -184,7 +190,7 @@ namespace study_document_manager
             var toolBtnImport = new ToolStripButton
             {
                 Text = "Import",
-                Image = IconHelper.CreateAddIcon(16, AppTheme.StatusSuccess),
+                Image = IconHelper.CreateImportIcon(16, AppTheme.StatusSuccess),
                 DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
                 ToolTipText = "Import tài liệu từ thư mục"
             };
@@ -194,7 +200,7 @@ namespace study_document_manager
             var toolBtnRecycleBin = new ToolStripButton
             {
                 Text = "Thùng rác",
-                Image = IconHelper.CreateDeleteIcon(16, AppTheme.StatusWarning),
+                Image = IconHelper.CreateRecycleBinIcon(16, AppTheme.StatusWarning),
                 DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
                 ToolTipText = "Mở thùng rác"
             };
@@ -204,7 +210,7 @@ namespace study_document_manager
             var toolBtnBulkOps = new ToolStripButton
             {
                 Text = "Hàng loạt",
-                Image = IconHelper.CreateEditIcon(16, AppTheme.StatusInfo),
+                Image = IconHelper.CreateChecklistIcon(16, AppTheme.StatusInfo),
                 DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
                 ToolTipText = "Quản lý hàng loạt (xóa, đổi môn học, đánh dấu)"
             };
@@ -222,7 +228,7 @@ namespace study_document_manager
             var toolBtnRecent = new ToolStripButton
             {
                 Text = "Gần đây",
-                Image = IconHelper.CreateOpenIcon(16, AppTheme.AccentSky),
+                Image = IconHelper.CreateClockIcon(16, AppTheme.AccentSky),
                 DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
                 ToolTipText = "Xem tài liệu mở gần đây"
             };
@@ -233,7 +239,7 @@ namespace study_document_manager
             var toolBtnBackup = new ToolStripButton
             {
                 Text = "Sao lưu",
-                Image = IconHelper.CreateExportIcon(16, AppTheme.StatusInfo),
+                Image = IconHelper.CreateBackupIcon(16, AppTheme.StatusInfo),
                 DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
                 ToolTipText = "Sao lưu nhanh database"
             };
@@ -244,7 +250,7 @@ namespace study_document_manager
             var toolBtnDuplicates = new ToolStripButton
             {
                 Text = "Trùng lặp",
-                Image = IconHelper.CreateRefreshIcon(16, AppTheme.StatusWarning),
+                Image = IconHelper.CreateDuplicateIcon(16, AppTheme.StatusWarning),
                 DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
                 ToolTipText = "Phát hiện file trùng lặp"
             };
@@ -433,6 +439,21 @@ namespace study_document_manager
                 SetColumnHeader("Tags", "Tags");
                 SetColumnHeader("deadline", "Hạn chót");
                 SetColumnHeader("Deadline", "Hạn chót");
+
+                // Ẩn cột ít quan trọng, giữ cột cần thiết
+                HideColumn("duong_dan"); HideColumn("DuongDan");
+                HideColumn("ghi_chu"); HideColumn("GhiChu");
+                HideColumn("tac_gia"); HideColumn("TacGia");
+                HideColumn("tags"); HideColumn("Tags");
+                HideColumn("mon_hoc"); HideColumn("MonHoc");
+
+                // Set FillWeight cho các cột hiển thị
+                SetColumnFillWeight("ten", 30); SetColumnFillWeight("Ten", 30);
+                SetColumnFillWeight("loai", 12); SetColumnFillWeight("Loai", 12);
+                SetColumnFillWeight("ngay_them", 15); SetColumnFillWeight("NgayThem", 15);
+                SetColumnFillWeight("kich_thuoc", 12); SetColumnFillWeight("KichThuoc", 12);
+                SetColumnFillWeight("quan_trong", 5); SetColumnFillWeight("QuanTrong", 5);
+                SetColumnFillWeight("deadline", 15); SetColumnFillWeight("Deadline", 15);
             }
 
             // Styling
@@ -469,6 +490,18 @@ namespace study_document_manager
             {
                 dgvDocuments.Columns[columnName].HeaderText = headerText;
             }
+        }
+
+        private void HideColumn(string columnName)
+        {
+            if (dgvDocuments.Columns.Contains(columnName))
+                dgvDocuments.Columns[columnName].Visible = false;
+        }
+
+        private void SetColumnFillWeight(string columnName, float weight)
+        {
+            if (dgvDocuments.Columns.Contains(columnName))
+                dgvDocuments.Columns[columnName].FillWeight = weight;
         }
 
         private void ApplyTheme()
@@ -1207,6 +1240,285 @@ namespace study_document_manager
                 }
             }
         }
+
+        #region Category Tree
+
+        private void SetupCategoryTree()
+        {
+            // TreeView
+            treeCategory = new TreeView
+            {
+                Dock = DockStyle.Fill,
+                Font = new System.Drawing.Font("Segoe UI", 9F),
+                BorderStyle = BorderStyle.None,
+                ShowLines = true,
+                ShowRootLines = true,
+                ShowPlusMinus = true,
+                FullRowSelect = true,
+                HideSelection = false,
+                ItemHeight = 26,
+                Indent = 18,
+                BackColor = Color.White,
+                ForeColor = AppTheme.TextPrimary
+            };
+
+            // Wrap existing content in a horizontal SplitContainer
+            splitCategory = new SplitContainer
+            {
+                Dock = DockStyle.Fill,
+                Orientation = Orientation.Vertical,
+                SplitterWidth = 4,
+                BorderStyle = BorderStyle.None,
+                FixedPanel = FixedPanel.Panel1
+            };
+
+            // Move existing content from pnlContent to Panel2
+            var existingControls = new Control[pnlContent.Controls.Count];
+            pnlContent.Controls.CopyTo(existingControls, 0);
+            pnlContent.Controls.Clear();
+
+            foreach (var ctrl in existingControls)
+                splitCategory.Panel2.Controls.Add(ctrl);
+
+            // Add TreeView to Panel1 with header
+            var lblTreeHeader = new Label
+            {
+                Text = "Phân loại",
+                Dock = DockStyle.Top,
+                Font = new System.Drawing.Font("Segoe UI Semibold", 10F),
+                ForeColor = AppTheme.Primary,
+                BackColor = Color.White,
+                Padding = new Padding(10, 8, 8, 6),
+                Height = 32,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            var pnlTree = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.White,
+                Padding = new Padding(0)
+            };
+            pnlTree.Controls.Add(treeCategory);
+            pnlTree.Controls.Add(lblTreeHeader);
+
+            splitCategory.Panel1.Controls.Add(pnlTree);
+            splitCategory.Panel1.BackColor = Color.White;
+
+            pnlContent.Controls.Add(splitCategory);
+
+            // Set splitter distance sau khi layout xong
+            splitCategory.SplitterDistance = 145;
+            splitCategory.Panel1MinSize = 120;
+
+            // Responsive: ẩn/hiện tree khi form quá nhỏ
+            this.Resize += (s, ev) =>
+            {
+                if (splitCategory == null) return;
+                if (this.Width < 700)
+                    splitCategory.Panel1Collapsed = true;
+                else
+                    splitCategory.Panel1Collapsed = false;
+            };
+
+            // Handle node selection
+            treeCategory.AfterSelect += TreeCategory_AfterSelect;
+
+            // Populate tree
+            PopulateCategoryTree();
+        }
+
+        private void PopulateCategoryTree()
+        {
+            if (treeCategory == null) return;
+
+            treeCategory.AfterSelect -= TreeCategory_AfterSelect;
+            treeCategory.BeginUpdate();
+            treeCategory.Nodes.Clear();
+
+            // Root: All Documents
+            var nodeAll = treeCategory.Nodes.Add("all", "Tất cả tài liệu");
+            nodeAll.Tag = new TreeFilterInfo("all", null);
+            nodeAll.NodeFont = new System.Drawing.Font(treeCategory.Font, FontStyle.Bold);
+
+            // By Subject
+            var nodeSubject = treeCategory.Nodes.Add("subjects", "Danh mục");
+            nodeSubject.Tag = new TreeFilterInfo("header", null);
+            try
+            {
+                var dt = DatabaseHelper.ExecuteQuery(
+                    "SELECT DISTINCT mon_hoc FROM tai_lieu WHERE mon_hoc IS NOT NULL AND mon_hoc != '' AND (is_deleted IS NULL OR is_deleted = 0) ORDER BY mon_hoc");
+                foreach (DataRow row in dt.Rows)
+                {
+                    string name = row["mon_hoc"].ToString();
+                    var child = nodeSubject.Nodes.Add("sub_" + name, name);
+                    child.Tag = new TreeFilterInfo("subject", name);
+                }
+            }
+            catch { }
+
+            // By Type
+            var nodeType = treeCategory.Nodes.Add("types", "Loại tài liệu");
+            nodeType.Tag = new TreeFilterInfo("header", null);
+            try
+            {
+                var dt = DatabaseHelper.ExecuteQuery(
+                    "SELECT DISTINCT loai FROM tai_lieu WHERE loai IS NOT NULL AND loai != '' AND (is_deleted IS NULL OR is_deleted = 0) ORDER BY loai");
+                foreach (DataRow row in dt.Rows)
+                {
+                    string name = row["loai"].ToString();
+                    var child = nodeType.Nodes.Add("type_" + name, name);
+                    child.Tag = new TreeFilterInfo("type", name);
+                }
+            }
+            catch { }
+
+            // Important
+            var nodeImportant = treeCategory.Nodes.Add("important", "Quan trọng");
+            nodeImportant.Tag = new TreeFilterInfo("important", null);
+
+            // Collections
+            var nodeCollections = treeCategory.Nodes.Add("collections", "Bộ sưu tập");
+            nodeCollections.Tag = new TreeFilterInfo("header", null);
+            try
+            {
+                var dt = DatabaseHelper.GetCollections();
+                foreach (DataRow row in dt.Rows)
+                {
+                    string name = row["name"].ToString();
+                    string id = row["id"].ToString();
+                    string count = row["item_count"].ToString();
+                    var child = nodeCollections.Nodes.Add("col_" + id, $"{name} ({count})");
+                    child.Tag = new TreeFilterInfo("collection", id);
+                }
+            }
+            catch { }
+
+            treeCategory.ExpandAll();
+            treeCategory.EndUpdate();
+
+            // Select "All" by default
+            treeCategory.SelectedNode = nodeAll;
+            treeCategory.AfterSelect += TreeCategory_AfterSelect;
+        }
+
+        private void TreeCategory_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (e.Node?.Tag == null) return;
+            var filter = e.Node.Tag as TreeFilterInfo;
+            if (filter == null || filter.FilterType == "header") return;
+
+            // Reset existing UI filters first
+            ClearUIFilters();
+
+            switch (filter.FilterType)
+            {
+                case "all":
+                    RefreshRequested?.Invoke(this, EventArgs.Empty);
+                    break;
+
+                case "subject":
+                    for (int i = 0; i < cboSubject.Items.Count; i++)
+                    {
+                        if (cboSubject.Items[i].ToString() == filter.FilterValue)
+                        {
+                            cboSubject.SelectedIndex = i;
+                            break;
+                        }
+                    }
+                    break;
+
+                case "type":
+                    for (int i = 0; i < cboType.Items.Count; i++)
+                    {
+                        if (cboType.Items[i].ToString() == filter.FilterValue)
+                        {
+                            cboType.SelectedIndex = i;
+                            break;
+                        }
+                    }
+                    break;
+
+                case "important":
+                    chkImportantOnly.Checked = true;
+                    FilterApplied?.Invoke(this, EventArgs.Empty);
+                    break;
+
+                case "collection":
+                    FilterByCollection(int.Parse(filter.FilterValue));
+                    break;
+            }
+        }
+
+        private void FilterByCollection(int collectionId)
+        {
+            try
+            {
+                string query = @"SELECT t.* FROM tai_lieu t
+                    INNER JOIN collection_items ci ON t.id = ci.document_id
+                    WHERE ci.collection_id = @collectionId AND (t.is_deleted IS NULL OR t.is_deleted = 0)
+                    ORDER BY t.ngay_them DESC";
+                var param = new System.Data.SQLite.SQLiteParameter("@collectionId", collectionId);
+                var dt = DatabaseHelper.ExecuteQuery(query, new[] { param });
+
+                var docs = new List<StudyDocument>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    docs.Add(new StudyDocument
+                    {
+                        Id = Convert.ToInt32(row["id"]),
+                        Ten = row["ten"]?.ToString(),
+                        MonHoc = row["mon_hoc"]?.ToString(),
+                        Loai = row["loai"]?.ToString(),
+                        DuongDan = row["duong_dan"]?.ToString(),
+                        GhiChu = row["ghi_chu"]?.ToString(),
+                        NgayThem = row["ngay_them"] != DBNull.Value ? Convert.ToDateTime(row["ngay_them"]) : DateTime.MinValue,
+                        KichThuoc = row["kich_thuoc"] != DBNull.Value ? Convert.ToDouble(row["kich_thuoc"]) : 0,
+                        TacGia = row["tac_gia"]?.ToString(),
+                        QuanTrong = row["quan_trong"] != DBNull.Value && Convert.ToInt32(row["quan_trong"]) == 1,
+                        Tags = row["tags"]?.ToString(),
+                        Deadline = row["deadline"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(row["deadline"]) : null
+                    });
+                }
+
+                var bindingList = new System.ComponentModel.BindingList<StudyDocument>(docs);
+                dgvDocuments.DataSource = bindingList;
+
+                if (dgvDocuments.Columns.Contains("id")) dgvDocuments.Columns["id"].DataPropertyName = "Id";
+                if (dgvDocuments.Columns.Contains("ten")) dgvDocuments.Columns["ten"].DataPropertyName = "Ten";
+                if (dgvDocuments.Columns.Contains("mon_hoc")) dgvDocuments.Columns["mon_hoc"].DataPropertyName = "MonHoc";
+                if (dgvDocuments.Columns.Contains("loai")) dgvDocuments.Columns["loai"].DataPropertyName = "Loai";
+                if (dgvDocuments.Columns.Contains("duong_dan")) dgvDocuments.Columns["duong_dan"].DataPropertyName = "DuongDan";
+                if (dgvDocuments.Columns.Contains("ghi_chu")) dgvDocuments.Columns["ghi_chu"].DataPropertyName = "GhiChu";
+                if (dgvDocuments.Columns.Contains("ngay_them")) dgvDocuments.Columns["ngay_them"].DataPropertyName = "NgayThem";
+                if (dgvDocuments.Columns.Contains("kich_thuoc")) dgvDocuments.Columns["kich_thuoc"].DataPropertyName = "KichThuoc";
+                if (dgvDocuments.Columns.Contains("tac_gia")) dgvDocuments.Columns["tac_gia"].DataPropertyName = "TacGia";
+                if (dgvDocuments.Columns.Contains("quan_trong")) dgvDocuments.Columns["quan_trong"].DataPropertyName = "QuanTrong";
+                if (dgvDocuments.Columns.Contains("tags")) dgvDocuments.Columns["tags"].DataPropertyName = "Tags";
+                if (dgvDocuments.Columns.Contains("deadline")) dgvDocuments.Columns["deadline"].DataPropertyName = "Deadline";
+                SetupDataGridView();
+
+                UpdateStatusCount(docs.Count);
+            }
+            catch (Exception ex)
+            {
+                ToastNotification.Error("Lỗi khi lọc bộ sưu tập: " + ex.Message);
+            }
+        }
+
+        private class TreeFilterInfo
+        {
+            public string FilterType { get; }
+            public string FilterValue { get; }
+
+            public TreeFilterInfo(string filterType, string filterValue)
+            {
+                FilterType = filterType;
+                FilterValue = filterValue;
+            }
+        }
+
+        #endregion
 
         private void SetupPreviewPanel()
         {
