@@ -158,13 +158,15 @@ namespace study_document_manager
         private void btn_chon_file_Click(object sender, EventArgs e)
         {
             OpenFileDialog open_file_dialog = new OpenFileDialog();
-            open_file_dialog.Filter = "All Files|*.pdf;*.doc;*.docx;*.ppt;*.pptx;*.txt;*.xlsx;*.xls|" +
-                                      "PDF Files (*.pdf)|*.pdf|" +
-                                      "Word Files (*.doc;*.docx)|*.doc;*.docx|" +
-                                      "PowerPoint Files (*.ppt;*.pptx)|*.ppt;*.pptx|" +
-                                      "Text Files (*.txt)|*.txt|" +
-                                      "Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls";
-            open_file_dialog.Title = "Chọn tài liệu";
+            open_file_dialog.Filter = "Tất cả file hỗ trợ|*.pdf;*.doc;*.docx;*.ppt;*.pptx;*.txt;*.xlsx;*.xls;*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.ico;*.tiff;*.webp;*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.webm;*.flv;*.m4v|" +
+                                      "Tài liệu|*.pdf;*.doc;*.docx;*.ppt;*.pptx;*.txt;*.xlsx;*.xls|" +
+                                      "Hình ảnh|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.ico;*.tiff;*.webp|" +
+                                      "Video|*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.webm;*.flv;*.m4v|" +
+                                      "PDF (*.pdf)|*.pdf|" +
+                                      "Word (*.doc;*.docx)|*.doc;*.docx|" +
+                                      "Excel (*.xlsx;*.xls)|*.xlsx;*.xls|" +
+                                      "PowerPoint (*.ppt;*.pptx)|*.ppt;*.pptx";
+            open_file_dialog.Title = "Chọn file";
 
             if (open_file_dialog.ShowDialog() == DialogResult.OK)
             {
@@ -175,6 +177,14 @@ namespace study_document_manager
                 if (string.IsNullOrWhiteSpace(txt_ten.Text))
                 {
                     txt_ten.Text = Path.GetFileNameWithoutExtension(duong_dan);
+                }
+
+                // Tự động nhận diện loại file
+                string ext = Path.GetExtension(duong_dan).ToLowerInvariant();
+                string detectedType = DetectFileType(ext);
+                if (!string.IsNullOrEmpty(detectedType))
+                {
+                    cbo_loai.SelectedItem = detectedType;
                 }
 
                 // Tính kích thước file
@@ -312,6 +322,31 @@ namespace study_document_manager
             // Inherit app icon from parent form
             if (this.Owner != null && this.Owner.Icon != null)
                 this.Icon = this.Owner.Icon;
+        }
+
+        private static string DetectFileType(string ext)
+        {
+            switch (ext)
+            {
+                case ".jpg": case ".jpeg": case ".png": case ".gif":
+                case ".bmp": case ".ico": case ".tiff": case ".webp":
+                    return "Hình ảnh";
+                case ".mp4": case ".avi": case ".mkv": case ".mov":
+                case ".wmv": case ".webm": case ".flv": case ".m4v":
+                    return "Video";
+                case ".pdf":
+                    return "Tài liệu";
+                case ".doc": case ".docx":
+                    return "Tài liệu";
+                case ".ppt": case ".pptx":
+                    return "Tài liệu";
+                case ".xls": case ".xlsx":
+                    return "Tài liệu";
+                case ".txt":
+                    return "Tài liệu";
+                default:
+                    return null;
+            }
         }
 
         /// <summary>

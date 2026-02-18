@@ -177,6 +177,10 @@ namespace study_document_manager
 
                 if (dt.Rows.Count == 0)
                 {
+                    chart.Series.Clear();
+                    chart.ChartAreas.Clear();
+                    chart.Titles.Clear();
+                    chart.Legends.Clear();
                     ToastNotification.Info("Không có dữ liệu để hiển thị thống kê!");
                     return;
                 }
@@ -189,7 +193,7 @@ namespace study_document_manager
                 lblTotal.Text = $"Tổng: {total} tài liệu";
 
                 DrawChart(dt, "Danh mục", "Số lượng tài liệu theo danh mục");
-                
+
                 lblStatus.Text = "Đã tải thống kê theo danh mục";
             }
             catch (Exception ex)
@@ -203,11 +207,15 @@ namespace study_document_manager
             try
             {
                 currentStatType = "type";
-                
+
                 DataTable dt = DatabaseHelper.GetStatisticsByType();
 
                 if (dt.Rows.Count == 0)
                 {
+                    chart.Series.Clear();
+                    chart.ChartAreas.Clear();
+                    chart.Titles.Clear();
+                    chart.Legends.Clear();
                     ToastNotification.Info("Không có dữ liệu để hiển thị thống kê!");
                     return;
                 }
@@ -238,6 +246,10 @@ namespace study_document_manager
 
                 if (dt.Rows.Count == 0)
                 {
+                    chartTimeline.Series.Clear();
+                    chartTimeline.ChartAreas.Clear();
+                    chartTimeline.Titles.Clear();
+                    chartTimeline.Legends.Clear();
                     ToastNotification.Info("Không có dữ liệu timeline!");
                     return;
                 }
@@ -259,6 +271,10 @@ namespace study_document_manager
 
                 if (dt.Rows.Count == 0)
                 {
+                    chartTimeline.Series.Clear();
+                    chartTimeline.ChartAreas.Clear();
+                    chartTimeline.Titles.Clear();
+                    chartTimeline.Legends.Clear();
                     ToastNotification.Info("Không có dữ liệu theo tháng!");
                     return;
                 }

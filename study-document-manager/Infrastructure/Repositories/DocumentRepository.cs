@@ -48,7 +48,7 @@ namespace study_document_manager.Infrastructure.Repositories
 
         public List<StudyDocument> GetAll()
         {
-            return ExecuteAndMap("SELECT * FROM tai_lieu ORDER BY ngay_them DESC");
+            return ExecuteAndMap("SELECT * FROM tai_lieu WHERE (is_deleted IS NULL OR is_deleted = 0) ORDER BY ngay_them DESC");
         }
 
         public StudyDocument GetById(int id)
@@ -62,9 +62,10 @@ namespace study_document_manager.Infrastructure.Repositories
         public List<StudyDocument> Search(string keyword)
         {
              string query = @"SELECT * FROM tai_lieu
-                           WHERE ten LIKE @keyword
+                           WHERE (is_deleted IS NULL OR is_deleted = 0)
+                           AND (ten LIKE @keyword
                            OR mon_hoc LIKE @keyword
-                           OR ghi_chu LIKE @keyword
+                           OR ghi_chu LIKE @keyword)
                            ORDER BY ngay_them DESC";
 
              var parameters = new SQLiteParameter[] { new SQLiteParameter("@keyword", "%" + keyword + "%") };
@@ -73,7 +74,7 @@ namespace study_document_manager.Infrastructure.Repositories
 
         public List<StudyDocument> Filter(string subject, string type)
         {
-            string query = "SELECT * FROM tai_lieu WHERE 1=1";
+            string query = "SELECT * FROM tai_lieu WHERE (is_deleted IS NULL OR is_deleted = 0)";
             var parameters = new List<SQLiteParameter>();
 
             if (!string.IsNullOrEmpty(subject) && subject != "Tất cả")
@@ -100,7 +101,7 @@ namespace study_document_manager.Infrastructure.Repositories
              // Given the timeline, I will map the result of DatabaseHelper if possible, OR rewrite query here.
              // I will rewrite query here to be independent.
 
-            string baseQuery = @"SELECT * FROM tai_lieu WHERE 1=1";
+            string baseQuery = @"SELECT * FROM tai_lieu WHERE (is_deleted IS NULL OR is_deleted = 0)";
             List<SQLiteParameter> parameterList = new List<SQLiteParameter>();
 
             if (!string.IsNullOrWhiteSpace(keyword))

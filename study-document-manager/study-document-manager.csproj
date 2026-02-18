@@ -47,7 +47,9 @@
     <Reference Include="SQLitePCLRaw.provider.e_sqlite3, Version=3.0.2.2801, Culture=neutral, PublicKeyToken=9c301db686d0bd12, processorArchitecture=MSIL">
       <HintPath>..\packages\SQLitePCLRaw.provider.e_sqlite3.3.0.2\lib\net471\SQLitePCLRaw.provider.e_sqlite3.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
+    <Reference Include="System">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.dll</HintPath>
+    </Reference>
     <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
     </Reference>
@@ -90,6 +92,18 @@
     <Compile Include="Documents\AddEditForm.Designer.cs">
       <DependentUpon>AddEditForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Documents\DuplicateDetectionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Documents\BulkDeleteForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Documents\RelatedDocumentsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Documents\RecentFilesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Management\CategoryManagementForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -104,6 +118,9 @@
     </Compile>
     <Compile Include="Data\DatabaseHelper.cs" />
     <Compile Include="Data\DashboardStats.cs" />
+    <Compile Include="Documents\BatchImportForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Documents\Dashboard.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -139,6 +156,9 @@
     <Compile Include="UI\Controls\ModernTextBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="UI\Controls\DocumentPreviewPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Core\Entities\StudyDocument.cs" />
     <Compile Include="Core\Interfaces\IDashboardView.cs" />
     <Compile Include="Core\Interfaces\IDocumentRepository.cs" />
@@ -147,6 +167,9 @@
     <Compile Include="Services\AppVersion.cs" />
     <Compile Include="Services\UpdateChecker.cs" />
     <Compile Include="Services\UpdateInstaller.cs" />
+    <Compile Include="Management\RecycleBinForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Management\FileIntegrityCheckForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -234,6 +257,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\logo\icon\mp4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\logo\icons\icon-16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\logo\icons\icon-32.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\logo\icons\icon-48.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\logo\icons\icon-128.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\logo\icons\logo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

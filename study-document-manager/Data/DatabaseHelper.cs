@@ -143,6 +143,53 @@ namespace study_document_manager
                 {
                     cmd.ExecuteNonQuery();
                 }
+
+                // Migration: thêm cột is_deleted và deleted_at nếu chưa có
+                MigrateAddColumn(conn, "tai_lieu", "is_deleted", "INTEGER DEFAULT 0");
+                MigrateAddColumn(conn, "tai_lieu", "deleted_at", "DATETIME");
+
+                // Migration: bang recent_files
+                using (var cmd2 = new SQLiteCommand(@"
+                    CREATE TABLE IF NOT EXISTS recent_files (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        document_id INTEGER NOT NULL UNIQUE,
+                        opened_at DATETIME DEFAULT (datetime('now','localtime')),
+                        FOREIGN KEY (document_id) REFERENCES tai_lieu(id) ON DELETE CASCADE
+                    );", conn))
+                {
+                    cmd2.ExecuteNonQuery();
+                }
+
+                // Migration: bang document_relations
+                using (var cmd3 = new SQLiteCommand(@"
+                    CREATE TABLE IF NOT EXISTS document_relations (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        doc_id_1 INTEGER NOT NULL,
+                        doc_id_2 INTEGER NOT NULL,
+                        relation_type TEXT DEFAULT 'related',
+                        created_at DATETIME DEFAULT (datetime('now','localtime')),
+                        FOREIGN KEY (doc_id_1) REFERENCES tai_lieu(id) ON DELETE CASCADE,
+                        FOREIGN KEY (doc_id_2) REFERENCES tai_lieu(id) ON DELETE CASCADE,
+                        UNIQUE(doc_id_1, doc_id_2)
+                    );", conn))
+                {
+                    cmd3.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void MigrateAddColumn(SQLiteConnection conn, string table, string column, string type)
+        {
+            try
+            {
+                using (var cmd = new SQLiteCommand($"ALTER TABLE {table} ADD COLUMN {column} {type}", conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (SQLiteException)
+            {
+                // Column already exists — ignore
             }
         }
 
@@ -261,7 +308,7 @@ namespace study_document_manager
         /// </summary>
         public static DataTable GetAllDocuments()
         {
-            string query = "SELECT * FROM tai_lieu ORDER BY ngay_them DESC";
+            string query = "SELECT * FROM tai_lieu WHERE (is_deleted IS NULL OR is_deleted = 0) ORDER BY ngay_them DESC";
             return ExecuteQuery(query);
         }
 
@@ -279,9 +326,10 @@ namespace study_document_manager
         public static DataTable SearchDocuments(string keyword)
         {
             string query = @"SELECT * FROM tai_lieu
-                           WHERE ten LIKE @keyword
+                           WHERE (is_deleted IS NULL OR is_deleted = 0)
+                           AND (ten LIKE @keyword
                            OR mon_hoc LIKE @keyword
-                           OR ghi_chu LIKE @keyword
+                           OR ghi_chu LIKE @keyword)
                            ORDER BY ngay_them DESC";
 
             SQLiteParameter[] parameters = new SQLiteParameter[]
@@ -334,7 +382,7 @@ namespace study_document_manager
             bool? isImportant = null,
             int? creatorUserId = null)
         {
-            string baseQuery = @"SELECT * FROM tai_lieu WHERE 1=1";
+            string baseQuery = @"SELECT * FROM tai_lieu WHERE (is_deleted IS NULL OR is_deleted = 0)";
 
             List<SQLiteParameter> parameterList = new List<SQLiteParameter>();
 
@@ -472,7 +520,7 @@ namespace study_document_manager
         /// </summary>
         public static bool DeleteDocument(int id)
         {
-            string query = "DELETE FROM tai_lieu WHERE id = @id";
+            string query = "UPDATE tai_lieu SET is_deleted = 1, deleted_at = datetime('now','localtime') WHERE id = @id";
 
             SQLiteParameter[] parameters = new SQLiteParameter[]
             {
@@ -689,10 +737,10 @@ namespace study_document_manager
         /// </summary>
         public static DataTable GetStatisticsBySubject()
         {
-            string query = @"SELECT mon_hoc, COUNT(*) as so_luong
+            string query = @"SELECT COALESCE(NULLIF(mon_hoc, ''), 'Chưa phân loại') as mon_hoc, COUNT(*) as so_luong
                            FROM tai_lieu
-                           WHERE mon_hoc IS NOT NULL
-                           GROUP BY mon_hoc
+                           WHERE (is_deleted IS NULL OR is_deleted = 0)
+                           GROUP BY COALESCE(NULLIF(mon_hoc, ''), 'Chưa phân loại')
                            ORDER BY so_luong DESC";
 
             return ExecuteQuery(query);
@@ -703,10 +751,10 @@ namespace study_document_manager
         /// </summary>
         public static DataTable GetStatisticsByType()
         {
-            string query = @"SELECT loai, COUNT(*) as so_luong
+            string query = @"SELECT COALESCE(NULLIF(loai, ''), 'Chưa phân loại') as loai, COUNT(*) as so_luong
                            FROM tai_lieu
-                           WHERE loai IS NOT NULL
-                           GROUP BY loai
+                           WHERE (is_deleted IS NULL OR is_deleted = 0)
+                           GROUP BY COALESCE(NULLIF(loai, ''), 'Chưa phân loại')
                            ORDER BY so_luong DESC";
 
             return ExecuteQuery(query);
@@ -717,7 +765,7 @@ namespace study_document_manager
         /// </summary>
         public static int GetTotalDocumentCount()
         {
-            string query = "SELECT COUNT(*) FROM tai_lieu";
+            string query = "SELECT COUNT(*) FROM tai_lieu WHERE (is_deleted IS NULL OR is_deleted = 0)";
             object result = ExecuteScalar(query);
             return result != null ? Convert.ToInt32(result) : 0;
         }
@@ -732,23 +780,24 @@ namespace study_document_manager
             var stats = new DashboardStats();
 
             // Tổng tài liệu
-            string totalQuery = "SELECT COUNT(*) FROM tai_lieu";
+            string totalQuery = "SELECT COUNT(*) FROM tai_lieu WHERE (is_deleted IS NULL OR is_deleted = 0)";
             object totalResult = ExecuteScalar(totalQuery);
             stats.TotalDocuments = totalResult != null ? Convert.ToInt32(totalResult) : 0;
 
             // Tài liệu quan trọng
-            string importantQuery = "SELECT COUNT(*) FROM tai_lieu WHERE quan_trong = 1";
+            string importantQuery = "SELECT COUNT(*) FROM tai_lieu WHERE quan_trong = 1 AND (is_deleted IS NULL OR is_deleted = 0)";
             object importantResult = ExecuteScalar(importantQuery);
             stats.ImportantDocuments = importantResult != null ? Convert.ToInt32(importantResult) : 0;
 
             // Tài liệu chưa có file
-            string noFileQuery = "SELECT COUNT(*) FROM tai_lieu WHERE duong_dan IS NULL OR duong_dan = ''";
+            string noFileQuery = "SELECT COUNT(*) FROM tai_lieu WHERE (is_deleted IS NULL OR is_deleted = 0) AND (duong_dan IS NULL OR duong_dan = '')";
             object noFileResult = ExecuteScalar(noFileQuery);
             stats.NoFileDocuments = noFileResult != null ? Convert.ToInt32(noFileResult) : 0;
 
             // Tài liệu gần deadline (trong 7 ngày tới)
             string nearDeadlineQuery = @"SELECT COUNT(*) FROM tai_lieu
                                         WHERE deadline IS NOT NULL
+                                        AND (is_deleted IS NULL OR is_deleted = 0)
                                         AND date(deadline) >= date('now', 'localtime')
                                         AND date(deadline) <= date('now', 'localtime', '+7 days')";
             object nearDeadlineResult = ExecuteScalar(nearDeadlineQuery);
@@ -757,12 +806,13 @@ namespace study_document_manager
             // Tài liệu quá hạn
             string overdueQuery = @"SELECT COUNT(*) FROM tai_lieu
                                    WHERE deadline IS NOT NULL
+                                   AND (is_deleted IS NULL OR is_deleted = 0)
                                    AND date(deadline) < date('now', 'localtime')";
             object overdueResult = ExecuteScalar(overdueQuery);
             stats.OverdueDocuments = overdueResult != null ? Convert.ToInt32(overdueResult) : 0;
 
             // Số danh mục
-            string categoryQuery = "SELECT COUNT(DISTINCT mon_hoc) FROM tai_lieu WHERE mon_hoc IS NOT NULL AND mon_hoc != ''";
+            string categoryQuery = "SELECT COUNT(DISTINCT mon_hoc) FROM tai_lieu WHERE mon_hoc IS NOT NULL AND mon_hoc != '' AND (is_deleted IS NULL OR is_deleted = 0)";
             object categoryResult = ExecuteScalar(categoryQuery);
             stats.TotalCategories = categoryResult != null ? Convert.ToInt32(categoryResult) : 0;
 
@@ -794,6 +844,7 @@ namespace study_document_manager
                     COALESCE(COUNT(t.id), 0) as so_luong
                 FROM DateSeries ds
                 LEFT JOIN tai_lieu t ON date(t.ngay_them) = ds.ngay
+                    AND (t.is_deleted IS NULL OR t.is_deleted = 0)
                 GROUP BY ds.ngay
                 ORDER BY ds.ngay ASC";
 
@@ -824,6 +875,7 @@ namespace study_document_manager
                     COALESCE(COUNT(t.id), 0) as so_luong
                 FROM MonthSeries ms
                 LEFT JOIN tai_lieu t ON strftime('%Y-%m', t.ngay_them) = strftime('%Y-%m', ms.thang)
+                    AND (t.is_deleted IS NULL OR t.is_deleted = 0)
                 GROUP BY ms.thang
                 ORDER BY ms.thang ASC";
 
@@ -1007,6 +1059,156 @@ namespace study_document_manager
             };
 
             return ExecuteNonQuery(query, parameters) > 0;
+        }
+
+        #endregion
+
+        #region Recycle Bin Methods
+
+        public static DataTable GetDeletedDocuments()
+        {
+            string query = "SELECT * FROM tai_lieu WHERE is_deleted = 1 ORDER BY deleted_at DESC";
+            return ExecuteQuery(query);
+        }
+
+        public static bool RestoreDocument(int id)
+        {
+            string query = "UPDATE tai_lieu SET is_deleted = 0, deleted_at = NULL WHERE id = @id";
+            return ExecuteNonQuery(query, new SQLiteParameter[] { new SQLiteParameter("@id", id) }) > 0;
+        }
+
+        public static bool PermanentDeleteDocument(int id)
+        {
+            string query = "DELETE FROM tai_lieu WHERE id = @id";
+            return ExecuteNonQuery(query, new SQLiteParameter[] { new SQLiteParameter("@id", id) }) > 0;
+        }
+
+        public static int EmptyRecycleBin()
+        {
+            string query = "DELETE FROM tai_lieu WHERE is_deleted = 1";
+            return ExecuteNonQuery(query);
+        }
+
+        public static int GetDeletedDocumentCount()
+        {
+            string query = "SELECT COUNT(*) FROM tai_lieu WHERE is_deleted = 1";
+            object result = ExecuteScalar(query);
+            return result != null ? Convert.ToInt32(result) : 0;
+        }
+
+        #endregion
+
+        #region Bulk Actions
+
+        public static int BulkSoftDelete(List<int> ids)
+        {
+            if (ids == null || ids.Count == 0) return 0;
+            string idList = string.Join(",", ids);
+            string query = $"UPDATE tai_lieu SET is_deleted = 1, deleted_at = datetime('now','localtime') WHERE id IN ({idList})";
+            return ExecuteNonQuery(query);
+        }
+
+        public static int BulkUpdateSubject(List<int> ids, string subject)
+        {
+            if (ids == null || ids.Count == 0) return 0;
+            string idList = string.Join(",", ids);
+            string query = $"UPDATE tai_lieu SET mon_hoc = @subject WHERE id IN ({idList})";
+            return ExecuteNonQuery(query, new SQLiteParameter[] { new SQLiteParameter("@subject", subject ?? "") });
+        }
+
+        public static int BulkToggleImportant(List<int> ids, bool important)
+        {
+            if (ids == null || ids.Count == 0) return 0;
+            string idList = string.Join(",", ids);
+            string query = $"UPDATE tai_lieu SET quan_trong = @val WHERE id IN ({idList})";
+            return ExecuteNonQuery(query, new SQLiteParameter[] { new SQLiteParameter("@val", important ? 1 : 0) });
+        }
+
+        #endregion
+
+        #region Recent Files Methods
+
+        public static void AddRecentFile(int documentId)
+        {
+            string upsert = @"INSERT OR REPLACE INTO recent_files (document_id, opened_at)
+                              VALUES (@docId, datetime('now','localtime'))";
+            ExecuteNonQuery(upsert, new SQLiteParameter[] { new SQLiteParameter("@docId", documentId) });
+
+            // Keep only 20 most recent
+            string trim = @"DELETE FROM recent_files WHERE id NOT IN
+                            (SELECT id FROM recent_files ORDER BY opened_at DESC LIMIT 20)";
+            ExecuteNonQuery(trim);
+        }
+
+        public static DataTable GetRecentFiles()
+        {
+            string query = @"SELECT t.id, t.ten, t.mon_hoc, t.loai, t.duong_dan, r.opened_at
+                             FROM recent_files r
+                             INNER JOIN tai_lieu t ON r.document_id = t.id
+                             WHERE (t.is_deleted IS NULL OR t.is_deleted = 0)
+                             ORDER BY r.opened_at DESC
+                             LIMIT 20";
+            return ExecuteQuery(query);
+        }
+
+        public static void RemoveRecentFile(int documentId)
+        {
+            ExecuteNonQuery("DELETE FROM recent_files WHERE document_id = @docId",
+                new SQLiteParameter[] { new SQLiteParameter("@docId", documentId) });
+        }
+
+        public static void ClearRecentFiles()
+        {
+            ExecuteNonQuery("DELETE FROM recent_files");
+        }
+
+        #endregion
+
+        #region Backup & Restore Methods
+
+        public static void BackupDatabase(string destPath)
+        {
+            File.Copy(DatabasePath, destPath, true);
+        }
+
+        public static void RestoreDatabase(string srcPath)
+        {
+            File.Copy(srcPath, DatabasePath, true);
+        }
+
+        #endregion
+
+        #region Related Documents Methods
+
+        public static void AddDocumentRelation(int docId1, int docId2, string relationType = "related")
+        {
+            int lo = Math.Min(docId1, docId2);
+            int hi = Math.Max(docId1, docId2);
+            string query = @"INSERT OR IGNORE INTO document_relations (doc_id_1, doc_id_2, relation_type)
+                             VALUES (@d1, @d2, @type)";
+            ExecuteNonQuery(query, new SQLiteParameter[]
+            {
+                new SQLiteParameter("@d1", lo),
+                new SQLiteParameter("@d2", hi),
+                new SQLiteParameter("@type", relationType)
+            });
+        }
+
+        public static DataTable GetRelatedDocuments(int docId)
+        {
+            string query = @"SELECT t.id, t.ten, t.mon_hoc, t.loai, t.duong_dan, r.relation_type, r.id as relation_id
+                             FROM document_relations r
+                             INNER JOIN tai_lieu t ON (t.id = CASE WHEN r.doc_id_1 = @docId THEN r.doc_id_2 ELSE r.doc_id_1 END)
+                             WHERE (r.doc_id_1 = @docId OR r.doc_id_2 = @docId)
+                             AND t.is_deleted = 0
+                             ORDER BY t.ten";
+            return ExecuteQuery(query, new SQLiteParameter[] { new SQLiteParameter("@docId", docId) });
+        }
+
+        public static void RemoveDocumentRelation(int relationId)
+        {
+            ExecuteNonQuery("DELETE FROM document_relations WHERE id = @id",
+                new SQLiteParameter[] { new SQLiteParameter("@id", relationId) });
         }
 
         #endregion
