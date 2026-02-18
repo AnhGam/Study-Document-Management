@@ -393,6 +393,7 @@ namespace study_document_manager.UI
                 dgv.Columns["Icon"].MinimumWidth = 40;
                 dgv.Columns["Icon"].Resizable = DataGridViewTriState.False;
             }
+
         }
 
         // ===================================================================

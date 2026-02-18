@@ -38,6 +38,9 @@ namespace study_document_manager
         public event EventHandler<string> OpenFileRequested;
         public event EventHandler ExportRequested;
 
+        private study_document_manager.UI.Controls.DocumentPreviewPanel previewPanel;
+        private SplitContainer splitPreview;
+
         public Dashboard()
         {
             InitializeComponent();
@@ -54,9 +57,13 @@ namespace study_document_manager
             CreateManagementMenu();
             SetupDataGridView();
             EnableDragDrop();
+            SetupContextMenu();
 
             // Context menu logic
             AddPersonalNoteContextMenu();
+
+            // Preview panel (hidden by default)
+            SetupPreviewPanel();
         }
 
         private void AddPersonalNoteContextMenu()
@@ -107,18 +114,153 @@ namespace study_document_manager
             chkImportantOnly.Checked = false;
         }
 
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Control | Keys.N:
+                    btn_them_Click(null, null);
+                    return true;
+                case Keys.Control | Keys.F:
+                    txtSearch.Focus();
+                    txtSearch.SelectAll();
+                    return true;
+                case Keys.Delete:
+                    if (dgvDocuments.Focused && dgvDocuments.SelectedRows.Count > 0)
+                    {
+                        btn_xoa_Click(null, null);
+                        return true;
+                    }
+                    break;
+                case Keys.F5:
+                    TriggerRefresh();
+                    return true;
+                case Keys.Control | Keys.E:
+                    btn_xuat_Click(null, null);
+                    return true;
+                case Keys.Control | Keys.O:
+                    OpenSelectedFile();
+                    return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             ApplyTheme();
             this.Text = "Study Document Manager - Professional Edition";
 
+            // Load app icon for taskbar & title bar
+            try
+            {
+                string iconPath = System.IO.Path.Combine(Application.StartupPath, "assets", "logo", "icons", "icon-48.png");
+                if (System.IO.File.Exists(iconPath))
+                {
+                    using (var bmp = new System.Drawing.Bitmap(iconPath))
+                    {
+                        this.Icon = System.Drawing.Icon.FromHandle(bmp.GetHicon());
+                    }
+                }
+            }
+            catch { }
+
             // Icons
             toolBtnNew.Image = IconHelper.CreateAddIcon(16, AppTheme.StatusSuccess);
+            toolBtnNew.ToolTipText = "Thêm tài liệu (Ctrl+N)";
             toolBtnEdit.Image = IconHelper.CreateEditIcon(16, AppTheme.Primary);
+            toolBtnEdit.ToolTipText = "Sửa tài liệu";
             toolBtnDelete.Image = IconHelper.CreateDeleteIcon(16, AppTheme.StatusError);
+            toolBtnDelete.ToolTipText = "Xóa tài liệu (Del)";
             toolBtnOpen.Image = IconHelper.CreateOpenIcon(16, AppTheme.AccentSky);
+            toolBtnOpen.ToolTipText = "Mở file (Ctrl+O)";
             toolBtnExport.Image = IconHelper.CreateExportIcon(16, AppTheme.AccentOrange);
+            toolBtnExport.ToolTipText = "Xuất CSV (Ctrl+E)";
             toolBtnRefresh.Image = IconHelper.CreateRefreshIcon(16, AppTheme.Secondary);
+            toolBtnRefresh.ToolTipText = "Làm mới (F5)";
+
+            // Add Import & Recycle Bin buttons to toolbar
+            toolStrip.Items.Add(new ToolStripSeparator());
+
+            var toolBtnImport = new ToolStripButton
+            {
+                Text = "Import",
+                Image = IconHelper.CreateAddIcon(16, AppTheme.StatusSuccess),
+                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
+                ToolTipText = "Import tài liệu từ thư mục"
+            };
+            toolBtnImport.Click += (s, ev) => { new Documents.BatchImportForm().ShowDialog(); TriggerRefresh(); };
+            toolStrip.Items.Add(toolBtnImport);
+
+            var toolBtnRecycleBin = new ToolStripButton
+            {
+                Text = "Thùng rác",
+                Image = IconHelper.CreateDeleteIcon(16, AppTheme.StatusWarning),
+                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
+                ToolTipText = "Mở thùng rác"
+            };
+            toolBtnRecycleBin.Click += (s, ev) => { new Management.RecycleBinForm().ShowDialog(); TriggerRefresh(); };
+            toolStrip.Items.Add(toolBtnRecycleBin);
+
+            var toolBtnBulkOps = new ToolStripButton
+            {
+                Text = "Hàng loạt",
+                Image = IconHelper.CreateEditIcon(16, AppTheme.StatusInfo),
+                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
+                ToolTipText = "Quản lý hàng loạt (xóa, đổi môn học, đánh dấu)"
+            };
+            toolBtnBulkOps.Click += (s, ev) =>
+            {
+                using (var form = new study_document_manager.Documents.BulkDeleteForm())
+                {
+                    form.ShowDialog(this);
+                    if (form.DataChanged) TriggerRefresh();
+                }
+            };
+            toolStrip.Items.Add(toolBtnBulkOps);
+
+            // Thêm nút Mở gần đây
+            var toolBtnRecent = new ToolStripButton
+            {
+                Text = "Gần đây",
+                Image = IconHelper.CreateOpenIcon(16, AppTheme.AccentSky),
+                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
+                ToolTipText = "Xem tài liệu mở gần đây"
+            };
+            toolBtnRecent.Click += (s, ev) => { new study_document_manager.Documents.RecentFilesForm().ShowDialog(); };
+            toolStrip.Items.Add(toolBtnRecent);
+
+            // Thêm nút Sao lưu
+            var toolBtnBackup = new ToolStripButton
+            {
+                Text = "Sao lưu",
+                Image = IconHelper.CreateExportIcon(16, AppTheme.StatusInfo),
+                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
+                ToolTipText = "Sao lưu nhanh database"
+            };
+            toolBtnBackup.Click += menuBackup_Click;
+            toolStrip.Items.Add(toolBtnBackup);
+
+            // Thêm nút Trùng lặp
+            var toolBtnDuplicates = new ToolStripButton
+            {
+                Text = "Trùng lặp",
+                Image = IconHelper.CreateRefreshIcon(16, AppTheme.StatusWarning),
+                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
+                ToolTipText = "Phát hiện file trùng lặp"
+            };
+            toolBtnDuplicates.Click += (s, ev) => { new study_document_manager.Documents.DuplicateDetectionForm().ShowDialog(); TriggerRefresh(); };
+            toolStrip.Items.Add(toolBtnDuplicates);
+
+            // Thêm nút Thống kê
+            var toolBtnStats = new ToolStripButton
+            {
+                Text = "Thống kê",
+                Image = IconHelper.CreateChartIcon(16, AppTheme.Primary),
+                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
+                ToolTipText = "Xem thống kê tài liệu"
+            };
+            toolBtnStats.Click += btn_thong_ke_Click;
+            toolStrip.Items.Add(toolBtnStats);
 
             HideCreatorFilter();
 
@@ -262,7 +404,6 @@ namespace study_document_manager
                         MinimumWidth = 24,
                         AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                         ImageLayout = DataGridViewImageCellLayout.Zoom,
-                        DisplayIndex = 0,
                         Resizable = DataGridViewTriState.False
                     };
                     dgvDocuments.Columns.Insert(0, iconColumn);
@@ -296,7 +437,27 @@ namespace study_document_manager
             // Styling
             AppTheme.ApplyDataGridViewStyle(dgvDocuments);
 
-            // Register CellFormatting event for icons
+            // Allow checkbox interaction for QuanTrong
+            dgvDocuments.ReadOnly = false;
+            foreach (DataGridViewColumn col in dgvDocuments.Columns)
+            {
+                col.ReadOnly = (col.Name != "QuanTrong");
+            }
+
+            // Fix QuanTrong padding for proper checkbox rendering
+            if (dgvDocuments.Columns.Contains("QuanTrong"))
+            {
+                dgvDocuments.Columns["QuanTrong"].DefaultCellStyle.Padding = new Padding(0);
+                dgvDocuments.Columns["QuanTrong"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            // Force Icon to be first column
+            if (dgvDocuments.Columns.Contains("Icon"))
+            {
+                dgvDocuments.Columns["Icon"].DisplayIndex = 0;
+            }
+
+            // Register events (unsubscribe first to prevent duplicates)
             dgvDocuments.CellFormatting -= dgvDocuments_CellFormatting;
             dgvDocuments.CellFormatting += dgvDocuments_CellFormatting;
         }
@@ -393,6 +554,7 @@ namespace study_document_manager
                     try {
                         System.Diagnostics.Process.Start(doc.DuongDan);
                         lblStatus.Text = "Đã mở file: " + doc.Ten;
+                        try { DatabaseHelper.AddRecentFile(doc.Id); } catch { }
                     } catch (Exception ex) { ShowError(ex.Message); }
                 }
                 else
@@ -416,6 +578,7 @@ namespace study_document_manager
             try
             {
                 string colName = dgvDocuments.Columns[e.ColumnIndex].Name;
+
                 var doc = dgvDocuments.Rows[e.RowIndex].DataBoundItem as StudyDocument;
                 if (doc == null) return;
 
@@ -672,6 +835,8 @@ namespace study_document_manager
             lblStatus.Text = "Tài liệu quá hạn";
         }
         private void menuCollections_Click(object sender, EventArgs e) { new CollectionManagementForm().ShowDialog(); }
+        private void menuRecycleBin_Click(object sender, EventArgs e) { new Management.RecycleBinForm().ShowDialog(); TriggerRefresh(); }
+        private void menuBatchImport_Click(object sender, EventArgs e) { new Documents.BatchImportForm().ShowDialog(); TriggerRefresh(); }
         private void menuFileExit_Click(object sender, EventArgs e) => Application.Exit();
         private void menuHelpAbout_Click(object sender, EventArgs e)
         {
@@ -725,7 +890,7 @@ namespace study_document_manager
 
                 var lblStudent = new Label
                 {
-                    Text = "Sinh viên thực hiện: Vũ Đức Dũng (hayato-shino05) - TT601-K14\nCán bộ hướng dẫn: Lê Thị Mai",
+                    Text = "Sinh viên thực hiện: Vũ Đức Dũng - TT601-K14\nCán bộ hướng dẫn: Lê Thị Mai",
                     Font = AppTheme.FontSmall,
                     ForeColor = AppTheme.TextPrimary,
                     Location = new Point(32, 170),
@@ -800,7 +965,8 @@ namespace study_document_manager
                             writer.WriteLine("Tên tài liệu,Môn học,Loại,Tác giả,Ngày thêm,Kích thước (MB),Quan trọng,Tags,Deadline,Đường dẫn");
 
                             // Data from current binding
-                            var docs = dgvDocuments.DataSource as List<StudyDocument>;
+                            var docs = dgvDocuments.DataSource as System.ComponentModel.BindingList<StudyDocument>
+                                      ?? (System.Collections.IEnumerable)dgvDocuments.DataSource as System.Collections.Generic.IEnumerable<StudyDocument>;
                             if (docs != null)
                             {
                                 foreach (var doc in docs)
@@ -822,8 +988,12 @@ namespace study_document_manager
                             }
                         }
 
+                        int exportedCount = 0;
+                        if (dgvDocuments.DataSource is System.ComponentModel.BindingList<StudyDocument> bl) exportedCount = bl.Count;
+                        else if (dgvDocuments.DataSource is List<StudyDocument> ll) exportedCount = ll.Count;
+
                         var openResult = MessageBox.Show(
-                            $"Đã xuất thành công {(dgvDocuments.DataSource as List<StudyDocument>)?.Count ?? 0} tài liệu!\n\nBạn có muốn mở file?",
+                            $"Đã xuất thành công {exportedCount} tài liệu!\n\nBạn có muốn mở file?",
                             "Xuất dữ liệu",
                             MessageBoxButtons.YesNo,
                             MessageBoxIcon.Information);
@@ -870,9 +1040,40 @@ namespace study_document_manager
                         if (menuView != null)
                         {
                             menuView.DropDownItems.Add(new ToolStripSeparator());
+
+                            ToolStripMenuItem menuBulkOps = new ToolStripMenuItem("Quản lý hàng loạt...");
+                            menuBulkOps.Click += (s, ev) =>
+                            {
+                                using (var form = new study_document_manager.Documents.BulkDeleteForm())
+                                {
+                                    form.ShowDialog(this);
+                                    if (form.DataChanged) TriggerRefresh();
+                                }
+                            };
+                            menuView.DropDownItems.Add(menuBulkOps);
+
                             ToolStripMenuItem menuCheckFiles = new ToolStripMenuItem("Kiểm tra file bị thiếu");
                             menuCheckFiles.Click += menuCheckFiles_Click;
                             menuView.DropDownItems.Add(menuCheckFiles);
+
+                            ToolStripMenuItem menuBatchImport = new ToolStripMenuItem("Import từ thư mục...");
+                            menuBatchImport.Click += menuBatchImport_Click;
+                            menuView.DropDownItems.Add(menuBatchImport);
+
+                            ToolStripMenuItem menuDuplicates = new ToolStripMenuItem("Phát hiện file trùng lặp");
+                            menuDuplicates.Click += (s, ev) => { new study_document_manager.Documents.DuplicateDetectionForm().ShowDialog(); TriggerRefresh(); };
+                            menuView.DropDownItems.Add(menuDuplicates);
+
+                            // Backup & Restore
+                            menuView.DropDownItems.Add(new ToolStripSeparator());
+
+                            ToolStripMenuItem menuBackup = new ToolStripMenuItem("Sao lưu database...");
+                            menuBackup.Click += menuBackup_Click;
+                            menuView.DropDownItems.Add(menuBackup);
+
+                            ToolStripMenuItem menuRestore = new ToolStripMenuItem("Khôi phục database...");
+                            menuRestore.Click += menuRestore_Click;
+                            menuView.DropDownItems.Add(menuRestore);
                         }
 
                         // Tạo Menu Theo dõi
@@ -891,6 +1092,18 @@ namespace study_document_manager
                         ToolStripMenuItem menuCollections = new ToolStripMenuItem("Quản lý bộ sưu tập");
                         menuCollections.Click += menuCollections_Click;
                         menuTracking.DropDownItems.Add(menuCollections);
+
+                        menuTracking.DropDownItems.Add(new ToolStripSeparator());
+
+                        ToolStripMenuItem menuRecycleBin = new ToolStripMenuItem("Thùng rác");
+                        menuRecycleBin.Click += menuRecycleBin_Click;
+                        menuTracking.DropDownItems.Add(menuRecycleBin);
+
+                        // Recent Files submenu
+                        menuTracking.DropDownItems.Add(new ToolStripSeparator());
+                        ToolStripMenuItem menuRecent = new ToolStripMenuItem("Mở gần đây");
+                        menuRecent.DropDownOpening += (s, ev) => PopulateRecentFilesMenu(menuRecent);
+                        menuTracking.DropDownItems.Add(menuRecent);
 
                         // Thêm vào MenuStrip (trước Help hoặc cuối cùng)
                         int helpIndex = -1;
@@ -914,6 +1127,172 @@ namespace study_document_manager
             {
                 System.Diagnostics.Debug.WriteLine("Error creating menu: " + ex.Message);
             }
+        }
+
+        private void PopulateRecentFilesMenu(ToolStripMenuItem menu)
+        {
+            menu.DropDownItems.Clear();
+            try
+            {
+                var dt = DatabaseHelper.GetRecentFiles();
+                if (dt.Rows.Count == 0)
+                {
+                    var empty = new ToolStripMenuItem("(Không có file nào)") { Enabled = false };
+                    menu.DropDownItems.Add(empty);
+                    return;
+                }
+                foreach (DataRow row in dt.Rows)
+                {
+                    string name = row["ten"].ToString();
+                    string path = row["duong_dan"].ToString();
+                    var item = new ToolStripMenuItem(name);
+                    item.Click += (s, ev) =>
+                    {
+                        if (File.Exists(path))
+                            System.Diagnostics.Process.Start(path);
+                        else
+                            ShowError("File không tồn tại: " + path);
+                    };
+                    menu.DropDownItems.Add(item);
+                }
+                menu.DropDownItems.Add(new ToolStripSeparator());
+                var clearItem = new ToolStripMenuItem("Xóa lịch sử");
+                clearItem.Click += (s, ev) => { DatabaseHelper.ClearRecentFiles(); };
+                menu.DropDownItems.Add(clearItem);
+            }
+            catch { }
+        }
+
+        private void menuBackup_Click(object sender, EventArgs e)
+        {
+            using (var sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "SQLite Database|*.db";
+                sfd.FileName = $"study_documents_backup_{DateTime.Now:yyyyMMdd_HHmmss}.db";
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        DatabaseHelper.BackupDatabase(sfd.FileName);
+                        ToastNotification.Success("Đã sao lưu thành công!");
+                    }
+                    catch (Exception ex) { ShowError("Lỗi sao lưu: " + ex.Message); }
+                }
+            }
+        }
+
+        private void menuRestore_Click(object sender, EventArgs e)
+        {
+            var confirm = MessageBox.Show(
+                "Khôi phục database sẽ thay thế toàn bộ dữ liệu hiện tại.\nBạn có chắc muốn tiếp tục?\n\nỨng dụng sẽ đóng lại sau khi khôi phục.",
+                "Xác nhận khôi phục",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (confirm != DialogResult.Yes) return;
+
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "SQLite Database|*.db";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        DatabaseHelper.RestoreDatabase(ofd.FileName);
+                        MessageBox.Show("Khôi phục thành công! Ứng dụng sẽ khởi động lại.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        Application.Restart();
+                    }
+                    catch (Exception ex) { ShowError("Lỗi khôi phục: " + ex.Message); }
+                }
+            }
+        }
+
+        private void SetupPreviewPanel()
+        {
+            previewPanel = new study_document_manager.UI.Controls.DocumentPreviewPanel();
+
+            // Find the DataGridView's parent and wrap in SplitContainer
+            var dgvParent = dgvDocuments.Parent;
+            if (dgvParent == null) return;
+
+            splitPreview = new SplitContainer
+            {
+                Dock = DockStyle.Fill,
+                Orientation = Orientation.Vertical,
+                SplitterDistance = (int)(dgvParent.Width * 0.65),
+                Panel2Collapsed = true,
+                BorderStyle = BorderStyle.None,
+                SplitterWidth = 4
+            };
+
+            int dgvIndex = dgvParent.Controls.GetChildIndex(dgvDocuments);
+            dgvParent.Controls.Remove(dgvDocuments);
+
+            splitPreview.Panel1.Controls.Add(dgvDocuments);
+            dgvDocuments.Dock = DockStyle.Fill;
+
+            splitPreview.Panel2.Controls.Add(previewPanel);
+
+            dgvParent.Controls.Add(splitPreview);
+            dgvParent.Controls.SetChildIndex(splitPreview, dgvIndex);
+
+            // Auto show/hide preview based on file type
+            dgvDocuments.SelectionChanged += (s, ev) =>
+            {
+                UpdatePreview();
+            };
+        }
+
+        private static readonly string[] PreviewableExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".ico", ".tiff", ".tif", ".webp", ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".webm", ".flv", ".m4v" };
+
+        private void UpdatePreview()
+        {
+            if (previewPanel == null || splitPreview == null) return;
+
+            if (dgvDocuments.SelectedRows.Count == 0)
+            {
+                splitPreview.Panel2Collapsed = true;
+                previewPanel.ClearPreview();
+                return;
+            }
+
+            var doc = dgvDocuments.SelectedRows[0].DataBoundItem as study_document_manager.Core.Entities.StudyDocument;
+            if (doc == null || string.IsNullOrEmpty(doc.DuongDan))
+            {
+                splitPreview.Panel2Collapsed = true;
+                previewPanel.ClearPreview();
+                return;
+            }
+
+            string ext = System.IO.Path.GetExtension(doc.DuongDan).ToLowerInvariant();
+            bool isMedia = Array.Exists(PreviewableExtensions, e => e == ext);
+
+            if (isMedia)
+            {
+                splitPreview.Panel2Collapsed = false;
+                previewPanel.LoadPreview(doc.DuongDan, doc.Ten);
+            }
+            else
+            {
+                splitPreview.Panel2Collapsed = true;
+                previewPanel.ClearPreview();
+            }
+        }
+
+        private void SetupContextMenu()
+        {
+            contextMenuDocument.Items.Add(new ToolStripSeparator());
+            var menuRelated = new ToolStripMenuItem("Tài liệu liên quan...");
+            menuRelated.Click += (s, ev) =>
+            {
+                if (dgvDocuments.SelectedRows.Count == 0) return;
+                var doc = dgvDocuments.SelectedRows[0].DataBoundItem as study_document_manager.Core.Entities.StudyDocument;
+                if (doc != null)
+                {
+                    new study_document_manager.Documents.RelatedDocumentsForm(doc.Id, doc.Ten).ShowDialog();
+                }
+            };
+            contextMenuDocument.Items.Add(menuRelated);
         }
 
         private void EnableDragDrop()
@@ -948,6 +1327,11 @@ namespace study_document_manager
         private void txt_tim_kiem_KeyPress(object sender, KeyPressEventArgs e) { /* Handled in RegisterEvents */ }
         private void btn_lam_moi_Click(object sender, EventArgs e) { /* Handled in RegisterEvents */ }
         private void menuView_Click(object sender, EventArgs e) { }
+
+        private void dgvDocuments_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
     }
 
     /// <summary>

@@ -7,7 +7,7 @@
 [![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4?logo=.net)](https://dotnet.microsoft.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-Local%20DB-003B57?logo=sqlite)](https://www.sqlite.org/)
 [![Windows Forms](https://img.shields.io/badge/Windows%20Forms-C%23-239120?logo=c-sharp)](https://docs.microsoft.com/dotnet/desktop/winforms/)
-[![Version](https://img.shields.io/badge/Version-2.0.4-blue.svg)](https://github.com/hayato-shino05/study-document-manager/releases)
+[![Version](https://img.shields.io/badge/Version-2.2.0-blue.svg)](https://github.com/hayato-shino05/study-document-manager/releases)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 </div>
@@ -18,7 +18,7 @@
 
 Ứng dụng hoạt động hoàn toàn **Offline**, sử dụng **SQLite** làm cơ sở dữ liệu cục bộ, không yêu cầu cài đặt SQL Server phức tạp và không cần đăng nhập. Chỉ cần tải về và chạy!
 
-> 📂 [Xem cấu trúc dự án](PROJECT_STRUCTURE.md)
+> 📂 [Xem cấu trúc dự án](PROJECT_STRUCTURE.md) | 🗄️ [Xem Database Schema](DATABASE.md)
 
 ### Tính năng nổi bật
 
@@ -34,16 +34,36 @@
 - ⏰ **Quản lý Deadline**: Theo dõi tài liệu sắp đến hạn và quá hạn.
 - 🔄 **Tự động cập nhật**: Kiểm tra phiên bản mới từ GitHub Releases.
 - 🧹 **Kiểm tra file rác**: Tự động phát hiện các liên kết file bị hỏng (file đã xóa khỏi ổ cứng).
+- 📥 **Import hàng loạt**: Chọn thư mục → quét tất cả file hỗ trợ → tự động điền thông tin (tên, loại, dung lượng) → import vào DB cùng lúc. Hỗ trợ lọc theo loại file và xem trước danh sách trước khi import.
+- 🗑️ **Thùng rác (Recycle Bin)**: Xóa mềm (soft delete) tài liệu, không ảnh hưởng file thật trên ổ cứng. Hỗ trợ khôi phục từng tài liệu hoặc xóa vĩnh viễn, dọn sạch thùng rác.
+- ⌨️ **Phím tắt**: `Ctrl+N` thêm mới, `Ctrl+F` tìm kiếm, `Del` xóa, `F5` làm mới, `Ctrl+E` xuất CSV, `Ctrl+O` mở file.
+- ☑️ **Quản lý hàng loạt**: Form riêng biệt cho phép tìm kiếm, lọc theo môn học/loại, chọn nhiều tài liệu bằng checkbox → xóa hàng loạt / đổi môn học / đánh dấu quan trọng cùng lúc.
+- 📄 **Xem trước**: Panel xem trước nội dung file ngay trong ứng dụng (hỗ trợ hình ảnh). Không cần mở ứng dụng ngoài để kiểm tra nhanh.
+- 🕐 **Lịch sử mở gần đây**: Tự động ghi nhận file đã mở, hiển thị danh sách 20 file gần nhất. Hỗ trợ mở lại nhanh hoặc xóa lịch sử.
+- 💾 **Backup & Restore Database**: Sao lưu toàn bộ database ra file `.db` và khôi phục khi cần. Bảo vệ dữ liệu trước rủi ro mất mát.
+- 🔗 **Liên kết tài liệu liên quan**: Tạo liên kết giữa các tài liệu có nội dung liên quan. Dễ dàng tìm thấy tài liệu tham khảo từ tài liệu hiện tại.
+- 🔍 **Phát hiện file trùng lặp**: Quét và phát hiện các tài liệu có cùng tên hoặc đường dẫn file trùng nhau. Hỗ trợ xử lý nhanh (xóa, giữ lại).
 
 ---
 
 ## Giao diện & Trải nghiệm
 
+![Dashboard chính](study-document-manager/assets/example/1.png)
+
+![HIển thị Preview](study-document-manager/assets/example/2.png)
+
 ### Dashboard chính
-- Menu bar và Toolbar truy cập nhanh.
-- Danh sách tài liệu dạng lưới (Grid) với icon trực quan.
+- Menu bar và Toolbar truy cập nhanh (Thêm, Sửa, Xóa, Mở file, Import, Thùng rác).
+- Danh sách tài liệu dạng lưới (Grid) với icon trực quan theo loại file.
 - Panel tìm kiếm và bộ lọc (Filter) tiện lợi bên trái.
-- Các nút thao tác nhanh: Thêm, Sửa, Xóa, Mở file.
+- Phím tắt nhanh: `Ctrl+N`, `Ctrl+F`, `Del`, `F5`, `Ctrl+E`.
+- Truy cập nhanh "Quản lý hàng loạt" qua menu Công cụ.
+
+### Quản lý hàng loạt
+- Form riêng biệt với bảng danh sách checkbox.
+- Tìm kiếm theo tên, lọc theo môn học và loại tài liệu.
+- Chọn tất cả / Bỏ chọn tất cả nhanh chóng.
+- Các thao tác: Xóa hàng loạt, Đánh dấu quan trọng, Đổi môn học.
 
 ### Thêm/Sửa tài liệu
 - Tự động điền tên và tính dung lượng file khi chọn file từ máy tính.
