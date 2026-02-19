@@ -75,7 +75,7 @@ namespace study_document_manager.Documents
 
             var lblSubject = new Label
             {
-                Text = "Môn học:",
+                Text = "Danh mục:",
                 AutoSize = true,
                 Location = new Point(280, 15),
                 ForeColor = AppTheme.TextSecondary,
@@ -149,7 +149,7 @@ namespace study_document_manager.Documents
             var colSubject = new DataGridViewTextBoxColumn
             {
                 Name = "MonHoc",
-                HeaderText = "Môn học",
+                HeaderText = "Danh mục",
                 DataPropertyName = "MonHoc",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 FillWeight = 20,
@@ -270,7 +270,7 @@ namespace study_document_manager.Documents
 
             btnStar = new Button
             {
-                Text = "★ Đánh dấu",
+                Text = "Đánh dấu",
                 Size = new Size(110, 35),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = AppTheme.StatusWarning,
@@ -283,7 +283,7 @@ namespace study_document_manager.Documents
 
             btnChangeSubject = new Button
             {
-                Text = "Đổi môn học",
+                Text = "Đổi danh mục",
                 Size = new Size(110, 35),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = AppTheme.StatusInfo,
@@ -325,6 +325,8 @@ namespace study_document_manager.Documents
             Controls.Add(pnlBottom);
 
             CancelButton = btnClose;
+
+            Load += (s, e) => { if (Owner?.Icon != null) Icon = Owner.Icon; };
         }
 
         private void LoadData()
@@ -465,7 +467,7 @@ namespace study_document_manager.Documents
 
             using (var dialog = new Form())
             {
-                dialog.Text = "Đổi môn học hàng loạt";
+                dialog.Text = "Đổi danh mục hàng loạt";
                 dialog.Size = new Size(350, 160);
                 dialog.FormBorderStyle = FormBorderStyle.FixedDialog;
                 dialog.StartPosition = FormStartPosition.CenterParent;
@@ -473,7 +475,7 @@ namespace study_document_manager.Documents
                 dialog.MinimizeBox = false;
                 dialog.BackColor = AppTheme.BackgroundMain;
 
-                var lbl = new Label { Text = $"Đổi môn học cho {ids.Count} tài liệu:", Location = new Point(16, 16), AutoSize = true, ForeColor = AppTheme.TextPrimary };
+                var lbl = new Label { Text = $"Đổi danh mục cho {ids.Count} tài liệu:", Location = new Point(16, 16), AutoSize = true, ForeColor = AppTheme.TextPrimary };
                 var cbo = new ComboBox { Location = new Point(16, 45), Size = new Size(300, 28), DropDownStyle = ComboBoxStyle.DropDown };
 
                 try
@@ -495,7 +497,7 @@ namespace study_document_manager.Documents
                 if (dialog.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(cbo.Text))
                 {
                     int result = DatabaseHelper.BulkUpdateSubject(ids, cbo.Text.Trim());
-                    ToastNotification.Success($"Đã đổi môn học cho {result} tài liệu.");
+                    ToastNotification.Success($"Đã đổi danh mục cho {result} tài liệu.");
                     DataChanged = true;
                     LoadData();
                 }
