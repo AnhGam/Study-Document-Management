@@ -271,6 +271,17 @@ namespace study_document_manager
             toolBtnStats.Click += btn_thong_ke_Click;
             toolStrip.Items.Add(toolBtnStats);
 
+            // Them nut TreeMap
+            var toolBtnTreeMap = new ToolStripButton
+            {
+                Text = "TreeMap",
+                Image = IconHelper.CreateTreeMapIcon(16, AppTheme.AccentSky),
+                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
+                ToolTipText = "Xem phân bố tài liệu dạng TreeMap"
+            };
+            toolBtnTreeMap.Click += (s, ev) => { new TreeMapForm().ShowDialog(); };
+            toolStrip.Items.Add(toolBtnTreeMap);
+
             HideCreatorFilter();
 
             // Initialize Presenter

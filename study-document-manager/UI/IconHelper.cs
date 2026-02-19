@@ -772,6 +772,32 @@ namespace study_document_manager
             return bmp;
         }
 
+        public static Bitmap CreateTreeMapIcon(int size = 16, Color? color = null)
+        {
+            var c = color ?? Color.FromArgb(37, 99, 235);
+            var bmp = new Bitmap(size, size);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                float s = size / 16f;
+                var c2 = Color.FromArgb(c.A, Math.Min(255, c.R + 60),
+                    Math.Min(255, c.G + 60), Math.Min(255, c.B + 60));
+
+                // Large rect (left half)
+                g.FillRectangle(new SolidBrush(c),
+                    1 * s, 1 * s, 7 * s, 14 * s);
+                // Top-right rect
+                g.FillRectangle(new SolidBrush(c2),
+                    9 * s, 1 * s, 6 * s, 8 * s);
+                // Bottom-right rect
+                g.FillRectangle(new SolidBrush(Color.FromArgb(c.A,
+                    Math.Min(255, c.R + 30), Math.Min(255, c.G + 30),
+                    Math.Min(255, c.B + 30))),
+                    9 * s, 10 * s, 6 * s, 5 * s);
+            }
+            return bmp;
+        }
+
         #endregion
     }
 }

@@ -162,6 +162,12 @@
     <Compile Include="UI\Controls\DoubleBufferedTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="UI\Controls\TreeMapPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Reports\TreeMapForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Core\Entities\StudyDocument.cs" />
     <Compile Include="Core\Interfaces\IDashboardView.cs" />
     <Compile Include="Core\Interfaces\IDocumentRepository.cs" />

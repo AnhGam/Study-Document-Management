@@ -9,7 +9,7 @@
 [![C#](https://img.shields.io/badge/C%23-Windows_Forms-239120?style=for-the-badge&logo=csharp&logoColor=white)](https://docs.microsoft.com/dotnet/desktop/winforms/)
 [![Windows](https://img.shields.io/badge/Platform-Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://www.microsoft.com/windows)
 
-[![Version](https://img.shields.io/badge/Version-3.0.2-14B8A6?style=for-the-badge&logo=semver&logoColor=white)](https://github.com/hayato-shino05/study-document-manager/releases)
+[![Version](https://img.shields.io/badge/Version-3.1.0-14B8A6?style=for-the-badge&logo=semver&logoColor=white)](https://github.com/hayato-shino05/study-document-manager/releases)
 [![Downloads](https://img.shields.io/github/downloads/hayato-shino05/study-document-manager/total?style=for-the-badge&color=10B981&logo=github&logoColor=white&label=Downloads)](https://github.com/hayato-shino05/study-document-manager/releases)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/hayato-shino05/study-document-manager?style=for-the-badge&color=EF4444&logo=github&logoColor=white)](https://github.com/hayato-shino05/study-document-manager)
@@ -29,10 +29,12 @@
 - 🚀 **Portable & Offline**: Chạy ngay không cần cài đặt database server. Dữ liệu lưu trong file `.db` cục bộ.
 - 📂 **Quản lý tài liệu**: Thêm, sửa, xóa, tìm kiếm nhanh theo tên, danh mục, loại.
 - 🎨 **Giao diện hiện đại**: Theme Teal/Emerald phẳng, đẹp mắt, Toast Notification mượt mà.
-- 🏷️ **Phân loại thông minh**: Sắp xếp theo Môn học (Subject), Loại file (PDF, Word...), Bộ sưu tập (Collections).
+- 🏷️ **Phân loại thông minh**: Sắp xếp theo Danh mục (Subject), Loại file (PDF, Word...), Bộ sưu tập (Collections).
+- 🌳 **Cây phân loại (Sidebar)**: Sidebar dạng cây cho phép duyệt tài liệu theo Danh mục, Loại file, Bộ sưu tập, Quan trọng — hiển thị số lượng từng nhóm, click để lọc nhanh.
 - ⭐ **Đánh dấu quan trọng**: Ghim các tài liệu ưu tiên.
 - 🔍 **Bộ lọc mạnh mẽ**: Lọc theo ngày, dung lượng, trạng thái, từ khóa.
 - 📊 **Thống kê trực quan**: Biểu đồ phân bố tài liệu, timeline hoạt động.
+- 🗺️ **TreeMap**: Hiển thị phân bố tài liệu theo danh mục hoặc loại file dưới dạng bản đồ TreeMap trực quan, hỗ trợ hover và click tương tác.
 - 📤 **Xuất dữ liệu**: Xuất danh sách tài liệu ra file CSV.
 - 📝 **Ghi chú cá nhân**: Thêm ghi chú và trạng thái riêng cho từng tài liệu.
 - ⏰ **Quản lý Deadline**: Theo dõi tài liệu sắp đến hạn và quá hạn.
@@ -41,7 +43,7 @@
 - 📥 **Import hàng loạt**: Chọn thư mục → quét tất cả file hỗ trợ → tự động điền thông tin (tên, loại, dung lượng) → import vào DB cùng lúc. Hỗ trợ lọc theo loại file và xem trước danh sách trước khi import.
 - 🗑️ **Thùng rác (Recycle Bin)**: Xóa mềm (soft delete) tài liệu, không ảnh hưởng file thật trên ổ cứng. Hỗ trợ khôi phục từng tài liệu hoặc xóa vĩnh viễn, dọn sạch thùng rác.
 - ⌨️ **Phím tắt**: `Ctrl+N` thêm mới, `Ctrl+F` tìm kiếm, `Del` xóa, `F5` làm mới, `Ctrl+E` xuất CSV, `Ctrl+O` mở file.
-- ☑️ **Quản lý hàng loạt**: Form riêng biệt cho phép tìm kiếm, lọc theo môn học/loại, chọn nhiều tài liệu bằng checkbox → xóa hàng loạt / đổi môn học / đánh dấu quan trọng cùng lúc.
+- ☑️ **Quản lý hàng loạt**: Form riêng biệt cho phép tìm kiếm, lọc theo danh mục/loại, chọn nhiều tài liệu bằng checkbox → xóa hàng loạt / đổi danh mục / đánh dấu quan trọng cùng lúc.
 - 📄 **Xem trước**: Panel xem trước nội dung file ngay trong ứng dụng (hỗ trợ hình ảnh). Không cần mở ứng dụng ngoài để kiểm tra nhanh.
 - 🕐 **Lịch sử mở gần đây**: Tự động ghi nhận file đã mở, hiển thị danh sách 20 file gần nhất. Hỗ trợ mở lại nhanh hoặc xóa lịch sử.
 - 💾 **Backup & Restore Database**: Sao lưu toàn bộ database ra file `.db` và khôi phục khi cần. Bảo vệ dữ liệu trước rủi ro mất mát.
@@ -60,15 +62,16 @@
 ### Dashboard chính
 - Menu bar và Toolbar truy cập nhanh (Thêm, Sửa, Xóa, Mở file, Import, Thùng rác).
 - Danh sách tài liệu dạng lưới (Grid) với icon trực quan theo loại file.
+- Sidebar cây phân loại: duyệt theo Danh mục, Loại file, Bộ sưu tập, Quan trọng — hiển thị badge số lượng.
 - Panel tìm kiếm và bộ lọc (Filter) tiện lợi bên trái.
 - Phím tắt nhanh: `Ctrl+N`, `Ctrl+F`, `Del`, `F5`, `Ctrl+E`.
 - Truy cập nhanh "Quản lý hàng loạt" qua menu Công cụ.
 
 ### Quản lý hàng loạt
 - Form riêng biệt với bảng danh sách checkbox.
-- Tìm kiếm theo tên, lọc theo môn học và loại tài liệu.
+- Tìm kiếm theo tên, lọc theo danh mục và loại tài liệu.
 - Chọn tất cả / Bỏ chọn tất cả nhanh chóng.
-- Các thao tác: Xóa hàng loạt, Đánh dấu quan trọng, Đổi môn học.
+- Các thao tác: Xóa hàng loạt, Đánh dấu quan trọng, Đổi danh mục.
 
 ### Thêm/Sửa tài liệu
 - Tự động điền tên và tính dung lượng file khi chọn file từ máy tính.
@@ -76,8 +79,9 @@
 
 ### Thống kê (Reports)
 - Tổng quan số lượng tài liệu.
-- Biểu đồ tròn (Pie Chart) phân bố theo môn học/loại.
+- Biểu đồ tròn (Pie Chart) phân bố theo danh mục/loại.
 - Biểu đồ cột (Bar Chart) timeline thêm tài liệu.
+- TreeMap phân bố tài liệu tương tác (hover, click).
 
 ### Notification System
 - Hệ thống thông báo **Toast** hiện đại, không làm gián đoạn công việc (Non-blocking).
