@@ -46,7 +46,7 @@ namespace study_document_manager.Management
             lblTitle = new Label
             {
                 Text = "Thùng rác",
-                Font = new Font("Segoe UI", 14f, FontStyle.Bold),
+                Font = new Font(AppTheme.FontFamily, 14f, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(16, 12)
             };
@@ -85,7 +85,7 @@ namespace study_document_manager.Management
             {
                 AutoSize = true,
                 Location = new Point(420, 18),
-                Font = new Font("Segoe UI", 9f)
+                Font = new Font(AppTheme.FontFamily, 9f)
             };
 
             btnClose = new Button { Text = "Đóng", Size = new Size(90, 35) };

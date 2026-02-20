@@ -520,7 +520,7 @@ namespace study_document_manager
 
         private void ApplyTheme()
         {
-            this.BackColor = AppTheme.BackgroundSoft;
+            this.BackColor = AppTheme.BackgroundMain;
             this.ForeColor = AppTheme.TextPrimary;
             this.Font = AppTheme.FontBody;
 
@@ -529,9 +529,16 @@ namespace study_document_manager
             AppTheme.ApplyToolStripStyle(toolStrip);
             AppTheme.ApplyStatusStripStyle(statusStrip);
 
-            // Panels
+            // Toolbar bottom border (Win11 style divider)
+            toolStrip.Paint += (s, e) =>
+            {
+                using (var pen = new Pen(AppTheme.BorderLight, 1))
+                    e.Graphics.DrawLine(pen, 0, toolStrip.Height - 1, toolStrip.Width, toolStrip.Height - 1);
+            };
+
+            // Search panel: white card surface
             pnlSearch.BackColor = AppTheme.BackgroundCard;
-            pnlContent.BackColor = AppTheme.BackgroundSoft;
+            pnlContent.BackColor = AppTheme.BackgroundMain;
 
             // Buttons
             AppTheme.ApplyButtonPrimary(btnSearch);
@@ -541,6 +548,8 @@ namespace study_document_manager
             // Labels
             lblStatus.ForeColor = AppTheme.TextSecondary;
             lblCount.ForeColor = AppTheme.TextSecondary;
+            lblStatus.Font = AppTheme.FontCaption;
+            lblCount.Font = AppTheme.FontCaption;
         }
 
         private void HideCreatorFilter()
@@ -903,7 +912,7 @@ namespace study_document_manager
                 var lblAppName = new Label
                 {
                     Text = "Study Document Manager",
-                    Font = new Font("Segoe UI", 18F, FontStyle.Bold),
+                    Font = new Font(AppTheme.FontFamily, 18F, FontStyle.Bold),
                     ForeColor = AppTheme.Primary,
                     Location = new Point(30, 25),
                     AutoSize = true
@@ -912,7 +921,7 @@ namespace study_document_manager
                 var lblEdition = new Label
                 {
                     Text = "Professional Edition",
-                    Font = new Font("Segoe UI", 10F, FontStyle.Italic),
+                    Font = new Font(AppTheme.FontFamily, 10F, FontStyle.Italic),
                     ForeColor = AppTheme.TextSecondary,
                     Location = new Point(32, 60),
                     AutoSize = true
@@ -1263,7 +1272,7 @@ namespace study_document_manager
             treeCategory = new DoubleBufferedTreeView
             {
                 Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 9F),
+                Font = new Font(AppTheme.FontFamily, 9F),
                 BorderStyle = BorderStyle.None,
                 DrawMode = TreeViewDrawMode.OwnerDrawAll,
                 ShowLines = false,
@@ -1271,9 +1280,10 @@ namespace study_document_manager
                 ShowPlusMinus = false,
                 FullRowSelect = true,
                 HideSelection = false,
-                ItemHeight = 32,
+                Scrollable = true,
+                ItemHeight = 36,
                 Indent = 18,
-                BackColor = Color.White,
+                BackColor = AppTheme.BackgroundCard,
                 ForeColor = AppTheme.TextPrimary
             };
 
@@ -1338,7 +1348,7 @@ namespace study_document_manager
             {
                 Dock = DockStyle.Top,
                 Height = 40,
-                BackColor = Color.White,
+                BackColor = AppTheme.BackgroundCard,
                 Padding = new Padding(14, 0, 8, 0)
             };
             var lblTreeHeader = new Label
@@ -1360,7 +1370,7 @@ namespace study_document_manager
             var pnlTree = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.White,
+                BackColor = AppTheme.BackgroundCard,
                 Padding = new Padding(0, 4, 0, 0)
             };
             pnlTree.Controls.Add(treeCategory);
@@ -1376,13 +1386,13 @@ namespace study_document_manager
             };
 
             splitCategory.Panel1.Controls.Add(pnlTree);
-            splitCategory.Panel1.BackColor = Color.White;
+            splitCategory.Panel1.BackColor = AppTheme.BackgroundCard;
 
             pnlContent.Controls.Add(splitCategory);
 
             // Set splitter distance after layout
-            splitCategory.SplitterDistance = 145;
-            splitCategory.Panel1MinSize = 120;
+            splitCategory.SplitterDistance = 180;
+            splitCategory.Panel1MinSize = 160;
 
             // Responsive: hide tree when form too narrow
             this.Resize += (s, ev) =>
@@ -1531,7 +1541,7 @@ namespace study_document_manager
             {
                 var hoverRect = new Rectangle(4, e.Bounds.Y + 2, treeWidth - 8, e.Bounds.Height - 4);
                 using (var path = AppTheme.CreateRoundedRectangle(hoverRect, 6))
-                using (var brush = new SolidBrush(Color.FromArgb(248, 248, 247)))
+                using (var brush = new SolidBrush(Color.FromArgb(10, 0, 0, 0)))
                     g.FillPath(brush, path);
             }
 
@@ -1566,32 +1576,32 @@ namespace study_document_manager
         {
             int centerY = e.Bounds.Y + e.Bounds.Height / 2;
 
-            // Separator line above (if not first node)
+            // Separator line above (if not first node) - push down for breathing room
             if (node.PrevNode != null)
             {
                 using (var pen = new Pen(AppTheme.BorderLight))
-                    g.DrawLine(pen, 12, e.Bounds.Y + 2, treeWidth - 12, e.Bounds.Y + 2);
+                    g.DrawLine(pen, 12, e.Bounds.Y + 6, treeWidth - 12, e.Bounds.Y + 6);
             }
 
-            // Header text (uppercase, small, muted)
-            using (var headerFont = new Font("Segoe UI", 7.5f, FontStyle.Bold))
+            // Header text (uppercase, small, muted) - pushed to lower part of cell
+            using (var headerFont = new Font(AppTheme.FontFamily, 7.5f, FontStyle.Bold))
             {
                 int indent = 14 + node.Level * 18;
                 TextRenderer.DrawText(g, node.Text.ToUpper(), headerFont,
-                    new Point(indent, centerY - headerFont.Height / 2 + 2), AppTheme.TextMuted);
+                    new Point(indent, centerY - headerFont.Height / 2 + 4), AppTheme.TextMuted);
             }
 
             // Chevron on the right for expand/collapse
             if (node.Nodes.Count > 0)
             {
-                DrawChevron(g, node.IsExpanded, treeWidth - 18, centerY, AppTheme.TextMuted);
+                DrawChevron(g, node.IsExpanded, treeWidth - 18, centerY + 2, AppTheme.TextMuted);
             }
         }
 
         private void DrawCountBadge(Graphics g, int count, int treeWidth, int centerY, bool isSelected)
         {
             string countText = count.ToString();
-            using (var countFont = new Font("Segoe UI", 7.5f))
+            using (var countFont = new Font(AppTheme.FontFamily, 7.5f))
             {
                 var countSize = TextRenderer.MeasureText(countText, countFont);
                 int badgeW = Math.Max(countSize.Width + 2, 22);
@@ -1600,8 +1610,8 @@ namespace study_document_manager
 
                 using (var path = AppTheme.CreateRoundedRectangle(new Rectangle(badgeX, badgeY, badgeW, 18), 9))
                 {
-                    var badgeBg = isSelected ? AppTheme.Primary : Color.FromArgb(240, 240, 238);
-                    var badgeFg = isSelected ? Color.White : AppTheme.TextMuted;
+                    var badgeBg = isSelected ? AppTheme.Primary : Color.FromArgb(229, 229, 229);
+                    var badgeFg = isSelected ? Color.White : AppTheme.TextSecondary;
 
                     using (var brush = new SolidBrush(badgeBg))
                         g.FillPath(brush, path);

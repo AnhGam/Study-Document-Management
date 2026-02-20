@@ -35,7 +35,7 @@ namespace study_document_manager.UI.Controls
             lblFileName = new Label
             {
                 Text = "Xem trước",
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                Font = new Font(AppTheme.FontFamily, 10f, FontStyle.Bold),
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(8, 0, 0, 0)
@@ -82,7 +82,7 @@ namespace study_document_manager.UI.Controls
                 Dock = DockStyle.Fill,
                 Text = "Chọn tài liệu để xem trước",
                 TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 11f),
+                Font = new Font(AppTheme.FontFamily, 11f),
                 Visible = true
             };
             this.Controls.Add(lblNoPreview);

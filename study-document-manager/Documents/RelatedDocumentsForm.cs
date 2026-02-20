@@ -44,7 +44,7 @@ namespace study_document_manager.Documents
             var lblTitle = new Label
             {
                 Text = "Tài liệu liên quan với: " + currentDocName,
-                Font = new Font("Segoe UI", 12f, FontStyle.Bold),
+                Font = new Font(AppTheme.FontFamily, 12f, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(16, 12)
             };
@@ -54,7 +54,7 @@ namespace study_document_manager.Documents
             // Add relation panel
             pnlAddRelation = new Panel { Dock = DockStyle.Top, Height = 50, Padding = new Padding(16, 8, 16, 8) };
 
-            var lblDoc = new Label { Text = "Chọn tài liệu:", AutoSize = true, Location = new Point(16, 16), Font = new Font("Segoe UI", 9f) };
+            var lblDoc = new Label { Text = "Chọn tài liệu:", AutoSize = true, Location = new Point(16, 16), Font = new Font(AppTheme.FontFamily, 9f) };
             cmbDocuments = new ComboBox
             {
                 Location = new Point(120, 12),
