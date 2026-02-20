@@ -51,7 +51,7 @@ namespace study_document_manager.Documents
             var lblTitle = new Label
             {
                 Text = "Import tài liệu từ thư mục",
-                Font = new Font("Segoe UI", 14f, FontStyle.Bold),
+                Font = new Font(AppTheme.FontFamily, 14f, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(16, 8)
             };
@@ -69,7 +69,7 @@ namespace study_document_manager.Documents
                 Text = "Chưa chọn thư mục",
                 AutoSize = true,
                 Location = new Point(165, 56),
-                Font = new Font("Segoe UI", 9f, FontStyle.Italic)
+                Font = new Font(AppTheme.FontFamily, 9f, FontStyle.Italic)
             };
 
             chkRecursive = new CheckBox
@@ -119,7 +119,7 @@ namespace study_document_manager.Documents
 
             // Row 2: Progress + Import + Close
             progressBar = new ProgressBar { Location = new Point(16, 45), Size = new Size(450, 22), Visible = false };
-            lblStatus = new Label { AutoSize = true, Location = new Point(16, 70), Font = new Font("Segoe UI", 9f) };
+            lblStatus = new Label { AutoSize = true, Location = new Point(16, 70), Font = new Font(AppTheme.FontFamily, 9f) };
 
             btnImport = new Button { Text = "Import", Size = new Size(120, 35), Location = new Point(650, 8) };
             btnImport.Click += BtnImport_Click;

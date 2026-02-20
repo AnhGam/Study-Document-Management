@@ -262,7 +262,7 @@ namespace study_document_manager.Documents
                 FlatStyle = FlatStyle.Flat,
                 BackColor = AppTheme.StatusError,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
+                Font = new Font(AppTheme.FontFamily, 9f, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnDelete.FlatAppearance.BorderSize = 0;
@@ -275,7 +275,7 @@ namespace study_document_manager.Documents
                 FlatStyle = FlatStyle.Flat,
                 BackColor = AppTheme.StatusWarning,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
+                Font = new Font(AppTheme.FontFamily, 9f, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnStar.FlatAppearance.BorderSize = 0;
@@ -288,7 +288,7 @@ namespace study_document_manager.Documents
                 FlatStyle = FlatStyle.Flat,
                 BackColor = AppTheme.StatusInfo,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
+                Font = new Font(AppTheme.FontFamily, 9f, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             btnChangeSubject.FlatAppearance.BorderSize = 0;

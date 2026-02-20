@@ -44,7 +44,7 @@ namespace study_document_manager.Documents
             var lblTitle = new Label
             {
                 Text = "Phát hiện file trùng lặp",
-                Font = new Font("Segoe UI", 14f, FontStyle.Bold),
+                Font = new Font(AppTheme.FontFamily, 14f, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(16, 8)
             };
@@ -53,7 +53,7 @@ namespace study_document_manager.Documents
             btnScan.Click += BtnScan_Click;
 
             progressBar = new ProgressBar { Location = new Point(150, 42), Size = new Size(400, 25), Visible = false };
-            lblStatus = new Label { AutoSize = true, Location = new Point(560, 46), Font = new Font("Segoe UI", 9f) };
+            lblStatus = new Label { AutoSize = true, Location = new Point(560, 46), Font = new Font(AppTheme.FontFamily, 9f) };
 
             pnlHeader.Controls.AddRange(new Control[] { lblTitle, btnScan, progressBar, lblStatus });
             this.Controls.Add(pnlHeader);

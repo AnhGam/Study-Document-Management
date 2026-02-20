@@ -24,22 +24,22 @@ namespace study_document_manager
 
         private static readonly Color[] Palette = new Color[]
         {
-            Color.FromArgb(51, 65, 85),       // Slate-700
-            Color.FromArgb(22, 163, 74),       // Green-600
-            Color.FromArgb(37, 99, 235),       // Blue-600
-            Color.FromArgb(217, 119, 6),       // Amber-600
-            Color.FromArgb(190, 18, 60),       // Rose-700
-            Color.FromArgb(124, 58, 237),      // Violet-600
-            Color.FromArgb(14, 165, 233),      // Sky-500
-            Color.FromArgb(234, 88, 12),       // Orange-600
-            Color.FromArgb(168, 85, 247),      // Purple-500
-            Color.FromArgb(20, 184, 166),      // Teal-500
-            Color.FromArgb(244, 63, 94),       // Rose-500
-            Color.FromArgb(100, 116, 139),     // Slate-500
-            Color.FromArgb(202, 138, 4),       // Yellow-600
-            Color.FromArgb(5, 150, 105),       // Emerald-600
-            Color.FromArgb(79, 70, 229),       // Indigo-600
-            Color.FromArgb(236, 72, 153),      // Pink-500
+            Color.FromArgb(0, 103, 192),        // Win11 Blue (Primary)
+            Color.FromArgb(22, 163, 74),        // Green-600
+            Color.FromArgb(124, 58, 237),       // Violet-600
+            Color.FromArgb(234, 88, 12),        // Orange-600
+            Color.FromArgb(190, 18, 60),        // Rose-700
+            Color.FromArgb(14, 165, 233),       // Sky-500
+            Color.FromArgb(217, 119, 6),        // Amber-600
+            Color.FromArgb(168, 85, 247),       // Purple-500
+            Color.FromArgb(20, 184, 166),       // Teal-500
+            Color.FromArgb(244, 63, 94),        // Rose-500
+            Color.FromArgb(79, 70, 229),        // Indigo-600
+            Color.FromArgb(5, 150, 105),        // Emerald-600
+            Color.FromArgb(236, 72, 153),       // Pink-500
+            Color.FromArgb(107, 114, 128),      // Grey-500
+            Color.FromArgb(202, 138, 4),        // Yellow-600
+            Color.FromArgb(0, 84, 166),         // Blue-800
         };
 
         public TreeMapForm()
@@ -55,7 +55,7 @@ namespace study_document_manager
             MinimumSize = new Size(700, 500);
             StartPosition = FormStartPosition.CenterParent;
             BackColor = AppTheme.BackgroundMain;
-            Font = new Font("Segoe UI", 9F);
+            Font = new Font(AppTheme.FontFamily, 9F);
             FormBorderStyle = FormBorderStyle.Sizable;
             ShowInTaskbar = false;
 
@@ -71,7 +71,7 @@ namespace study_document_manager
             lblTitle = new Label
             {
                 Text = "TreeMap",
-                Font = new Font("Segoe UI", 18F, FontStyle.Bold),
+                Font = new Font(AppTheme.FontFamily, 18F, FontStyle.Bold),
                 ForeColor = Color.White,
                 AutoSize = true,
                 Location = new Point(20, 12)
@@ -80,7 +80,7 @@ namespace study_document_manager
             lblSubtitle = new Label
             {
                 Text = "Phân bố tài liệu theo danh mục",
-                Font = new Font("Segoe UI", 9.5F),
+                Font = new Font(AppTheme.FontFamily, 9.5F),
                 ForeColor = Color.FromArgb(180, 226, 232, 240),
                 AutoSize = true,
                 Location = new Point(22, 42)
@@ -89,11 +89,11 @@ namespace study_document_manager
             btnClose = new Button
             {
                 Text = "Đóng",
-                Size = new Size(80, 34),
+                Size = new Size(80, 32),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(60, 255, 255, 255),
+                BackColor = Color.FromArgb(40, 255, 255, 255),
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI Semibold", 9F),
+                Font = new Font(AppTheme.FontFamily, 9F),
                 Cursor = Cursors.Hand,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
@@ -111,7 +111,7 @@ namespace study_document_manager
             {
                 Dock = DockStyle.Top,
                 Height = 52,
-                BackColor = Color.White,
+                BackColor = AppTheme.BackgroundCard,
                 Padding = new Padding(16, 10, 16, 10)
             };
             pnlToolbar.Paint += (s, e) =>
@@ -124,7 +124,7 @@ namespace study_document_manager
             var lblMode = new Label
             {
                 Text = "Hiển thị theo:",
-                Font = new Font("Segoe UI", 9F),
+                Font = new Font(AppTheme.FontFamily, 9F),
                 ForeColor = AppTheme.TextSecondary,
                 AutoSize = true,
                 Location = new Point(16, 16)
@@ -143,7 +143,7 @@ namespace study_document_manager
             {
                 Dock = DockStyle.Bottom,
                 Height = 50,
-                BackColor = Color.White,
+                BackColor = AppTheme.BackgroundCard,
                 Padding = new Padding(16, 8, 16, 8)
             };
             pnlLegend.Paint += (s, e) =>
@@ -171,10 +171,10 @@ namespace study_document_manager
             var btn = new Button
             {
                 Text = text,
-                Size = new Size(80, 32),
-                Location = new Point(x, 10),
+                Size = new Size(80, 30),
+                Location = new Point(x, 11),
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI Semibold", 8.5F),
+                Font = new Font(AppTheme.FontFamily, 8.5F),
                 Cursor = Cursors.Hand
             };
             btn.FlatAppearance.BorderSize = 1;
@@ -187,7 +187,7 @@ namespace study_document_manager
             }
             else
             {
-                btn.BackColor = Color.White;
+                btn.BackColor = AppTheme.BackgroundCard;
                 btn.ForeColor = AppTheme.TextPrimary;
                 btn.FlatAppearance.BorderColor = AppTheme.BorderMedium;
             }
@@ -297,7 +297,7 @@ namespace study_document_manager
                 var lbl = new Label
                 {
                     Text = text,
-                    Font = new Font("Segoe UI", 8F),
+                    Font = new Font(AppTheme.FontFamily, 8F),
                     ForeColor = AppTheme.TextSecondary,
                     AutoSize = true,
                     Location = new Point(x + 18, y)

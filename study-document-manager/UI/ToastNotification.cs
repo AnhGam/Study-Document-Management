@@ -156,7 +156,7 @@ namespace study_document_manager
             var iconRect = new Rectangle(iconX, iconY, ICON_SIZE, ICON_SIZE);
             using (var br = new SolidBrush(Color.FromArgb(35, sc.Accent)))
                 g.FillEllipse(br, iconRect);
-            using (var font = new Font("Segoe UI", 11f, FontStyle.Bold))
+            using (var font = new Font(AppTheme.FontFamily, 11f, FontStyle.Bold))
             using (var br = new SolidBrush(sc.Accent))
             {
                 var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
@@ -167,7 +167,7 @@ namespace study_document_manager
             int textX = iconX + ICON_SIZE + 10;
             int textW = Width - textX - 12;
             var msgRect = new RectangleF(textX, 0, textW, H - BAR_H);
-            using (var font = new Font("Segoe UI", 9.5f))
+            using (var font = new Font(AppTheme.FontFamily, 9.5f))
             using (var br = new SolidBrush(Color.FromArgb(55, 65, 81))) // Gray-700
             {
                 var sf = new StringFormat

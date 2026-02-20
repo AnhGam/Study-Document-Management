@@ -28,11 +28,11 @@ namespace study_document_manager
 
             // Title styling
             lblTitle.ForeColor = AppTheme.Primary;
-            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblTitle.Font = new Font(AppTheme.FontFamily, 14F, FontStyle.Bold);
 
             // Document name styling
             lblDocumentName.ForeColor = AppTheme.TextSecondary;
-            lblDocumentName.Font = new Font("Segoe UI", 10F, FontStyle.Italic);
+            lblDocumentName.Font = new Font(AppTheme.FontFamily, 10F, FontStyle.Italic);
 
             // Labels
             lblStatus.ForeColor = AppTheme.TextPrimary;

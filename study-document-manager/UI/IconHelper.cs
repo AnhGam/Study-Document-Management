@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
+using study_document_manager.UI;
 
 namespace study_document_manager
 {
@@ -754,7 +755,7 @@ namespace study_document_manager
         /// </summary>
         public static Bitmap CreateBookmarkIcon(int size = 16, Color? color = null)
         {
-            Color c = color ?? Color.FromArgb(51, 65, 85);
+            Color c = color ?? AppTheme.Primary;
             Bitmap bmp = new Bitmap(size, size);
             using (Graphics g = Graphics.FromImage(bmp))
             {

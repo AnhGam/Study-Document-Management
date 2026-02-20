@@ -24,7 +24,7 @@ namespace study_document_manager
             
             pnlTop.BackColor = AppTheme.Primary;
             lblTitle.ForeColor = Color.White;
-            lblTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblTitle.Font = new Font(AppTheme.FontFamily, 16F, FontStyle.Bold);
             
             AppTheme.ApplyButtonDanger(btnClose);
             btnClose.Height = 32;
@@ -66,13 +66,13 @@ namespace study_document_manager
             AppTheme.ApplyComboBoxStyle(cboChartType);
             
             lblTotal.ForeColor = AppTheme.Primary;
-            lblTotal.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            lblTotal.Font = new Font(AppTheme.FontFamily, 11F, FontStyle.Bold);
             
             pnlCharts.BackColor = AppTheme.BackgroundSoft;
             pnlChart.BackColor = Color.White;
             pnlTimelineChart.BackColor = Color.White;
             lblTimelineTitle.ForeColor = AppTheme.TextPrimary;
-            lblTimelineTitle.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            lblTimelineTitle.Font = new Font(AppTheme.FontFamily, 11F, FontStyle.Bold);
             
             chart.BackColor = Color.White;
             chartTimeline.BackColor = Color.White;
@@ -86,7 +86,7 @@ namespace study_document_manager
             card.BackColor = Color.White;
             card.Padding = new Padding(12);
             
-            valueLabel.Font = new Font("Segoe UI", 24F, FontStyle.Bold);
+            valueLabel.Font = new Font(AppTheme.FontFamily, 24F, FontStyle.Bold);
             valueLabel.ForeColor = accentColor;
             
             textLabel.Font = AppTheme.FontSmall;
@@ -298,10 +298,10 @@ namespace study_document_manager
             chartArea.BackColor = Color.White;
             chartArea.AxisX.Title = xAxisTitle;
             chartArea.AxisY.Title = "Số lượng";
-            chartArea.AxisX.LabelStyle.Font = new Font("Segoe UI", 9F);
-            chartArea.AxisY.LabelStyle.Font = new Font("Segoe UI", 9F);
-            chartArea.AxisX.TitleFont = new Font("Segoe UI", 10F, FontStyle.Bold);
-            chartArea.AxisY.TitleFont = new Font("Segoe UI", 10F, FontStyle.Bold);
+            chartArea.AxisX.LabelStyle.Font = new Font(AppTheme.FontFamily, 9F);
+            chartArea.AxisY.LabelStyle.Font = new Font(AppTheme.FontFamily, 9F);
+            chartArea.AxisX.TitleFont = new Font(AppTheme.FontFamily, 10F, FontStyle.Bold);
+            chartArea.AxisY.TitleFont = new Font(AppTheme.FontFamily, 10F, FontStyle.Bold);
             chartArea.AxisX.MajorGrid.LineColor = Color.FromArgb(230, 230, 230);
             chartArea.AxisY.MajorGrid.LineColor = Color.FromArgb(230, 230, 230);
             chartArea.AxisX.LineColor = AppTheme.BorderLight;
@@ -310,14 +310,14 @@ namespace study_document_manager
             chart.ChartAreas.Add(chartArea);
 
             Title title = new Title(chartTitle);
-            title.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            title.Font = new Font(AppTheme.FontFamily, 12F, FontStyle.Bold);
             title.ForeColor = AppTheme.Primary;
             chart.Titles.Add(title);
 
             chart.Legends.Clear();
             Legend legend = new Legend("Legend");
             legend.Docking = Docking.Bottom;
-            legend.Font = new Font("Segoe UI", 9F);
+            legend.Font = new Font(AppTheme.FontFamily, 9F);
             legend.BackColor = Color.Transparent;
             chart.Legends.Add(legend);
 
@@ -327,7 +327,7 @@ namespace study_document_manager
             series.ChartType = chartType;
             series.ChartArea = "MainArea";
             series.Legend = "Legend";
-            series.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            series.Font = new Font(AppTheme.FontFamily, 9F, FontStyle.Bold);
             
             Color[] colors = new Color[]
             {
@@ -353,7 +353,7 @@ namespace study_document_manager
                 point.SetValueXY(category, value);
                 point.Color = colors[colorIndex % colors.Length];
                 point.Label = value.ToString();
-                point.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+                point.Font = new Font(AppTheme.FontFamily, 9F, FontStyle.Bold);
                 point.ToolTip = $"{category}: {value} tài liệu";
                 
                 series.Points.Add(point);
@@ -386,8 +386,8 @@ namespace study_document_manager
             chartArea.BackColor = Color.White;
             chartArea.AxisX.Title = "";
             chartArea.AxisY.Title = "Số lượng";
-            chartArea.AxisX.LabelStyle.Font = new Font("Segoe UI", 8F);
-            chartArea.AxisY.LabelStyle.Font = new Font("Segoe UI", 8F);
+            chartArea.AxisX.LabelStyle.Font = new Font(AppTheme.FontFamily, 8F);
+            chartArea.AxisY.LabelStyle.Font = new Font(AppTheme.FontFamily, 8F);
             chartArea.AxisX.MajorGrid.LineColor = Color.FromArgb(240, 240, 240);
             chartArea.AxisY.MajorGrid.LineColor = Color.FromArgb(240, 240, 240);
             chartArea.AxisX.LineColor = AppTheme.BorderLight;
@@ -402,7 +402,7 @@ namespace study_document_manager
             series.Color = Color.FromArgb(100, AppTheme.Primary);
             series.BorderColor = AppTheme.Primary;
             series.BorderWidth = 2;
-            series.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+            series.Font = new Font(AppTheme.FontFamily, 8F, FontStyle.Bold);
 
             foreach (DataRow row in dt.Rows)
             {

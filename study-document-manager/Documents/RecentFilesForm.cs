@@ -38,14 +38,14 @@ namespace study_document_manager.Documents
             var lblTitle = new Label
             {
                 Text = "Tài liệu mở gần đây",
-                Font = new Font("Segoe UI", 14f, FontStyle.Bold),
+                Font = new Font(AppTheme.FontFamily, 14f, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(16, 12)
             };
             var lblDesc = new Label
             {
                 Text = "Double-click để mở file",
-                Font = new Font("Segoe UI", 9f),
+                Font = new Font(AppTheme.FontFamily, 9f),
                 AutoSize = true,
                 Location = new Point(250, 18)
             };

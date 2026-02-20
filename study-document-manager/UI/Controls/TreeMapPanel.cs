@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
+using study_document_manager.UI;
 
 namespace study_document_manager.UI.Controls
 {
@@ -36,13 +37,13 @@ namespace study_document_manager.UI.Controls
                 ControlStyles.UserPaint,
                 true);
 
-            BackColor = Color.White;
+            BackColor = AppTheme.BackgroundMain;
             _tooltip = new ToolTip
             {
                 InitialDelay = 300,
                 ReshowDelay = 100,
                 AutoPopDelay = 5000,
-                BackColor = Color.FromArgb(30, 41, 59),
+                BackColor = AppTheme.PrimaryDark,
                 ForeColor = Color.White,
                 OwnerDraw = true
             };
@@ -193,7 +194,7 @@ namespace study_document_manager.UI.Controls
             if (_items.Count == 0)
             {
                 using (var brush = new SolidBrush(AppTheme.TextMuted))
-                using (var font = new Font("Segoe UI", 11F))
+                using (var font = new Font(AppTheme.FontFamily, 11F))
                 {
                     var text = "Không có dữ liệu để hiển thị TreeMap";
                     var size = g.MeasureString(text, font);
@@ -275,9 +276,9 @@ namespace study_document_manager.UI.Controls
             {
                 if (isLarge)
                 {
-                    using (var titleFont = new Font("Segoe UI Semibold", 10F))
-                    using (var valueFont = new Font("Segoe UI", 20F, FontStyle.Bold))
-                    using (var pctFont = new Font("Segoe UI", 9F))
+                    using (var titleFont = new Font(AppTheme.FontFamily, 10F))
+                    using (var valueFont = new Font(AppTheme.FontFamily, 20F, FontStyle.Bold))
+                    using (var pctFont = new Font(AppTheme.FontFamily, 9F))
                     {
                         // Title at top
                         var titleSize = g.MeasureString(item.Label, titleFont, (int)padding.Width);
@@ -305,8 +306,8 @@ namespace study_document_manager.UI.Controls
                 }
                 else if (isMedium)
                 {
-                    using (var titleFont = new Font("Segoe UI Semibold", 8.5F))
-                    using (var valueFont = new Font("Segoe UI", 13F, FontStyle.Bold))
+                    using (var titleFont = new Font(AppTheme.FontFamily, 8.5F))
+                    using (var valueFont = new Font(AppTheme.FontFamily, 13F, FontStyle.Bold))
                     {
                         g.DrawString(item.Label, titleFont, semiWhite, padding,
                             new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
@@ -322,7 +323,7 @@ namespace study_document_manager.UI.Controls
                 }
                 else
                 {
-                    using (var smallFont = new Font("Segoe UI", 7.5F))
+                    using (var smallFont = new Font(AppTheme.FontFamily, 7.5F))
                     {
                         string shortLabel = ((int)item.Value).ToString();
                         var sf = new StringFormat
@@ -395,7 +396,7 @@ namespace study_document_manager.UI.Controls
         {
             var text = _tooltip.GetToolTip(this);
             if (string.IsNullOrEmpty(text)) return;
-            using (var font = new Font("Segoe UI", 9F))
+            using (var font = new Font(AppTheme.FontFamily, 9F))
             {
                 var size = TextRenderer.MeasureText(text, font);
                 e.ToolTipSize = new Size(size.Width + 20, size.Height + 12);
@@ -404,8 +405,8 @@ namespace study_document_manager.UI.Controls
 
         private void Tooltip_Draw(object sender, DrawToolTipEventArgs e)
         {
-            using (var bgBrush = new SolidBrush(Color.FromArgb(30, 41, 59)))
-            using (var font = new Font("Segoe UI", 9F))
+            using (var bgBrush = new SolidBrush(AppTheme.PrimaryDark))
+            using (var font = new Font(AppTheme.FontFamily, 9F))
             using (var textBrush = new SolidBrush(Color.White))
             {
                 var g = e.Graphics;

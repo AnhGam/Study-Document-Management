@@ -24,7 +24,7 @@ namespace study_document_manager
             // Header panel - Teal header
             headerPanel.BackColor = AppTheme.Primary;
             lblTitle.ForeColor = Color.White;
-            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblTitle.Font = new Font(AppTheme.FontFamily, 14F, FontStyle.Bold);
 
             // Close button
             btnClose.BackColor = AppTheme.StatusError;

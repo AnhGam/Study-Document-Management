@@ -26,7 +26,7 @@ namespace study_document_manager
             
             // Title
             lblTitle.ForeColor = AppTheme.Primary;
-            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblTitle.Font = new Font(AppTheme.FontFamily, 14F, FontStyle.Bold);
             
             // Buttons
             AppTheme.ApplyButtonPrimary(btnScan);
@@ -44,7 +44,7 @@ namespace study_document_manager
             lblProgress.ForeColor = AppTheme.TextSecondary;
             lblProgress.Font = AppTheme.FontSmall;
             lblSummary.ForeColor = AppTheme.Primary;
-            lblSummary.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            lblSummary.Font = new Font(AppTheme.FontFamily, 11F, FontStyle.Bold);
             
             // Progress bar
             progressBar.ForeColor = AppTheme.Primary;
