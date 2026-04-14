@@ -2,16 +2,23 @@
 # Script to send build error logs to Gemini API for analysis
 
 param(
-    [string]$LogFile,
+    [string]$LogFile = "error.log",
     [string]$ApiKey
 )
 
-if (-not $ApiKey) {
-    Write-Host "WARNING: GEMINI_API_KEY is missing. Skipping AI analysis."
+# Robust check for API Key before proceeding
+if (-not $ApiKey -or $ApiKey -eq "" -or $ApiKey -eq "`"`"") {
+    Write-Host "WARNING: GEMINI_API_KEY is missing or empty. Skipping AI analysis to avoid pipeline crash."
     exit 0
 }
 
-Write-Host "--- Sending error logs to Gemini 1.5 Pro for analysis ---"
+Write-Host "--- Sending error logs to Gemini Analyst (Flash Latest) ---"
+
+# Ensure log file exists
+if (-not (Test-Path $LogFile)) {
+    # If no log file, create a dummy one for analysis context
+    "No build error log found. The build might have failed in a step that did not generate a log file." | Out-File $LogFile
+}
 
 $logContent = Get-Content $LogFile -Tail 100 | Out-String
 $prompt = @"
@@ -32,7 +39,6 @@ $body = @{
     )
 } | ConvertTo-Json -Depth 10
 
-# Using x-goog-api-key header for better stability
 $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
 $headers = @{
     "x-goog-api-key" = $ApiKey
@@ -43,16 +49,10 @@ try {
     $response = Invoke-RestMethod -Uri $apiUrl -Method Post -Headers $headers -Body $body
     $analysis = $response.candidates[0].content.parts[0].text
     
-    Write-Host "`nAI ANALYSIS (GEMINI 1.5 PRO):`n"
+    Write-Host "`nAI ANALYSIS:`n"
     Write-Host $analysis
     
-    # Save to file for GitHub summary
     $analysis | Out-File "ai_analysis.md"
 } catch {
     Write-Host "ERROR: Failed to call Gemini API: $_"
-    if ($_.Exception.Response) {
-        $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
-        $errorBody = $reader.ReadToEnd()
-        Write-Host "Details: $errorBody"
-    }
 }
