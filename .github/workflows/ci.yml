@@ -1,4 +1,4 @@
-name: CI
+name: Super CI/CD Pipeline
 
 on:
   push:
@@ -8,71 +8,121 @@ on:
 
 env:
   SOLUTION_FILE: study-document-manager.sln
-  PROJECT_FILE: study-document-manager/study-document-manager.csproj
   BUILD_CONFIGURATION: Release
 
 jobs:
-  check:
-    name: Check & Build
-    runs-on: windows-latest
-
+  security-and-lint:
+    name: Security and Linting
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v2
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
         with:
-          path: ~/.nuget/packages
-          key: nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: nuget-
+          fetch-depth: 0
 
-      - name: Restore NuGet packages
-        run: nuget restore ${{ env.SOLUTION_FILE }}
+      - name: Secret Scanner (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build solution
-        run: msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform="Any CPU" /t:Rebuild /p:TreatWarningsAsErrors=false
+  build-and-test:
+    name: Build and Advanced Testing
+    needs: security-and-lint
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Upload build artifacts
+      - name: Setup Environment
+        uses: microsoft/setup-msbuild@v2
+      
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore and Optimize Assets
+        run: |
+          nuget restore ${{ env.SOLUTION_FILE }}
+          powershell ./scripts/optimize-assets.ps1
+
+      - name: Dependency Audit and Groq AI
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          dotnet list ${{ env.SOLUTION_FILE }} package --vulnerable > audit_log.txt || true
+          powershell ./scripts/security-auditor-groq.ps1 -AuditLog audit_log.txt -ApiKey "${{ env.GROQ_API_KEY }}"
+
+      - name: Run Advanced Tests (NUnit)
+        run: |
+          dotnet test ${{ env.SOLUTION_FILE }} --configuration ${{ env.BUILD_CONFIGURATION }} --logger "trx;LogFileName=test_results.trx"
+        continue-on-error: true
+
+      - name: Mutation Testing (Stryker)
+        run: |
+          dotnet tool install -g dotnet-stryker
+          cd study-document-manager.Tests
+          dotnet stryker --solution ../${{ env.SOLUTION_FILE }}
+        continue-on-error: true
+
+      - name: Build Solution (Zero Warning Policy)
+        run: msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform="Any CPU" /t:Rebuild /p:TreatWarningsAsErrors=true
+
+      - name: Build Installer (Inno Setup)
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup.iss
+          powershell -Command "if (Test-Path 'installer/*.exe') { Write-Host 'Installer Success' } else { exit 1 }"
+
+      - name: AI Build Failure Analysis (Gemini)
+        if: failure()
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: powershell ./scripts/ai-log-analyzer.ps1 -ApiKey "${{ env.GEMINI_API_KEY }}"
+
+      - name: PR Review (GitHub Models)
+        if: github.event_name == 'pull_request'
+        env:
+          GH_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git diff origin/${{ github.base_ref }} HEAD > pr_diff.txt
+          powershell ./scripts/pr-reviewer-github.ps1 -DiffFile pr_diff.txt -Token "${{ env.GH_MODELS_TOKEN }}"
+
+      - name: Archive Build Reports (GitOps)
+        if: always()
+        env:
+          REPO_URL: "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+        run: |
+          powershell ./scripts/publish-reports.ps1 -RepoUrl "${{ env.REPO_URL }}" -CommitSha "${{ github.sha }}" -RunId "${{ github.run_id }}" -BuildStatus "${{ job.status }}"
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-output-${{ github.sha }}
+          name: study-document-manager-v${{ github.run_number }}
           path: |
-            study-document-manager/bin/Release/
-            !study-document-manager/bin/Release/*.pdb
-            !study-document-manager/bin/Release/*.xml
+            installer/*.exe
+            study-document-manager.Tests/StrykerOutput/
+            *.md
           retention-days: 7
 
   notify:
     name: Discord Notification
-    needs: check
+    needs: build-and-test
     runs-on: ubuntu-latest
-    if: always() && github.event_name == 'push'
-
+    if: always()
     steps:
-      - name: Discord notification (success)
-        if: ${{ needs.check.result == 'success' }}
+      - name: Discord Webhook 2.0
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
           if [ -n "$DISCORD_WEBHOOK" ]; then
+            STATUS="${{ needs.build-and-test.result }}"
+            COLOR=3066993
+            if [ "$STATUS" != "success" ]; then COLOR=15158332; fi
+            
             curl -H "Content-Type: application/json" \
-              -d "{\"embeds\": [{\"title\": \"✅ Study Document Manager Build Passed\", \"description\": \"**Branch:** \`${{ github.ref_name }}\`\n**Commit:** [\`${GITHUB_SHA::7}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\n**Author:** ${{ github.actor }}\n\n📦 Artifacts ready for download\", \"color\": 3066993}]}" \
-              $DISCORD_WEBHOOK
-          fi
-
-      - name: Discord notification (failure)
-        if: ${{ needs.check.result == 'failure' }}
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        run: |
-          if [ -n "$DISCORD_WEBHOOK" ]; then
-            curl -H "Content-Type: application/json" \
-              -d "{\"embeds\": [{\"title\": \"❌ Study Document Manager Build Failed\", \"description\": \"**Branch:** \`${{ github.ref_name }}\`\n**Commit:** [\`${GITHUB_SHA::7}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\n**Author:** ${{ github.actor }}\n\n[View Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"color\": 15158332}]}" \
+              -d "{\"embeds\": [{\"title\": \"Build Status: $STATUS\", \"description\": \"**Project:** Study Document Manager\n**Version:** Automated by MinVer\n**Author:** ${{ github.actor }}\n**Commit:** ${{ github.sha }}\n\n[Download Artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"color\": $COLOR}]}" \
               $DISCORD_WEBHOOK
           fi
